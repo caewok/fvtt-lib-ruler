@@ -1,4 +1,4 @@
-import { registerRuler } from "./patching.js";
+import { registerLibRuler } from "./patching.js";
 
 export const MODULE_ID = 'lib-ruler';
 const FORCE_DEBUG = true; // used for logging before dev mode is set up

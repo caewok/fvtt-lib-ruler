@@ -5,7 +5,7 @@ import { libRulerGetFlag,
          libRulerUnsetFlag
        } from "./ruler-flags.js";
 
-export function registerRuler() {
+export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');  
   log("registerRuler finished!");
 }
