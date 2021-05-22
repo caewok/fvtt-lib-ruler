@@ -113,7 +113,7 @@ export function libRulerMeasureSetDestination(destination) {
  * 
  */
 export function libRulerConstructSegmentDistanceRay(origin, dest) {
-	new Ray(origin, dest);
+	return new Ray(origin, dest);
 }
 
 /* 
@@ -128,7 +128,7 @@ export function libRulerConstructSegmentDistanceRay(origin, dest) {
  * 
  */
 export function libRulerConstructSegmentHighlightRay(origin, dest) {
-	new Ray(origin, dest);
+	return new Ray(origin, dest);
 }
 
 /* 
