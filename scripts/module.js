@@ -1,3 +1,5 @@
+import { registerRuler } from "./patching.js";
+
 export const MODULE_ID = 'lib-ruler';
 const FORCE_DEBUG = true; // used for logging before dev mode is set up
 
@@ -25,8 +27,9 @@ export function log(...args) {
 // but all of the core foundry code has been loaded.
 Hooks.once('init', async function() {
 		log("Initializing libRuler.");
-		log(`Is lib-wrapper available? ${game.modules.get('lib-wrapper')?.active}`);
-
+		if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
+		
+		registerLibRuler();
 });
 
 // setup is after init; before ready. 
@@ -34,12 +37,10 @@ Hooks.once('init', async function() {
 // but before entities, packs, UI, canvas, etc. has been initialized
 Hooks.once('setup', async function() {
 		log("libRuler ready.");
-		log(`Is lib-wrapper available? ${game.modules.get('lib-wrapper')?.active}`);
 });
 
 // modules ready
 // ready is called once everything is loaded up and ready to go.
 Hooks.once('ready', async function() {
 		log("libRuler ready.");
-		log(`Is lib-wrapper available? ${game.modules.get('lib-wrapper')?.active}`);
 });
