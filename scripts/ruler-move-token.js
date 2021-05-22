@@ -42,7 +42,7 @@ export async function libRulerMoveToken() {
     token._noAnimate = true;
     for ( let [i, r] of rays.entries ) {
       if ( !wasPaused && game.paused ) break;
-      await this.animateToken(r, i + 1); // increment by 1 b/c first segment is 1.
+      await this.animateToken(token, r, i + 1); // increment by 1 b/c first segment is 1.
     }
     token._noAnimate = false;
     // Once all animations are complete we can clear the ruler
@@ -78,6 +78,7 @@ export function libRulerTestForCollision(rays) {
  *    and segment_num will never be 0.
  */
 export async function libRulerAnimateToken(token, ray, segment_num) {
+  log(`Animating token for segment_num ${segment_num}`);
   const dest = canvas.grid.getTopLeft(r.B.x, r.B.y);
   const path = new Ray({x: token.x, y: token.y}, {x: dest[0] + dx, y: dest[1] + dy});
   await token.update(path.B);
