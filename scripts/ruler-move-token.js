@@ -66,7 +66,8 @@ export function libRulerTestForCollision(rays) {
  *
  * This method moves the token along the ruler.
  *
- * @param {Ray} ray indicating the segment that should be moved.
+ * @param {Token} token The token that is being animated.
+ * @param {Ray} ray The ray indicating the segment that should be moved.
  * @param {integer} segment_num The segment number, where 1 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
@@ -76,7 +77,7 @@ export function libRulerTestForCollision(rays) {
  *    the first waypoint in this.waypoints is actually the origin 
  *    and segment_num will never be 0.
  */
-export async function libRulerAnimateToken(ray, segment_num) {
+export async function libRulerAnimateToken(token, ray, segment_num) {
   const dest = canvas.grid.getTopLeft(r.B.x, r.B.y);
   const path = new Ray({x: token.x, y: token.y}, {x: dest[0] + dx, y: dest[1] + dy});
   await token.update(path.B);
