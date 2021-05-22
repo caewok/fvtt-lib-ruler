@@ -203,8 +203,6 @@ export function libRulerDrawSegmentEndpoints(waypoint) {
  * 
  * waypoint_num is not used in the default implementation.
  * 
- * 
- * 
  * @param {number} segmentDistance
  * @param {number} totalDistance
  * @param {boolean} isTotal
@@ -217,9 +215,8 @@ export function libRulerDrawSegmentEndpoints(waypoint) {
  *    the first waypoint in this.waypoints is actually the origin 
  *    and segment_num will never be 0.
  * @return {string} Text label displayed in the rule to indicate distance traveled.
- 
  */
-export function libRulerGetSegmentLabel(segmentDistance, totalDistance, totalDistance, segment_num) {
+export function libRulerGetSegmentLabel(segmentDistance, totalDistance, isTotal, segment_num) {
   return this._getSegmentLabel(segmentDistance, totalDistance, isTotal);
 }
 
