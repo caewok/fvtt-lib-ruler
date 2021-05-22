@@ -1,3 +1,5 @@
+import { log } from "./module.js";
+
 // Flag methods for the Ruler class
 // Closely mimic PlaceableObject or other flag methods in Foundry.
   
