@@ -31,7 +31,6 @@ Object.defineProperty(Ruler.prototype, "setFlag", {
 /*
  * Add unsetFlag method to Ruler class.
  */
- */
 Object.defineProperty(Ruler.prototype, "unsetFlag", {
   value: libRulerUnsetFlag,
   writable: true,
