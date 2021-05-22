@@ -27,15 +27,14 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		const origin = waypoints[i];
 		const label = this.labels.children[i];
 		
-		const ray = this.constructSegmentDistanceRay(origin, dest);
+		const ray = this.constructSegmentDistanceRay(origin, dest, i + 1);
 		
 		if ( ray.distance < 10 ) {
 			if ( label ) label.visible = false;
 			continue;
 		}
 		
-		const highlight_ray = this.constructSegmentHighlightRay(origin, dest);
-		
+		const highlight_ray = this.constructSegmentHighlightRay(origin, dest, i + 1);
 		segments.push({ray, label, highlight_ray});
 	}
 	
@@ -54,7 +53,7 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		let s = segments[i];
 		s.last = i === (segments.length - 1);
 		s.distance = d;
-		s.text = this._getSegmentLabel(d, totalDistance, s.last);
+		s.text = this.getSegmentLabel(d, totalDistance, s.last, i + 1);
 	}
   
   log("Segments after distance measure", segments);
@@ -108,11 +107,19 @@ export function libRulerMeasureSetDestination(destination) {
  * Ray used to represent the path traveled between origin and destination.
  * Default: straight line between the origin and destination.
  * But the ray created not necessarily equal to the straight line between.
- * @param origin PIXI.Point
- * @param dest PIXI.Point
- * 
+ *
+ * @param {PIXI.Point} origin Where the segment starts on the canvas.
+ * @param {PIXI.Point} dest PIXI.Point Where the segment ends on the canvas
+ * @param {integer} segment_num The segment number, where 1 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The segment_num can also be considered the waypoint number, equal to the index 
+ *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
+ *    the first waypoint in this.waypoints is actually the origin 
+ *    and segment_num will never be 0.
  */
-export function libRulerConstructSegmentDistanceRay(origin, dest) {
+export function libRulerConstructSegmentDistanceRay(origin, dest, segment_num) {
 	return new Ray(origin, dest);
 }
 
@@ -123,11 +130,19 @@ export function libRulerConstructSegmentDistanceRay(origin, dest) {
  *   between origin and destination.
  * Default: straight line between the origin and destination.
  * But the ray created not necessarily equal to the straight line between.
- * @param origin PIXI.Point
- * @param dest PIXI.Point
  * 
+ * @param {PIXI.Point} origin Where the segment starts on the canvas.
+ * @param {PIXI.Point} dest PIXI.Point Where the segment ends on the canvas
+ * @param {integer} segment_num The segment number, where 1 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The segment_num can also be considered the waypoint number, equal to the index 
+ *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
+ *    the first waypoint in this.waypoints is actually the origin 
+ *    and segment_num will never be 0.
  */
-export function libRulerConstructSegmentHighlightRay(origin, dest) {
+export function libRulerConstructSegmentHighlightRay(origin, dest, segment_num) {
 	return new Ray(origin, dest);
 }
 
@@ -180,6 +195,33 @@ export function libRulerDrawSegmentEndpoints(waypoint) {
   this.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(waypoint.x, waypoint.y, 8);
 }
 
+/*
+ * For method getSegmentLabel
+ * 
+ * Adds an index number for other modules to reference as necessary
+ * For default, calls _getSegmentLabel() as in the base code.
+ * 
+ * waypoint_num is not used in the default implementation.
+ * 
+ * 
+ * 
+ * @param {number} segmentDistance
+ * @param {number} totalDistance
+ * @param {boolean} isTotal
+ * @param {integer} segment_num The segment number, where 1 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The segment_num can also be considered the waypoint number, equal to the index 
+ *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
+ *    the first waypoint in this.waypoints is actually the origin 
+ *    and segment_num will never be 0.
+ * @return {string} Text label displayed in the rule to indicate distance traveled.
+ 
+ */
+export function libRulerGetSegmentLabel(segmentDistance, totalDistance, totalDistance, segment_num) {
+  return this._getSegmentLabel(segmentDistance, totalDistance, isTotal);
+}
 
 
 
