@@ -97,3 +97,5 @@ export function libRulerMeasureSetDestination(destination) {
 
 /* 
  * For method measureWaypoint
+ * 
+ */
