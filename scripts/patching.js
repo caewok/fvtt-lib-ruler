@@ -12,11 +12,15 @@ import { libRulerMeasure,
        
 import { libRulerGetFlag,
          libRulerSetFlag,
-         libRulerUnsetFlag
+         libRulerUnsetFlag,
+         libRulerToJSON,
+         libRulerUpdate
        } from "./ruler-flags.js";
 
 export function registerLibRuler() {
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');  
+  libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPED');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPED');
   log("registerRuler finished!");
 }
 
