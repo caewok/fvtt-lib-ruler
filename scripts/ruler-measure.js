@@ -22,7 +22,7 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 	const r = this.ruler;
 	
 	// Iterate over waypoints and construct segment rays
-	const segments = [];
+	let segments = [];
 	for ( let [i, dest] of waypoints.slice(1).entries() ) {
 		const origin = waypoints[i];
 		const label = this.labels.children[i];
