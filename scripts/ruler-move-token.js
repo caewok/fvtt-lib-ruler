@@ -21,6 +21,7 @@ export async function libRulerMoveToken() {
     if ( !this.visible || !this.destination ) return false;
     const token = this._getMovementToken();
     if ( !token ) return;
+    log("token", token);
     
     // Get the movement rays and check collision along each Ray
     // These rays are center-to-center for the purposes of collision checking
