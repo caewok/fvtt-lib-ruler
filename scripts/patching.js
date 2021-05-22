@@ -13,6 +13,7 @@ export function registerLibRuler() {
 /*
  * Add getFlag method to Ruler class.
  */
+
 Object.defineProperty(Ruler.prototype, "getFlag", {
   value: libRulerGetFlag,
   writable: true,
@@ -22,6 +23,7 @@ Object.defineProperty(Ruler.prototype, "getFlag", {
 /*
  * Add setFlag method  to Ruler class.
  */ 
+
 Object.defineProperty(Ruler.prototype, "setFlag", {
   value: libRulerSetFlag,
   writable: true,
@@ -31,8 +33,10 @@ Object.defineProperty(Ruler.prototype, "setFlag", {
 /*
  * Add unsetFlag method to Ruler class.
  */
+
 Object.defineProperty(Ruler.prototype, "unsetFlag", {
   value: libRulerUnsetFlag,
   writable: true,
   configurable: true
 });  
+

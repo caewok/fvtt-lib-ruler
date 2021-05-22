@@ -28,15 +28,15 @@ export function log(...args) {
 Hooks.once('init', async function() {
 		log("Initializing libRuler.");
 		if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
-		
-		registerLibRuler();
+  		registerLibRuler();		
 });
 
 // setup is after init; before ready. 
 // setup is called after settings and localization have been initialized, 
 // but before entities, packs, UI, canvas, etc. has been initialized
 Hooks.once('setup', async function() {
-		log("libRuler ready.");
+		log("libRuler setup.");
+
 });
 
 // modules ready

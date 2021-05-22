@@ -37,8 +37,16 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		s.text = this._getSegmentLabel(d, totalDistance, s.last);
 	}
 	// Clear the grid highlight layer
-	const hlt = canvas.grid.highlightLayers[this.name];
-	hlt.clear();
+
+  // Unclear why this check is necessary; not needed in original.
+  if(!canvas.grid.highlightLayers.hasOwnProperty(this.name)) {
+    log(`canvas.grid.highlightLayers does not include ${this.name}; adding.`);
+    canvas.grid.addHighlightLayer(this.name);
+  }
+
+  log("canvas.grid.highlightLayers", canvas.grid.highlightLayers); 
+  const hlt = canvas.grid.highlightLayers[this.name];
+  hlt.clear();
 	// Draw measured path
 	r.clear();
 	for ( let s of segments ) {
