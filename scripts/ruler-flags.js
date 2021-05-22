@@ -10,7 +10,7 @@
  * @param {string} key      The flag key
  * @return {*}              The flag value
  */
-export libRulerGetFlag(scope, key) {
+export function libRulerGetFlag(scope, key) {
 	const scopes = SetupConfiguration.getPackageScopes();
 	if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
 	key = `${scope}.${key}`;
@@ -38,7 +38,7 @@ export libRulerGetFlag(scope, key) {
  */
 
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
-export libRulerSetFlag(scope, key, value) {
+export function libRulerSetFlag(scope, key, value) {
 	const scopes = SetupConfiguration.getPackageScopes();
 	if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
 	key = `flags.${scope}.${key}`;
@@ -52,7 +52,7 @@ export libRulerSetFlag(scope, key, value) {
  * @return {Promise}        A Promise resolving to the updated Entity
  */
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
-export libRulerUnsetFlag(scope, key) {
+export function libRulerUnsetFlag(scope, key) {
 	const scopes = SetupConfiguration.getPackageScopes();
 	if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
 	key = `flags.${scope}.-=${key}`;
