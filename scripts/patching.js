@@ -4,10 +4,7 @@ import { libRulerMeasure,
          libRulerMeasureSetDestination,
          libRulerConstructSegmentDistanceRay,
          libRulerConstructSegmentHighlightRay,
-<<<<<<< HEAD
          libRulerCheckCreatedSegments,
-=======
->>>>>>> break-up-measure-function
          libRulerDrawLineSegment,
          libRulerDrawDistanceSegmentLabel,
          libRulerDrawSegmentEndpoints
