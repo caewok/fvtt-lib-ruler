@@ -17,6 +17,10 @@ import { libRulerGetFlag,
          libRulerToJSON,
          libRulerUpdate
        } from "./ruler-flags.js";
+       
+import { libRulerTestForCollision,
+         libRulerAnimateToken 
+       } from "./ruler-move-token.js";
 
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
@@ -125,6 +129,25 @@ Object.defineProperty(Ruler.prototype, "drawSegmentEndpoints", {
  */
 Object.defineProperty(Ruler.prototype, "getSegmentLabel", {
   value: libRulerGetSegmentLabel,
+  writable: true,
+  configurable: true
+});
+
+// ---------------- RULER.MOVETOKEN ------------- // 
+/*
+ * Add method testForCollision for Ruler.moveToke
+ */
+Object.defineProperty(Ruler.prototype, "testForCollision", {
+  value: libRulerTestForCollision,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method animateToken for Ruler.moveToken
+ */
+Object.defineProperty(Ruler.prototype, "animateToken", {
+  value: libRulerAnimateToken,
   writable: true,
   configurable: true
 });
