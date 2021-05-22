@@ -8,6 +8,8 @@ import { log } from "./module.js";
  * @param {boolean} gridSpaces      Restrict measurement only to grid spaces
  */
 export function libRulerMeasure(destination, {gridSpaces=true}={}) {
+  log("We are measuring!", this);
+
 	destination = new PIXI.Point(...canvas.grid.getCenter(destination.x, destination.y));
 	const waypoints = this.waypoints.concat([destination]);
 	const r = this.ruler;
