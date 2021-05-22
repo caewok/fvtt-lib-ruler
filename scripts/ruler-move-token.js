@@ -86,7 +86,7 @@ export function libRulerTestForCollision(rays) {
 export async function libRulerAnimateToken(token, ray, dx, dy, segment_num) {
   log(`Animating token for segment_num ${segment_num}`);
   const dest = canvas.grid.getTopLeft(ray.B.x, ray.B.y);
-  const path = new Ray({x: token.x, y: token.y}, {x: dest[0] + dx, y: dest[1] + dy});
+  const path = new Ray({x: token.data.x, y: token.data.y}, {x: dest[0] + dx, y: dest[1] + dy});
   await token.update(path.B);
   await token.animateMovement(path);
 }
