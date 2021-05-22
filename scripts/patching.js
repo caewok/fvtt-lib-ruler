@@ -1,7 +1,15 @@
 import { MODULE_ID, log } from "./module.js";
+
 import { libRulerMeasure,
-         libRulerMeasureSetDestination
+         libRulerMeasureSetDestination,
+         libRulerConstructSegmentDistanceRay,
+         libRulerConstructSegmentHighlightRay,
+         libRulerCheckCreatedSegments,
+         libRulerDrawLineSegment,
+         libRulerDrawDistanceSegmentLabel,
+         libRulerDrawSegmentEndpoints
        } from "./ruler-measure.js";
+       
 import { libRulerGetFlag,
          libRulerSetFlag,
          libRulerUnsetFlag
@@ -52,4 +60,60 @@ Object.defineProperty(Ruler.prototype, "setDestination", {
   writable: true,
   configurable: true
 });
+
+/*
+ * Add method constructSegmentDistanceRay for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "constructSegmentDistanceRay", {
+  value: libRulerConstructSegmentDistanceRay,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method constructSegmentHighlightRay for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "constructSegmentHighlightRay", {
+  value: libRulerConstructSegmentHighlightRay,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method checkCreatedSegments for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "checkCreatedSegments", {
+  value: libRulerCheckCreatedSegments,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method drawLineSegment for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "drawLineSegment", {
+  value: libRulerDrawLineSegment,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method drawDistanceSegmentLabel for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "drawDistanceSegmentLabel", {
+  value: libRulerDrawDistanceSegmentLabel,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method drawSegmentEndpoints for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "drawSegmentEndpoints", {
+  value: libRulerDrawSegmentEndpoints,
+  writable: true,
+  configurable: true
+});
+
+
 
