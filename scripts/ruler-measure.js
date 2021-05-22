@@ -150,7 +150,7 @@ export function libRulerCheckCreatedSegments(segments) {
  */
 export function libRulerDrawLineSegment(ray) {
   this.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
-		 .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, highlight_ray.A.y).lineTo(ray.B.x, ray.B.y);
+		 .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
 }
 
 /* 
