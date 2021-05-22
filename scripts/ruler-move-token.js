@@ -21,12 +21,7 @@ export async function libRulerMoveToken() {
     if ( !this.visible || !this.destination ) return false;
     const token = this._getMovementToken();
     if ( !token ) return;
-    // Determine offset relative to the Token top-left.
-    // This is important so we can position the token relative to the ruler origin for non-1x1 tokens.
-    const origin = canvas.grid.getTopLeft(this.waypoints[0].x, this.waypoints[0].y);
-    const s2 = canvas.dimensions.size / 2;
-    const dx = Math.round((token.data.x - origin[0]) / s2) * s2;
-    const dy = Math.round((token.data.y - origin[1]) / s2) * s2;
+    
     // Get the movement rays and check collision along each Ray
     // These rays are center-to-center for the purposes of collision checking
     const rays = this._getRaysFromWaypoints(this.waypoints, this.destination);
@@ -41,9 +36,17 @@ export async function libRulerMoveToken() {
     this._state = Ruler.STATES.MOVING;
     token._noAnimate = true;
     log("rays", rays);
+    
+    // Determine offset relative to the Token top-left.
+    // This is important so we can position the token relative to the ruler origin for non-1x1 tokens.
+    const origin = canvas.grid.getTopLeft(this.waypoints[0].x, this.waypoints[0].y);
+    const s2 = canvas.dimensions.size / 2;
+    const dx = Math.round((token.data.x - origin[0]) / s2) * s2;
+    const dy = Math.round((token.data.y - origin[1]) / s2) * s2;
+    
     for ( let [i, r] of rays.entries() ) {
       if ( !wasPaused && game.paused ) break;
-      await this.animateToken(token, r, i + 1); // increment by 1 b/c first segment is 1.
+      await this.animateToken(token, r, dx, dy, i + 1); // increment by 1 b/c first segment is 1.
     }
     token._noAnimate = false;
     // Once all animations are complete we can clear the ruler
@@ -69,6 +72,8 @@ export function libRulerTestForCollision(rays) {
  *
  * @param {Token} token The token that is being animated.
  * @param {Ray} ray The ray indicating the segment that should be moved.
+ * @param {number} dx Offset in x direction relative to the Token top-left.
+ * @param {number} dy Offset in y direction relative to the Token top-left.
  * @param {integer} segment_num The segment number, where 1 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
@@ -78,7 +83,7 @@ export function libRulerTestForCollision(rays) {
  *    the first waypoint in this.waypoints is actually the origin 
  *    and segment_num will never be 0.
  */
-export async function libRulerAnimateToken(token, ray, segment_num) {
+export async function libRulerAnimateToken(token, ray, dx, dy, segment_num) {
   log(`Animating token for segment_num ${segment_num}`);
   const dest = canvas.grid.getTopLeft(ray.B.x, ray.B.y);
   const path = new Ray({x: token.x, y: token.y}, {x: dest[0] + dx, y: dest[1] + dy});
