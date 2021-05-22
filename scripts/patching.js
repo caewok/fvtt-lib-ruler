@@ -1,5 +1,7 @@
 import { MODULE_ID, log } from "./module.js";
-import { libRulerMeasure } from "./ruler-measure.js";
+import { libRulerMeasure,
+         libRulerMeasureSetDestination
+       } from "./ruler-measure.js";
 import { libRulerGetFlag,
          libRulerSetFlag,
          libRulerUnsetFlag
@@ -10,6 +12,7 @@ export function registerLibRuler() {
   log("registerRuler finished!");
 }
 
+// ---------------- FLAGS ------------- // 
 /*
  * Add getFlag method to Ruler class.
  */
@@ -39,4 +42,14 @@ Object.defineProperty(Ruler.prototype, "unsetFlag", {
   writable: true,
   configurable: true
 });  
+
+// ---------------- RULER.MEASURE ------------- // 
+/*
+ * Add method setDestination for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "setDestination", {
+  value: libRulerMeasureSetDestination,
+  writable: true,
+  configurable: true
+});
 

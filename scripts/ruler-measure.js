@@ -6,14 +6,21 @@ import { log } from "./module.js";
  * Measure the distance between two points and render the ruler UI to illustrate it
  * @param {PIXI.Point} destination  The destination point to which to measure
  * @param {boolean} gridSpaces      Restrict measurement only to grid spaces
+ * (1) Set destination
+ * (2) Construct segment rays for distance measurement and for highlighting / moving
+ * (3) Compute measured distance
+ * (4) Construct segment labels
+ * (5) Draw path and endpoints
+ * (6) Return segments
  */
 export function libRulerMeasure(destination, {gridSpaces=true}={}) {
   log("We are measuring!", this);
 
-	destination = new PIXI.Point(...canvas.grid.getCenter(destination.x, destination.y));
-	const waypoints = this.waypoints.concat([destination]);
+	this.setDestination(destination);
+	
+	const waypoints = this.waypoints.concat([this.destination]);
 	const r = this.ruler;
-	this.destination = destination;
+	
 	// Iterate over waypoints and construct segment rays
 	const segments = [];
 	for ( let [i, dest] of waypoints.slice(1).entries() ) {
@@ -26,6 +33,9 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		}
 		segments.push({ray, label});
 	}
+	
+	log("Segments", segments);
+	
 	// Compute measured distance
 	const distances = canvas.grid.measureDistances(segments, {gridSpaces});
 	let totalDistance = 0;
@@ -36,8 +46,11 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		s.distance = d;
 		s.text = this._getSegmentLabel(d, totalDistance, s.last);
 	}
+  
+  log("Segments after distance measure", segments);
+  log("Distances", distances);
+ 
 	// Clear the grid highlight layer
-
   // Unclear why this check is necessary; not needed in original.
   if(!canvas.grid.highlightLayers.hasOwnProperty(this.name)) {
     log(`canvas.grid.highlightLayers does not include ${this.name}; adding.`);
@@ -72,3 +85,17 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 	// Return the measured segments
 	return segments;
 }
+
+/*
+ * For method setDestination
+ * @param {PIXI.Point} destination  The destination point to which to measure
+ */
+export function libRulerMeasureSetDestination(destination) {
+  destination = new PIXI.Point(...canvas.grid.getCenter(destination.x, destination.y));
+  this.destination = destination;
+}
+
+/* 
+ * For method measureWaypoint
+ * 
+ */
