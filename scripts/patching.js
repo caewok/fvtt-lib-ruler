@@ -7,7 +7,8 @@ import { libRulerMeasure,
          libRulerCheckCreatedSegments,
          libRulerDrawLineSegment,
          libRulerDrawDistanceSegmentLabel,
-         libRulerDrawSegmentEndpoints
+         libRulerDrawSegmentEndpoints,
+         libRulerGetSegmentLabel
        } from "./ruler-measure.js";
        
 import { libRulerGetFlag,
@@ -119,5 +120,12 @@ Object.defineProperty(Ruler.prototype, "drawSegmentEndpoints", {
   configurable: true
 });
 
-
+/*
+ * Add method getSegmentLabel for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "getSegmentLabel", {
+  value: libRulerGetSegmentLabel,
+  writable: true,
+  configurable: true
+});
 
