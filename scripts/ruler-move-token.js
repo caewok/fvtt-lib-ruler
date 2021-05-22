@@ -40,7 +40,8 @@ export async function libRulerMoveToken() {
     // Transform each center-to-center ray into a top-left to top-left ray using the prior token offsets.
     this._state = Ruler.STATES.MOVING;
     token._noAnimate = true;
-    for ( let [i, r] of rays.entries ) {
+    log("rays", rays);
+    for ( let [i, r] of rays.entries() ) {
       if ( !wasPaused && game.paused ) break;
       await this.animateToken(token, r, i + 1); // increment by 1 b/c first segment is 1.
     }
