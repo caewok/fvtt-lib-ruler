@@ -3,7 +3,7 @@
   "title": "libRuler",
   "description": "Library for accessing the Ruler Class in Foundry across modules.",
   "version": "This is auto replaced",
-  "library": "true",
+  "library": true,
   "manifestPlusVersion": "1.0.0",
   "minimumCoreVersion": "0.7.9",
   "compatibleCoreVersion": "0.7.9",
@@ -27,7 +27,7 @@
      {
       "name": "lib-wrapper",
       "manifest": "https://raw.githubusercontent.com/ruipin/fvtt-lib-wrapper/master/module.json"
-     },
+     }
   ],
   "conflicts": [
     
