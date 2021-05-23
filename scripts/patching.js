@@ -8,7 +8,11 @@ import { libRulerMeasure,
          libRulerDrawLineSegment,
          libRulerDrawDistanceSegmentLabel,
          libRulerDrawSegmentEndpoints,
-         libRulerGetSegmentLabel
+         libRulerGetSegmentLabel,
+         
+         libRulerHighlightMeasurement,
+         libRulerGetColor,
+         libRulerHighlightPosition
        } from "./ruler-measure.js";
        
 import { libRulerGetFlag,
@@ -26,6 +30,8 @@ import { libRulerMoveToken,
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', libRulerHighlightMeasurement, 'OVERRIDE');
+  
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
 
@@ -132,6 +138,25 @@ Object.defineProperty(Ruler.prototype, "drawSegmentEndpoints", {
  */
 Object.defineProperty(Ruler.prototype, "getSegmentLabel", {
   value: libRulerGetSegmentLabel,
+  writable: true,
+  configurable: true
+});
+
+// ---------------- RULER._HIGHLIGHTMEASUREMENT ------------- // 
+/*
+ * Add method getColor for Ruler._highlightMeasurement
+ */
+Object.defineProperty(Ruler.prototype, "getColor", {
+  value: libRulerGetColor,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method highlightPosition for Ruler._highlightMeasurement
+ */
+Object.defineProperty(Ruler.prototype, "highlightPosition", {
+  value: libRulerHighlightPosition,
   writable: true,
   configurable: true
 });

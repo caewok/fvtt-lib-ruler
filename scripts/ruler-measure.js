@@ -73,8 +73,8 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
   hlt.clear();
 	// Draw measured path
 	r.clear();
-	for ( let s of segments ) {
-		const {highlight_ray, label, text, last} = s;
+	for ( let [s, i] of segments.entries() ) {
+		const {highlight_ray, label, text, last, distance_ray} = s;
 		// Draw line segment
 		this.drawLineSegment(highlight_ray);
 		
@@ -82,7 +82,7 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		this.drawDistanceSegmentLabel(label, text, last, highlight_ray);
 		
 		// Highlight grid positions
-		this._highlightMeasurement(highlight_ray);
+		this._highlightMeasurement(highlight_ray, distance_ray, i + 1);
 	}
 	// Draw endpoints
 	for ( let p of waypoints ) {
@@ -220,6 +220,100 @@ export function libRulerGetSegmentLabel(segmentDistance, totalDistance, isTotal,
   return this._getSegmentLabel(segmentDistance, totalDistance, isTotal);
 }
 
+
+/* 
+ * For method highlightMeasurement
+ *
+ * Expanded version of _highlightMeasurement.
+ * @param {Ray} highlight_ray Ray representing the path from origin to destination on the canvas for a segment
+ * @param {Ray} distance_ray Ray representing the distance moved for the segment. May or may not equal highlight ray
+ * @param {integer} segment_num The segment number, where 1 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The segment_num can also be considered the waypoint number, equal to the index 
+ *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
+ *    the first waypoint in this.waypoints is actually the origin 
+ *    and segment_num will never be 0.
+ */
+export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segment_num) {
+  // In the default setup, highlight ray is the ray that is measured
+  
+	const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
+	const nMax = Math.max(Math.floor(highlight_ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
+	const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
+	
+	// Track prior position
+	let prior = null;
+	
+	// Iterate over ray portions
+	for ( let [i, t] of tMax.entries() ) {
+		let {x, y} = highlight_ray.project(t);
+		
+		// Get grid position
+		let [x0, y0] = (i === 0) ? [null, null] : prior;
+		let [x1, y1] = canvas.grid.grid.getGridPositionFromPixels(x, y);
+		if ( x0 === x1 && y0 === y1 ) continue;
+		
+		// Highlight the grid position
+		let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
+		const color = this.getColor({x: xg, y: yg}, highlight_ray, distance_ray, segment_num);
+		this.highlightPosition({x: xg, y: yg, color: color}, highlight_ray, distance_ray, segment_num);
+				
+		// Skip the first one
+		prior = [x1, y1];
+		if ( i === 0 ) continue;
+		
+		// If the positions are not neighbors, also highlight their halfway point
+		if ( !canvas.grid.isNeighbor(x0, y0, x1, y1) ) {
+			let th = tMax[i - 1] + (0.5 / nMax);
+			let {x, y} = ray.project(th);
+			let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
+			let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
+			
+			const color = this.getColor({x: xgh, y: ygh}, highlight_ray, distance_ray, segment_num);
+			this.highlightPosition(this.name, {x: xgh, y: ygh, color: color})
+		}
+	}
+}
+
+/*
+ * For a given position, return the color for the ruler highlight.
+ * @param {Object} position Object with x and y indicating the pixels at the grid position.
+ * @param {Ray} highlight_ray Ray representing the path from origin to destination on the canvas for a segment
+ * @param {Ray} distance_ray Ray representing the distance moved for the segment. May or may not equal highlight ray
+ * @param {integer} segment_num The segment number, where 1 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The segment_num can also be considered the waypoint number, equal to the index 
+ *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
+ *    the first waypoint in this.waypoints is actually the origin 
+ *    and segment_num will never be 0.
+ * @param return {string} Color string
+ */
+export function libRulerGetColor(position, highlight_ray, distance_ray, segment_num) {
+  return this.color;
+}
+
+/*
+ * For a given position, create the highlight.
+ * 
+ * @param {Object} position Object with x, y, and color indicating the pixels at the grid position and the color.
+ * @param {Ray} highlight_ray Ray representing the path from origin to destination on the canvas for a segment
+ * @param {Ray} distance_ray Ray representing the distance moved for the segment. May or may not equal highlight ray
+ * @param {integer} segment_num The segment number, where 1 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The segment_num can also be considered the waypoint number, equal to the index 
+ *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
+ *    the first waypoint in this.waypoints is actually the origin 
+ *    and segment_num will never be 0.
+ */ 
+export function libRulerHighlightPosition(position, highlight_ray, distance_ray, segment_num) {
+  canvas.grid.highlightPosition(this.name, position);
+}
 
 
 
