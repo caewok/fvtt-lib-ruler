@@ -73,8 +73,9 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
   hlt.clear();
 	// Draw measured path
 	r.clear();
-	for ( let [s, i] of segments.entries() ) {
-		const {highlight_ray, label, text, last, distance_ray} = s;
+	for ( let [i, s] of segments.entries() ) {
+           log(`segment ${i}`, s);
+		const {highlight_ray, label, text, last, ray} = s;
 		// Draw line segment
 		this.drawLineSegment(highlight_ray);
 		
@@ -82,7 +83,7 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		this.drawDistanceSegmentLabel(label, text, last, highlight_ray);
 		
 		// Highlight grid positions
-		this._highlightMeasurement(highlight_ray, distance_ray, i + 1);
+		this._highlightMeasurement(highlight_ray, ray, i + 1);
 	}
 	// Draw endpoints
 	for ( let p of waypoints ) {
@@ -248,6 +249,7 @@ export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segmen
 	
 	// Iterate over ray portions
 	for ( let [i, t] of tMax.entries() ) {
+            log(`iterating over ray portion ${i}.`);
 		let {x, y} = highlight_ray.project(t);
 		
 		// Get grid position
@@ -258,7 +260,8 @@ export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segmen
 		// Highlight the grid position
 		let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
 		const color = this.getColor({x: xg, y: yg}, highlight_ray, distance_ray, segment_num);
-		this.highlightPosition({x: xg, y: yg, color: color}, highlight_ray, distance_ray, segment_num);
+		log(`Color: ${color} at x,y ${xg}, ${yg}`, this);
+                this.highlightPosition({x: xg, y: yg, color: color}, highlight_ray, distance_ray, segment_num);
 				
 		// Skip the first one
 		prior = [x1, y1];
@@ -267,14 +270,16 @@ export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segmen
 		// If the positions are not neighbors, also highlight their halfway point
 		if ( !canvas.grid.isNeighbor(x0, y0, x1, y1) ) {
 			let th = tMax[i - 1] + (0.5 / nMax);
-			let {x, y} = ray.project(th);
+			let {x, y} = highlight_ray.project(th);
 			let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
 			let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
 			
 			const color = this.getColor({x: xgh, y: ygh}, highlight_ray, distance_ray, segment_num);
-			this.highlightPosition(this.name, {x: xgh, y: ygh, color: color})
+			log(`Color: ${color} at x,y ${xgh}, ${ygh}`, this);
+			this.highlightPosition({x: xgh, y: ygh, color: color}, highlight_ray, distance_ray, segment_num)
 		}
 	}
+  log("Finished libRulerHighlightMeasurement.");
 }
 
 /*
@@ -312,6 +317,8 @@ export function libRulerGetColor(position, highlight_ray, distance_ray, segment_
  *    and segment_num will never be 0.
  */ 
 export function libRulerHighlightPosition(position, highlight_ray, distance_ray, segment_num) {
+	log(`position: ${position}; name: ${this.name}`, position)
+
   canvas.grid.highlightPosition(this.name, position);
 }
 
