@@ -121,12 +121,9 @@ export function libRulerMeasureSetDestination(destination) {
  */
 export function libRulerMeasureDistances(segments, {gridSpaces=true}={}) {
   log(`Measuring distances for ${segments.length} segments.`);
-  const distances = segments.map((s, i) => {
+  return segments.map((s, i) => {
     return this.measureDistance(s, i, {gridSpaces: gridSpaces});
-  }, this);
-   log(`Distances are ${distances}.`, distances);
-   return distances;
-  
+  }, this);  
 }
 
 /*
@@ -310,8 +307,8 @@ export function libRulerHighlightMeasurement(ray, segments, segment_num) {
 		// Highlight the grid position
 		let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
 		const color = this.getColor({x: xg, y: yg}, segments, segment_num);
-		log(`Color: ${color} at x,y ${xg}, ${yg}`, this);
-    this.highlightPosition({x: xg, y: yg, color: color}, segments, segment_num);
+		log(`Color: ${color} at x,y ${xg}, ${yg}`, color);
+    this.highlightPosition({x: xg, y: yg}, color, segments, segment_num);
 				
 		// Skip the first one
 		prior = [x1, y1];
@@ -325,7 +322,7 @@ export function libRulerHighlightMeasurement(ray, segments, segment_num) {
 			let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
 			
 			const color = this.getColor({x: xgh, y: ygh}, segments, segment_num);
-			log(`Color: ${color} at x,y ${xgh}, ${ygh}`, this);
+			log(`Color: ${color} at x,y ${xgh}, ${ygh}`, color);
 			this.highlightPosition({x: xgh, y: ygh}, color, segments, segment_num)
 		}
 	}
@@ -362,7 +359,7 @@ export function libRulerGetColor(position, segments, segment_num) {
  *    segment_num 1 starts at waypoint 1, etc.  
  */ 
 export function libRulerHighlightPosition(position, color, segments, segment_num) {
-	log(`position: ${position}; color: ${color}, name: ${this.name}`, position)
+	log(`position: ${position}; color: ${color}, name: ${this.name}`, position, color)
 	position.color = color;
   canvas.grid.highlightPosition(this.name, position);
 }
