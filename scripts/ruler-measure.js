@@ -93,6 +93,8 @@ ruler object (via this) and can access the original waypoints array and any modu
 		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. 
 		     Segment array: ${segments[segment_num].distance}; ${segments[segment_num].text}; ${segments[segment_num].last}.
 		     Total distance: ${totalDistance}.`, segments);
+		     
+		log(`totalDistance: ${totalDistance}; calculated: ${this.sumSegmentDistances(segments)}`);
 		
 		// ----- Draw the Ruler Segment ---- //
 		// 
@@ -113,6 +115,14 @@ ruler object (via this) and can access the original waypoints array and any modu
 	
 	// Return the measured segments
 	return segments;
+}
+
+/*
+ * Helper function to easily sum segment distances
+ * 
+ */
+export function libRulerSumSegmentDistances(segments) {
+  return segments.reduce((acc, total) => acc.distance + total, 0));
 }
 
 /*

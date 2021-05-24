@@ -69,6 +69,16 @@ Object.defineProperty(Ruler.prototype, "unsetFlag", {
 });  
 
 // ---------------- RULER.MEASURE ------------- // 
+
+/*
+ * Helper function sumSegmentDistances for easily totaling distances in Ruler.measure segments.
+ */
+Object.defineProperty(Ruler.prototype, "sumSegmentDistances", {
+  value: libRulerSumSegmentDistances,
+  writable: true,
+  configurable: true
+});
+
 /*
  * Add method setDestination for Ruler.measure
  */
