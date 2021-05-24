@@ -121,9 +121,12 @@ export function libRulerMeasureSetDestination(destination) {
  */
 export function libRulerMeasureDistances(segments, {gridSpaces=true}={}) {
   log(`Measuring distances for ${segments.length} segments.`);
-  return segments.map((s, i) => {
-    this.measureDistance(s, i, {gridSpaces: gridSpaces});
-  }, this)
+  const distances = segments.map((s, i) => {
+    return this.measureDistance(s, i, {gridSpaces: gridSpaces});
+  }, this);
+   log(`Distances are ${distances}.`, distance);
+   return distances;
+  
 }
 
 /*
