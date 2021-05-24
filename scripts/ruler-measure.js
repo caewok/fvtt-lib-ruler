@@ -81,7 +81,7 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		this.drawLineSegment(ray, segments, i);
 		
 		// Draw the distance label just after the endpoint of the segment
-		this.drawDistanceSegmentLabel(label, text, last, segments, i);
+		this.drawDistanceSegmentLabel(label, text, last, ray, segments, i);
 		
 		// Highlight grid positions
 		this._highlightMeasurement(ray, segments, i);
@@ -290,7 +290,7 @@ export function libRulerHighlightMeasurement(ray, segments, segment_num) {
 	
 	// Iterate over ray portions
 	for ( let [i, t] of tMax.entries() ) {
-            log(`iterating over ray portion ${i}.`);
+    log(`iterating over ray portion ${i}.`);
 		let {x, y} = ray.project(t);
 		
 		// Get grid position
