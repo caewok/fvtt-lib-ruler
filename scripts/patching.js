@@ -2,7 +2,8 @@ import { MODULE_ID, log } from "./module.js";
 
 import { libRulerMeasure,
          libRulerMeasureSetDestination,
-         libRulerConstructSegmentDistanceRay,
+         libRulerMeasureDistances,
+         libRulerMeasureDistance,
          libRulerConstructSegmentHighlightRay,
          libRulerCheckCreatedSegments,
          libRulerDrawLineSegment,
@@ -80,13 +81,23 @@ Object.defineProperty(Ruler.prototype, "setDestination", {
 });
 
 /*
- * Add method constructSegmentDistanceRay for Ruler.measure
+ * Add method measureDistances for Ruler.measure
  */
-Object.defineProperty(Ruler.prototype, "constructSegmentDistanceRay", {
-  value: libRulerConstructSegmentDistanceRay,
+Object.defineProperty(Ruler.prototype, "measureDistances", {
+  value: libRulerMeasureDistances,
   writable: true,
   configurable: true
 });
+
+/*
+ * Add method measureDistance for Ruler.measure
+ */
+Object.defineProperty(Ruler.prototype, "measureDistance", {
+  value: libRulerMeasureDistance,
+  writable: true,
+  configurable: true
+});
+
 
 /*
  * Add method constructSegmentHighlightRay for Ruler.measure

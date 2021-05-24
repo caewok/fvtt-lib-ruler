@@ -7,7 +7,7 @@ import { log } from "./module.js";
  * @param {PIXI.Point} destination  The destination point to which to measure
  * @param {boolean} gridSpaces      Restrict measurement only to grid spaces
  * (1) Set destination
- * (2) Construct segment rays for distance measurement and for highlighting / moving
+ * (2) Construct segment rays for the visible ruler
  * (3) Compute measured distance
  * (4) Construct segment labels
  * (5) Draw path and endpoints
@@ -22,20 +22,20 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 	const r = this.ruler;
 	
 	// Iterate over waypoints and construct segment rays
+	// Each ray represents the path of the ruler on the canvas
 	let segments = [];
 	for ( let [i, dest] of waypoints.slice(1).entries() ) {
 		const origin = waypoints[i];
 		const label = this.labels.children[i];
 		
-		const ray = this.constructSegmentDistanceRay(origin, dest, i + 1);
+		const ray = this.constructSegmentHighlightRay(origin, dest, i);
 		
 		if ( ray.distance < 10 ) {
 			if ( label ) label.visible = false;
 			continue;
 		}
 		
-		const highlight_ray = this.constructSegmentHighlightRay(origin, dest, i + 1);
-		segments.push({ray, label, highlight_ray});
+		segments.push({ ray, label });
 	}
 	
 	log("Segments", segments);
@@ -44,9 +44,9 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 	// Function returns segments with any necessary modifications
 	segments = this.checkCreatedSegments(segments);
 	
+	// Compute measured distance; one per segment
+	const distances = this.measureDistances(segments, {gridSpaces});
 	
-	// Compute measured distance
-	const distances = canvas.grid.measureDistances(segments, {gridSpaces});
 	let totalDistance = 0;
 	for ( let [i, d] of distances.entries() ) {
 		totalDistance += d;
@@ -74,27 +74,29 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 	// Draw measured path
 	r.clear();
 	for ( let [i, s] of segments.entries() ) {
-           log(`segment ${i}`, s);
-		const {highlight_ray, label, text, last, ray} = s;
+    log(`segment ${i}`, s);
+    log(`segments`, segments)
+		const {ray, label, text, last} = s;
 		// Draw line segment
-		this.drawLineSegment(highlight_ray);
+		this.drawLineSegment(ray, segments, i);
 		
 		// Draw the distance label just after the endpoint of the segment
-		this.drawDistanceSegmentLabel(label, text, last, highlight_ray);
+		this.drawDistanceSegmentLabel(label, text, last, segments, i);
 		
 		// Highlight grid positions
-		this._highlightMeasurement(highlight_ray, ray, i + 1);
+		this._highlightMeasurement(ray, segments, i);
 	}
 	// Draw endpoints
-	for ( let p of waypoints ) {
-	  this.drawSegmentEndpoints(p);	
+	for ( let [i, p] of waypoints ) {
+	  this.drawSegmentEndpoints(p, segments, i);	
 	}
 	// Return the measured segments
 	return segments;
 }
 
 /*
- * For method setDestination
+ * For method Ruler.setDestination
+ *
  * @param {PIXI.Point} destination  The destination point to which to measure
  */
 export function libRulerMeasureSetDestination(destination) {
@@ -103,25 +105,42 @@ export function libRulerMeasureSetDestination(destination) {
 }
 
 /* 
- * For method constructSegmentDistanceRay
+ * For method Ruler.measureDistances
  *
- * Ray used to represent the path traveled between origin and destination.
- * Default: straight line between the origin and destination.
- * But the ray created not necessarily equal to the straight line between.
+ * Measure the distance traversed over an array of segments.
+ * This measurement indicates how much "distance" it costs to cover the segments.
+ * NOTE: Consider overriding Ruler.measureDistance instead of this function.
+ *       If overriding this function, you should call Ruler.measureDistance
+ *       to accommodate other modules that may rely on measureDistance.
+ * 
+ * @param {object[]} segments An Array of measured ruler segments
+ * @param {boolean} gridSpaces      Restrict measurement only to grid spaces
+ * @return {numeric[]} An Array of distances, one per segment. 
+ */
+export function libRulerMeasureDistances(segments, {gridSpaces=true}={}) {
+  return segments.map((s, i) => {
+    this.measureDistance(s, i + 1, {gridSpaces: gridSpaces});
+  }, this)
+}
+
+/*
+ * For method Ruler.measureDistance
  *
- * @param {PIXI.Point} origin Where the segment starts on the canvas.
- * @param {PIXI.Point} dest PIXI.Point Where the segment ends on the canvas
- * @param {integer} segment_num The segment number, where 1 is the
+ * This measurement indicates how much "distance" it costs to cover the segment.
+ * The returned value may or may not be equivalent to the length of the segment.
+ * @param {object} segment Represents the ruler path on the canvas between two waypoints.
+ * @param {integer} segment_num The segment number, where 0 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
  *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
+ * @param {boolean} gridSpaces      Restrict measurement only to grid spaces
+ * @return {numeric} The measured distance represented by the segment.
  */
-export function libRulerConstructSegmentDistanceRay(origin, dest, segment_num) {
-	return new Ray(origin, dest);
+export function libRulerMeasureDistance(segment, segment_num, {gridSpaces=true}={}) {
+  return canvas.grid.measureDistances([segment], {gridSpaces: gridSpaces})[0];
 }
 
 /* 
@@ -134,14 +153,13 @@ export function libRulerConstructSegmentDistanceRay(origin, dest, segment_num) {
  * 
  * @param {PIXI.Point} origin Where the segment starts on the canvas.
  * @param {PIXI.Point} dest PIXI.Point Where the segment ends on the canvas
- * @param {integer} segment_num The segment number, where 1 is the
+ * @param {integer} segment_num The segment number, where 0 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
  *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  */
 export function libRulerConstructSegmentHighlightRay(origin, dest, segment_num) {
 	return new Ray(origin, dest);
@@ -162,9 +180,17 @@ export function libRulerCheckCreatedSegments(segments) {
  * For method drawLineSegment
  *
  * Takes the segment array and draws the highlighted measure line on the canvas.
- * @param ray PIXI.Point
+ * @param {Ray} ray Ray representing the measure line.
+ * @param {object[]} segments An Array of measured ruler segments.
+ * @param {integer} segment_num The segment number, where 0 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  */
-export function libRulerDrawLineSegment(ray) {
+export function libRulerDrawLineSegment(ray, segments, segment_num) {
   this.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
 		 .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
 }
@@ -172,10 +198,21 @@ export function libRulerDrawLineSegment(ray) {
 /* 
  * For method drawDistanceSegmentLabel
  *
- * Takes the segment array and draws the highlighted measure line on the canvas.
- * @param ray PIXI.Point
+ * Draws the highlighted measure line on the canvas.
+ * @param {object} label Object representing the ruler label 
+ * @param {string} text What the label should say
+ * @param {boolean} last Is this the last segment?
+ * @param {Ray} ray Represents the measure line.
+ * @param {object[]} segments An Array of measured ruler segments.
+ * @param {integer} segment_num The segment number, where 0 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  */
-export function libRulerDrawDistanceSegmentLabel(label, text, last, ray) {
+export function libRulerDrawDistanceSegmentLabel(label, text, last, ray, segments, segment_num) {
   if ( label ) {
 			label.text = text;
 			label.alpha = last ? 1.0 : 0.5;
@@ -189,10 +226,18 @@ export function libRulerDrawDistanceSegmentLabel(label, text, last, ray) {
 /* 
  * For method drawSegmentEndpoints
  *
- * Takes the segment array and draws the highlighted measure line on the canvas.
- * @param ray PIXI.Point
+ * Draws the end point indicators for each segment
+ * @param {Object} waypoint Waypoint 
+ * @param {object[]} segments An Array of measured ruler segments.
+ * @param {integer} segment_num The segment number, where 0 is the
+ *    first segment between origin and the first waypoint (or destination),
+ *    2 is the segment between the first and second waypoints.
+ *
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  */
-export function libRulerDrawSegmentEndpoints(waypoint) {
+export function libRulerDrawSegmentEndpoints(waypoint, segments, segment_num) {
   this.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(waypoint.x, waypoint.y, 8);
 }
 
@@ -207,14 +252,13 @@ export function libRulerDrawSegmentEndpoints(waypoint) {
  * @param {number} segmentDistance
  * @param {number} totalDistance
  * @param {boolean} isTotal
- * @param {integer} segment_num The segment number, where 1 is the
+ * @param {integer} segment_num The segment number, where 0 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
  *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  * @return {string} Text label displayed in the rule to indicate distance traveled.
  */
 export function libRulerGetSegmentLabel(segmentDistance, totalDistance, isTotal, segment_num) {
@@ -226,22 +270,19 @@ export function libRulerGetSegmentLabel(segmentDistance, totalDistance, isTotal,
  * For method highlightMeasurement
  *
  * Expanded version of _highlightMeasurement.
- * @param {Ray} highlight_ray Ray representing the path from origin to destination on the canvas for a segment
- * @param {Ray} distance_ray Ray representing the distance moved for the segment. May or may not equal highlight ray
- * @param {integer} segment_num The segment number, where 1 is the
+ * @param {Ray} ray Ray representing the path from origin to destination on the canvas for a segment
+ * @param {object[]} segments An Array of measured ruler segments.
+ * @param {integer} segment_num The segment number, where 0 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
  *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  */
-export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segment_num) {
-  // In the default setup, highlight ray is the ray that is measured
-  
+export function libRulerHighlightMeasurement(ray, segments, segment_num) {
 	const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
-	const nMax = Math.max(Math.floor(highlight_ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
+	const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
 	const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
 	
 	// Track prior position
@@ -250,7 +291,7 @@ export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segmen
 	// Iterate over ray portions
 	for ( let [i, t] of tMax.entries() ) {
             log(`iterating over ray portion ${i}.`);
-		let {x, y} = highlight_ray.project(t);
+		let {x, y} = ray.project(t);
 		
 		// Get grid position
 		let [x0, y0] = (i === 0) ? [null, null] : prior;
@@ -259,9 +300,9 @@ export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segmen
 		
 		// Highlight the grid position
 		let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
-		const color = this.getColor({x: xg, y: yg}, highlight_ray, distance_ray, segment_num);
+		const color = this.getColor({x: xg, y: yg}, segments, segment_num);
 		log(`Color: ${color} at x,y ${xg}, ${yg}`, this);
-                this.highlightPosition({x: xg, y: yg, color: color}, highlight_ray, distance_ray, segment_num);
+    this.highlightPosition({x: xg, y: yg, color: color}, segments, segment_num);
 				
 		// Skip the first one
 		prior = [x1, y1];
@@ -270,13 +311,13 @@ export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segmen
 		// If the positions are not neighbors, also highlight their halfway point
 		if ( !canvas.grid.isNeighbor(x0, y0, x1, y1) ) {
 			let th = tMax[i - 1] + (0.5 / nMax);
-			let {x, y} = highlight_ray.project(th);
+			let {x, y} = ray.project(th);
 			let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
 			let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
 			
-			const color = this.getColor({x: xgh, y: ygh}, highlight_ray, distance_ray, segment_num);
+			const color = this.getColor({x: xgh, y: ygh}, segments, segment_num);
 			log(`Color: ${color} at x,y ${xgh}, ${ygh}`, this);
-			this.highlightPosition({x: xgh, y: ygh, color: color}, highlight_ray, distance_ray, segment_num)
+			this.highlightPosition({x: xgh, y: ygh}, color, segments, segment_num)
 		}
 	}
   log("Finished libRulerHighlightMeasurement.");
@@ -285,19 +326,16 @@ export function libRulerHighlightMeasurement(highlight_ray, distance_ray, segmen
 /*
  * For a given position, return the color for the ruler highlight.
  * @param {Object} position Object with x and y indicating the pixels at the grid position.
- * @param {Ray} highlight_ray Ray representing the path from origin to destination on the canvas for a segment
- * @param {Ray} distance_ray Ray representing the distance moved for the segment. May or may not equal highlight ray
- * @param {integer} segment_num The segment number, where 1 is the
+ * @param {object[]} segments An Array of measured ruler segments.
+ * @param {integer} segment_num The segment number, where 0 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
  *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
- * @param return {string} Color string
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  */
-export function libRulerGetColor(position, highlight_ray, distance_ray, segment_num) {
+export function libRulerGetColor(position, segments, segment_num) {
   return this.color;
 }
 
@@ -305,20 +343,18 @@ export function libRulerGetColor(position, highlight_ray, distance_ray, segment_
  * For a given position, create the highlight.
  * 
  * @param {Object} position Object with x, y, and color indicating the pixels at the grid position and the color.
- * @param {Ray} highlight_ray Ray representing the path from origin to destination on the canvas for a segment
- * @param {Ray} distance_ray Ray representing the distance moved for the segment. May or may not equal highlight ray
- * @param {integer} segment_num The segment number, where 1 is the
+ * @param {object[]} segments An Array of measured ruler segments.
+ * @param {integer} segment_num The segment number, where 0 is the
  *    first segment between origin and the first waypoint (or destination),
  *    2 is the segment between the first and second waypoints.
  *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
+ *    The start of segment_num X is waypoint X. 
+ *    So the start of segment_num 0 is waypoint 0 (origin);
+ *    segment_num 1 starts at waypoint 1, etc.  
  */ 
-export function libRulerHighlightPosition(position, highlight_ray, distance_ray, segment_num) {
-	log(`position: ${position}; name: ${this.name}`, position)
-
+export function libRulerHighlightPosition(position, color, segments, segment_num) {
+	log(`position: ${position}; color: ${color}, name: ${this.name}`, position)
+	position.color = color;
   canvas.grid.highlightPosition(this.name, position);
 }
 
