@@ -1,6 +1,7 @@
 import { MODULE_ID, log } from "./module.js";
 
 import { libRulerMeasure,
+         libRulerSumSegmentDistances,
          libRulerMeasureSetDestination,
          libRulerMeasureDistance,
          libRulerConstructSegmentHighlightRay,

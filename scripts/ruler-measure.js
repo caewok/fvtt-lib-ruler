@@ -122,7 +122,7 @@ ruler object (via this) and can access the original waypoints array and any modu
  * 
  */
 export function libRulerSumSegmentDistances(segments) {
-  return segments.reduce((acc, total) => acc.distance + total, 0));
+  return segments.reduce((acc, total) => acc.distance + total, 0);
 }
 
 /*
