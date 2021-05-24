@@ -87,7 +87,7 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 		this._highlightMeasurement(ray, segments, i);
 	}
 	// Draw endpoints
-	for ( let [i, p] of waypoints ) {
+	for ( let [i, p] of waypoints.entries() ) {
 	  this.drawSegmentEndpoints(p, segments, i);	
 	}
 	// Return the measured segments
