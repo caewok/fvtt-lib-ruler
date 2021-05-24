@@ -124,7 +124,7 @@ export function libRulerMeasureDistances(segments, {gridSpaces=true}={}) {
   const distances = segments.map((s, i) => {
     return this.measureDistance(s, i, {gridSpaces: gridSpaces});
   }, this);
-   log(`Distances are ${distances}.`, distance);
+   log(`Distances are ${distances}.`, distances);
    return distances;
   
 }
