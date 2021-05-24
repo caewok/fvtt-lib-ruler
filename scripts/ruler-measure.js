@@ -46,14 +46,16 @@ export function libRulerMeasure(destination, {gridSpaces=true}={}) {
 	
 	// Compute measured distance; one per segment
 	const distances = this.measureDistances(segments, {gridSpaces});
+	log("Distances", distances);
 	
 	let totalDistance = 0;
 	for ( let [i, d] of distances.entries() ) {
+	  log(`Distance entry ${i}: ${d}; Total Distance: ${totalDistance}.`);
 		totalDistance += d;
 		let s = segments[i];
 		s.last = i === (segments.length - 1);
 		s.distance = d;
-		s.text = this.getSegmentLabel(d, totalDistance, s.last, i + 1);
+		s.text = this.getSegmentLabel(d, totalDistance, s.last, i);
 	}
   
   log("Segments after distance measure", segments);
@@ -118,8 +120,9 @@ export function libRulerMeasureSetDestination(destination) {
  * @return {numeric[]} An Array of distances, one per segment. 
  */
 export function libRulerMeasureDistances(segments, {gridSpaces=true}={}) {
+  log(`Measuring distances for ${segments.length} segments.`);
   return segments.map((s, i) => {
-    this.measureDistance(s, i + 1, {gridSpaces: gridSpaces});
+    this.measureDistance(s, i, {gridSpaces: gridSpaces});
   }, this)
 }
 
@@ -140,7 +143,10 @@ export function libRulerMeasureDistances(segments, {gridSpaces=true}={}) {
  * @return {numeric} The measured distance represented by the segment.
  */
 export function libRulerMeasureDistance(segment, segment_num, {gridSpaces=true}={}) {
-  return canvas.grid.measureDistances([segment], {gridSpaces: gridSpaces})[0];
+  log(`Measure distance for segment ${segment_num}.`);
+  const dist = canvas.grid.measureDistances([segment], {gridSpaces: gridSpaces});
+  log(`Distance is ${dist}.`, dist);
+  return dist[0];
 }
 
 /* 
