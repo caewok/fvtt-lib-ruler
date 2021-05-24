@@ -16,7 +16,7 @@ import { log } from "./module.js";
 export function libRulerMeasure(destination, {gridSpaces=true}={}) {
   log("We are measuring!", this);
 
-  /* 
+/* 
 The original measure code seems inefficient b/c it:
 	1. loops over each waypoint
 	2. measures the resulting segments, which requires looping over each segment.
@@ -42,8 +42,8 @@ ruler object (via this) and can access the original waypoints array and any modu
 
 	this.setDestination(destination);
 	
-	const waypoints = this.waypoints.concat([this.destination]);
-	const r = this.ruler;
+	let waypoints = this.waypoints.concat([this.destination]);
+	let r = this.ruler;
 	
 	// Clear the grid highlight layer
   // Unclear why this check is necessary; not needed in original.
@@ -65,7 +65,9 @@ ruler object (via this) and can access the original waypoints array and any modu
 	let totalDistance = 0;
 	for ( let [segment_num, dest] of waypoints.slice(1).entries() ) {
 	  log(`Segment ${segment_num} with dest`, dest);
-	
+	  log(`waypoints`, waypoints);
+          
+
 		const origin = waypoints[segment_num];
 		const label = this.labels.children[segment_num];
 
@@ -90,6 +92,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 		s.text = this.getSegmentLabel(s, totalDistance, segments);
 		totalDistance += s.distance;
 		
+
 		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. 
 		     Segment array: ${segments[segment_num].distance}; ${segments[segment_num].text}; ${segments[segment_num].last}.
 		     Total distance: ${totalDistance}.`, segments);
@@ -107,10 +110,11 @@ ruler object (via this) and can access the original waypoints array and any modu
 		this._highlightMeasurement(s, segments);
 		
 		// Draw endpoint
+                log(`Waypoint ${segment_num}: ${waypoints[segment_num].x}, ${waypoints[segment_num].y}`, waypoints);
 		this.drawSegmentEndpoints(waypoints[segment_num], segments, segment_num);
 		
 		// draw last endpoint at the destination
-		if(s.last) this.drawSegmentEndpoints(waypoints[waypoints.length], segments, segment_num)
+		if(s.last) this.drawSegmentEndpoints(waypoints[waypoints.length - 1], segments, segment_num)
 	}
 	
 	// Return the measured segments
@@ -122,7 +126,7 @@ ruler object (via this) and can access the original waypoints array and any modu
  * 
  */
 export function libRulerSumSegmentDistances(segments) {
-  return segments.reduce((acc, total) => acc.distance + total, 0);
+  return segments.reduce((acc, curr) => acc + curr.distance, 0);
 }
 
 /*
@@ -250,6 +254,7 @@ export function libRulerDrawDistanceSegmentLabel(segment, segments) {
  *    segment_num 1 starts at waypoint 1, etc.  
  */
 export function libRulerDrawSegmentEndpoints(waypoint, segments, segment_num) {
+  log(`Waypoint`, waypoint);
   this.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(waypoint.x, waypoint.y, 8);
 }
 
