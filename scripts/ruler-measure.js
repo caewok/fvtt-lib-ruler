@@ -72,7 +72,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 		const label = this.labels.children[segment_num];
 
     // ----- Construct the ray representing the segment on the canvas ---- //
-		const ray = this.constructSegmentHighlightRay(origin, dest, segments, segment_num);
+		const ray = this.constructSegmentRay(origin, dest, segments, segment_num);
 				
 		// skip if not actually distant
 		if ( ray.distance < 10 ) {
@@ -87,7 +87,10 @@ ruler object (via this) and can access the original waypoints array and any modu
 		// will this permit modifying segments in the array?
 		const s = segments[segment_num];
 		s.last = segment_num === (waypoints.length - 2);
-		s.idx = segment_num
+		s.idx = segment_num	
+		s.flags = {};	
+		s = this.addSegmentProperties(s, segments);
+		
 		s.distance = this.measureDistance(s, {gridSpaces}, segments);
 		s.text = this.getSegmentLabel(s, totalDistance, segments);
 		totalDistance += s.distance;
@@ -110,7 +113,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 		this._highlightMeasurement(s, segments);
 		
 		// Draw endpoint
-                log(`Waypoint ${segment_num}: ${waypoints[segment_num].x}, ${waypoints[segment_num].y}`, waypoints);
+    log(`Waypoint ${segment_num}: ${waypoints[segment_num].x}, ${waypoints[segment_num].y}`, waypoints);
 		this.drawSegmentEndpoints(waypoints[segment_num], segments, segment_num);
 		
 		// draw last endpoint at the destination
@@ -134,9 +137,29 @@ export function libRulerSumSegmentDistances(segments) {
  *
  * @param {PIXI.Point} destination  The destination point to which to measure
  */
-export function libRulerMeasureSetDestination(destination) {
+export function libRulerSetDestination(destination) {
   destination = new PIXI.Point(...canvas.grid.getCenter(destination.x, destination.y));
   this.destination = destination;
+}
+
+/*
+ * For method Ruler.setSegmentProperties
+ *
+ * This method lets you store properties in the segment object before measuring distance,
+ *   creating labels, or drawing the segment. Do not override lightly; wrapping is preferred.
+ *
+ * Preferably, add flags using the flag methods. For example:
+ *   this.libRulerSetFlag.call(segment, scope, key, value) 
+ * 
+ *
+ * @param {object} segment Represents the ruler path on the canvas between two waypoints.
+ *    Segment has (at least) ray, last, and idx.
+ * @param {object[]} segments An Array of measured ruler segments. 
+ * @return {object} The segment, with properties added. 
+ */
+export function libRulerSetSegmentProperties(segment, segments) {
+  // this.libRulerSetFlag.call(segment, scope, key, value) 
+  return segment;
 }
 
 
@@ -146,18 +169,12 @@ export function libRulerMeasureSetDestination(destination) {
  * This measurement indicates how much "distance" it costs to cover the segment.
  * The returned value may or may not be equivalent to the length of the segment.
  * @param {object} segment Represents the ruler path on the canvas between two waypoints.
- * @param {integer} segment_num The segment number, where 0 is the
- *    first segment between origin and the first waypoint (or destination),
- *    2 is the segment between the first and second waypoints.
- *
- *    The start of segment_num X is waypoint X. 
- *    So the start of segment_num 0 is waypoint 0 (origin);
- *    segment_num 1 starts at waypoint 1, etc.  
- * @param {boolean} gridSpaces      Restrict measurement only to grid spaces
+ *    Segment has (at least) ray, last, and idx.
+ * @param {object[]} segments An Array of measured ruler segments.
  * @return {numeric} The measured distance represented by the segment.
  */
-export function libRulerMeasureDistance(segment, {gridSpaces=true}={}, segments, segment_num) {
-  log(`Measure distance for segment ${segment_num}.`, segment);
+export function libRulerMeasureDistance(segment, {gridSpaces=true}={}, segments) {
+  log(`Measure distance for segment ${segment.idx}.`, segment);
   return canvas.grid.measureDistances([segment], {gridSpaces: gridSpaces})[0];
 }
 
@@ -180,7 +197,7 @@ export function libRulerMeasureDistance(segment, {gridSpaces=true}={}, segments,
  *    So the start of segment_num 0 is waypoint 0 (origin);
  *    segment_num 1 starts at waypoint 1, etc.  
  */
-export function libRulerConstructSegmentHighlightRay(origin, dest, segments, segment_num) {
+export function libRulerConstructSegmentRay(origin, dest, segments, segment_num) {
 	return new Ray(origin, dest);
 }
 
