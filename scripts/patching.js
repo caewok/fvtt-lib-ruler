@@ -1,14 +1,19 @@
 import { MODULE_ID, log } from "./module.js";
 
 import { libRulerMeasure,
-         libRulerMeasureSetDestination,
-         libRulerConstructSegmentDistanceRay,
-         libRulerConstructSegmentHighlightRay,
-         libRulerCheckCreatedSegments,
+         libRulerSumSegmentDistances,
+         libRulerSetDestination,
+         libRulerSetSegmentProperties,
+         libRulerMeasureDistance,
+         libRulerConstructSegmentRay,
          libRulerDrawLineSegment,
          libRulerDrawDistanceSegmentLabel,
          libRulerDrawSegmentEndpoints,
-         libRulerGetSegmentLabel
+         libRulerGetSegmentLabel,
+         
+         libRulerHighlightMeasurement,
+         libRulerGetColor,
+         libRulerHighlightPosition
        } from "./ruler-measure.js";
        
 import { libRulerGetFlag,
@@ -26,6 +31,8 @@ import { libRulerMoveToken,
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', libRulerHighlightMeasurement, 'OVERRIDE');
+  
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
 
@@ -64,41 +71,55 @@ Object.defineProperty(Ruler.prototype, "unsetFlag", {
 });  
 
 // ---------------- RULER.MEASURE ------------- // 
+
+/*
+ * Helper function sumSegmentDistances for easily totaling distances in Ruler.measure segments.
+ */
+Object.defineProperty(Ruler.prototype, "sumSegmentDistances", {
+  value: libRulerSumSegmentDistances,
+  writable: true,
+  configurable: true
+});
+
 /*
  * Add method setDestination for Ruler.measure
  */
 Object.defineProperty(Ruler.prototype, "setDestination", {
-  value: libRulerMeasureSetDestination,
+  value: libRulerSetDestination,
   writable: true,
   configurable: true
 });
 
 /*
- * Add method constructSegmentDistanceRay for Ruler.measure
+ * Add method setSegmentProperties for Ruler.measure
  */
-Object.defineProperty(Ruler.prototype, "constructSegmentDistanceRay", {
-  value: libRulerConstructSegmentDistanceRay,
+Object.defineProperty(Ruler.prototype, "setSegmentProperties", {
+  value: libRulerSetSegmentProperties,
   writable: true,
   configurable: true
 });
 
+
 /*
- * Add method constructSegmentHighlightRay for Ruler.measure
+ * Add method measureDistance for Ruler.measure
  */
-Object.defineProperty(Ruler.prototype, "constructSegmentHighlightRay", {
-  value: libRulerConstructSegmentHighlightRay,
+Object.defineProperty(Ruler.prototype, "measureDistance", {
+  value: libRulerMeasureDistance,
   writable: true,
   configurable: true
 });
 
+
 /*
- * Add method checkCreatedSegments for Ruler.measure
+ * Add method constructSegmentRay for Ruler.measure
  */
-Object.defineProperty(Ruler.prototype, "checkCreatedSegments", {
-  value: libRulerCheckCreatedSegments,
+Object.defineProperty(Ruler.prototype, "constructSegmentRay", {
+  value: libRulerConstructSegmentRay,
   writable: true,
   configurable: true
 });
+
+
 
 /*
  * Add method drawLineSegment for Ruler.measure
@@ -132,6 +153,25 @@ Object.defineProperty(Ruler.prototype, "drawSegmentEndpoints", {
  */
 Object.defineProperty(Ruler.prototype, "getSegmentLabel", {
   value: libRulerGetSegmentLabel,
+  writable: true,
+  configurable: true
+});
+
+// ---------------- RULER._HIGHLIGHTMEASUREMENT ------------- // 
+/*
+ * Add method getColor for Ruler._highlightMeasurement
+ */
+Object.defineProperty(Ruler.prototype, "getColor", {
+  value: libRulerGetColor,
+  writable: true,
+  configurable: true
+});
+
+/*
+ * Add method highlightPosition for Ruler._highlightMeasurement
+ */
+Object.defineProperty(Ruler.prototype, "highlightPosition", {
+  value: libRulerHighlightPosition,
   writable: true,
   configurable: true
 });

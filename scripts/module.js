@@ -26,9 +26,12 @@ export function log(...args) {
 // At this point, the game global exists, but hasn't yet been initialized, 
 // but all of the core foundry code has been loaded.
 Hooks.once('init', async function() {
-		log("Initializing libRuler.");
-		if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
-  		registerLibRuler();		
+	log("Initializing libRuler.");
+	if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
+	registerLibRuler();		
+  		
+  // tell modules that the libRuler library is set up
+  Hooks.callAll('libRulerReady');
 });
 
 // setup is after init; before ready. 
@@ -36,7 +39,6 @@ Hooks.once('init', async function() {
 // but before entities, packs, UI, canvas, etc. has been initialized
 Hooks.once('setup', async function() {
 		log("libRuler setup.");
-
 });
 
 // modules ready
