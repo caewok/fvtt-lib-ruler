@@ -91,7 +91,7 @@ Object.defineProperty(Ruler.prototype, "setDestination", {
 });
 
 /*
- * Add method setDestination for Ruler.measure
+ * Add method setSegmentProperties for Ruler.measure
  */
 Object.defineProperty(Ruler.prototype, "setSegmentProperties", {
   value: libRulerSetSegmentProperties,
@@ -111,10 +111,10 @@ Object.defineProperty(Ruler.prototype, "measureDistance", {
 
 
 /*
- * Add method constructSegmentHighlightRay for Ruler.measure
+ * Add method constructSegmentRay for Ruler.measure
  */
 Object.defineProperty(Ruler.prototype, "constructSegmentRay", {
-  value: libRulerConstructSegmentHighlightRay,
+  value: libRulerConstructSegmentRay,
   writable: true,
   configurable: true
 });

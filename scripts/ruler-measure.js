@@ -85,11 +85,11 @@ ruler object (via this) and can access the original waypoints array and any modu
 		
 		// ----- Label the segment with distance and text ----- //
 		// will this permit modifying segments in the array?
-		const s = segments[segment_num];
+		let s = segments[segment_num];
 		s.last = segment_num === (waypoints.length - 2);
 		s.idx = segment_num	
 		s.flags = {};	
-		s = this.addSegmentProperties(s, segments);
+		s = this.setSegmentProperties(s, segments);
 		
 		s.distance = this.measureDistance(s, {gridSpaces}, segments);
 		s.text = this.getSegmentLabel(s, totalDistance, segments);
