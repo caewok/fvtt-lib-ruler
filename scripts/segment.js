@@ -150,11 +150,13 @@ export class Segment {
         
         
     // 3. Apply modifiers    
+    const distance_modifiers = this.getDistanceModifiers();
+    
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
     // Want to avoid using eval() if possible
     let modifier_string = `${measured_distance}`;
-    if(this.distanceModifiers.length > 0) {
-      this.distanceModifiers.forEach(m => {
+    if(distance_modifiers.length > 0) {
+      distance_modifiers.forEach(m => {
         modifier_string = `(${modifier_string} ${m})`;
       });
     }
@@ -185,17 +187,20 @@ export class Segment {
    *
    * For more complicated distance measurements, you can wrap measureDistance.
    *
-   * @param {string} modifier 
    * Modifier should be a string representing mathematical formula that can be resolved by 
    * eval. It should begin with an operator. Each modifier is applied in turn. For example:
    *   distanceModifiers = [{'+2', "flat penalty"}, {'*3', "multiplier"}]
    *   resolves to ((dist + 2) * 3)
    * @param {string} label A description of the modifier. For informational purposes; can be
    *   any string.
+   * @return an array of modifiers
    */
-   addDistanceModifier(modifier, label) {
-     this.distanceModifiers.push({modifier, label});
+   getDistanceModifiers() {
+     // example: return [{'+2', "flat penalty"}, {'*3', "multiplier"}];
+     return [];
    }
+   
+   
   
    /*
    * Force a distance recalculation.
