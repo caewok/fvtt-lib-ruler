@@ -17,6 +17,7 @@ export class Segment {
   last = false;
   flags = {};
   distanceValue = null; // private fields (#distanceValue) not currently supported.
+  distanceModifiers = [];
   color = "";
   options = { gridSpaces: true };
 
@@ -57,6 +58,62 @@ export class Segment {
     return this.distanceValue;
   }
   
+ /* 
+  * Return the distance measured for the segment. This is not necessarily the 
+  * distance of the segment ray. 
+  * @return {number} Distance measurement
+  */
+  measureDistance() {
+    const dist = canvas.grid.measureDistances([this], {gridSpaces: this.options.gridSpaces})[0];
+    
+    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
+    // Want to avoid using eval() if possible
+
+    let modifer_string = `${dist}`;
+    if(this.distanceModifiers.length > 0) {
+      
+      distanceModifiers.forEach(m => {
+        modifier_string = `(${modifier_string} ${m})`;
+      });
+    }
+    
+    log('modifier_string: ${modifier_string}');
+    
+    // Note: In theory, modifiers could include function calls if looseJsonParse 
+    //       added the function to the scope. 
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
+    return looseJsonParse(modifier_string);    
+  }
+  
+  /*
+   * Each segment tracks modifications to the ray.distance.
+   * When measuring distance, the ray is first measured as normal, and then 
+   * any modifiers are applied in the order they are in the array.
+   * This helper function adds a new modifier to the end of the array.
+   * You can also modify the array directly by accessing this.distanceModifiers 
+   * where 'this' is a segment Class.
+   *
+   * For more complicated distance measurements, you can wrap measureDistance.
+   *
+   * @param {string} modifier 
+   * Modifier should be a string representing mathematical formula that can be resolved by 
+   * eval. It should begin with an operator. Each modifier is applied in turn. For example:
+   *   distanceModifiers = [{'+2', "flat penalty"}, {'*3', "multiplier"}]
+   *   resolves to ((dist + 2) * 3)
+   * @param {string} label A description of the modifier. For informational purposes; can be
+   *   any string.
+   */
+   addDistanceModifier(modifier, label) {
+     this.distanceModifiers.push({modifier, label});
+   }
+  
+   /*
+   * Force a distance recalculation.
+   */
+   recalculateDistance() {
+     this.distanceValue = this.measureDistance();
+   }
+  
   /*
    * Ray used to represent the highlighted, or apparent, path traveled 
    *   between origin and destination.
@@ -72,21 +129,18 @@ export class Segment {
    }
    
     
-  /*
-   * Force a distance recalculation.
-   */
-   recalculateDistance() {
-     this.distanceValue = this.measureDistance();
-   }
+ 
   
   /* 
    * Helper function that allows other labels to be set by modules.
    * Is called when the segment is first constructed.
    * Properties are best added using the Segment Class flag methods.
    *   e.g. this.setFlag("module_id"", "key", value)
+   * Or add distance modifiers using the addDistanceModifier helper function.
    */
   addProperties() {
-    // wrap if you need to add flags before distance is calculated.
+    // wrap if you need to use this.setFlag before distance is calculated.
+    // wrap if you need to use this.addDistanceModifier before distance is calculated.
   }
 
   /*
@@ -185,14 +239,7 @@ export class Segment {
     canvas.grid.highlightPosition(this.ruler.name, position);
   }
   
- /* 
-  * Return the distance measured for the segment. This is not necessarily the 
-  * distance of the segment ray. 
-  * @return {number} Distance measurement
-  */
-  measureDistance() {
-    return canvas.grid.measureDistances([this], {gridSpaces: this.options.gridSpaces})[0];
-  }
+
   
   /*
    * For a given position, return the color for the ruler highlight.
@@ -206,3 +253,10 @@ export class Segment {
 Segment.prototype.getFlag = libRulerGetFlag;
 Segment.prototype.setFlag = libRulerSetFlag;
 Segment.prototype.unsetFlag = libRulerUnsetFlag;
+
+// Helper function in lieu of using eval()
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
+function looseJsonParse(obj){
+    return Function('"use strict";return (' + obj + ')')();
+}
+
