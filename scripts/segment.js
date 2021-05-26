@@ -16,14 +16,14 @@ export class Segment {
   segment_num = 0;
   last = false;
   flags = {};
-  #distanceValue = null;
+  distanceValue = null; // private fields (#distanceValue) not currently supported.
   color = "";
-  options = {gridSpaces=true};
+  options = { gridSpaces: true };
 
-  constructor(ray, ruler, previous_segments = [], segment_num = 0, options = {gridSpaces=true}) {
-    if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
-      throw new TypeError("Previous Segments Array not all Segment Class");
-    }
+  constructor(ray, ruler, previous_segments = [], segment_num = 0, options = {gridSpaces: true}) {
+    //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
+    //  throw new TypeError("Previous Segments Array not all Segment Class");
+    //}
   
     this.previous_segments = previous_segments; // chained Array of previous Segments
     this.segment_num = segment_num; // Index of the segment
@@ -38,7 +38,7 @@ export class Segment {
   }
   
   get totalPriorDistance() {
-    return this.segments.reduce((acc, curr) => acc + curr.distance, 0);
+    return this.previous_segments.reduce((acc, curr) => acc + curr.distance, 0);
   }
   
   get totalDistance() {
@@ -49,20 +49,20 @@ export class Segment {
    * Get the text label for the segment.
    */  
   get text() {
-    ruler._getSegmentLabel(segment.distance, this.totalDistance, this.last);
+    return this.ruler._getSegmentLabel(this.distance, this.totalDistance, this.last);
   }
 
   get distance() {
     // this assumes a distanceValue of 0 should be recalculated, as well as undefined, NaN, or null.
-    if(!this.#distanceValue) this.recalculateDistance();
-    return this.#distanceValue;
+    if(!this.distanceValue) this.recalculateDistance();
+    return this.distanceValue;
   }
     
   /*
    * Force a distance recalculation.
    */
    recalculateDistance() {
-     this.#distanceValue = this.measureDistance();
+     this.distanceValue = this.measureDistance();
    }
   
   /* 
@@ -81,7 +81,7 @@ export class Segment {
 	drawLine() {
 		const ray = this.ray;
 
-		this.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
+		this.ruler.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
 		 .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
 	}
   
@@ -108,7 +108,7 @@ export class Segment {
    * Draws the end point indicators for the segment
    */
   drawEndpoints(point) {
-     this.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(point.x, point.y, 8);
+     this.ruler.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(point.x, point.y, 8);
   }
   
   /* 
@@ -160,7 +160,7 @@ export class Segment {
  * @param {Object} position Object with x, y, and color indicating the pixels at the grid position and the color.
  */
   highlightPosition(position) {
-    position.color = this.color(position);
+    position.color = this.colorForPosition(position);
     canvas.grid.highlightPosition(this.ruler.name, position);
   }
   
@@ -177,8 +177,8 @@ export class Segment {
    * For a given position, return the color for the ruler highlight.
    * @param {Object} position Object with x and y indicating the pixels at the grid position.
    */
-  getColorForPosition(position) {
-    this.color();
+  colorForPosition(position) {
+    return this.color;
   }
 }
  

@@ -83,15 +83,6 @@ Object.defineProperty(Ruler.prototype, "constructSegmentRay", {
   configurable: true
 });
 
-/*
- * Add method highlightPosition for Ruler._highlightMeasurement
- */
-Object.defineProperty(Ruler.prototype, "highlightPosition", {
-  value: libRulerHighlightPosition,
-  writable: true,
-  configurable: true
-});
-
 // ---------------- RULER.MOVETOKEN ------------- // 
 /*
  * Add method testForCollision for Ruler.moveToke

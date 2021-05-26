@@ -90,20 +90,20 @@ ruler object (via this) and can access the original waypoints array and any modu
 		
 		// ----- Draw the Ruler Segment ---- //
 		// 
-		s.drawLineSegment();
+		s.drawLine();
 		
 		// Draw the distance label just after the endpoint of the segment
-		s.drawDistanceSegmentLabel();
+		s.drawDistanceLabel();
 		
 		// Highlight grid positions
-		s._highlightMeasurement();
+		s.highlightMeasurement();
 		
 		// Draw endpoint
     log(`Waypoint ${segment_num}: ${waypoints[segment_num].x}, ${waypoints[segment_num].y}`, waypoints);
 		s.drawEndpoints(waypoints[segment_num]);
 		
 		// draw last endpoint at the destination
-		if(s.last) this.drawSegmentEndpoints(waypoints[waypoints.length - 1]);
+		if(s.last) s.drawEndpoints(waypoints[waypoints.length - 1]);
 	}
 	
 	// Return the measured segments
