@@ -20,7 +20,7 @@ export class Segment {
   color = "";
   options = { gridSpaces: true };
 
-  constructor(ray, ruler, previous_segments = [], segment_num = 0, options = {gridSpaces: true}) {
+  constructor(origin, destination, ruler, previous_segments = [], segment_num = 0, options = {gridSpaces: true}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
@@ -28,7 +28,7 @@ export class Segment {
     this.previous_segments = previous_segments; // chained Array of previous Segments
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
-    this.ray = ray;
+    this.ray = constructRay(origin, destination);
     
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
@@ -57,6 +57,21 @@ export class Segment {
     if(!this.distanceValue) this.recalculateDistance();
     return this.distanceValue;
   }
+  
+  /*
+   * Ray used to represent the highlighted, or apparent, path traveled 
+   *   between origin and destination.
+   * Default: straight line between the origin and destination.
+   *
+   * Note: distance represented by the segment is calculated elsewhere
+   *
+   * @param {PIXI.Point} origin Where the segment starts on the canvas.
+   * @param {PIXI.Point} destination PIXI.Point Where the segment ends on the canvas
+   */
+   constructRay(origin, destination) {
+     return new Ray(origin, destination);
+   }
+   
     
   /*
    * Force a distance recalculation.
@@ -105,13 +120,20 @@ export class Segment {
   }
   
   /*
-   * Draws the end point indicators for the segment
+   * Draws the end point indicators for the segment.
+   * Endpoints are either end of the two waypoints (i.e., the two ends of the ray).
+   * To avoid unnecessary repeats, draw only the first point unless we are at the last segment.
+   * 
    */
-  drawEndpoints(point) {
-     this.ruler.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(point.x, point.y, 8);
+  drawEndpoints() {
+    this.ruler.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(this.ray.A.x, this.ray.A.y, 8);
+    
+    if(this.last) {
+      this.ruler.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(this.ray.B.x, this.ray.B.y, 8);
+    }  
   }
   
-  /* 
+  /*
    * Modified version of Ruler._highlightMeasurement
    */
   highlightMeasurement() {

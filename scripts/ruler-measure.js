@@ -72,20 +72,23 @@ ruler object (via this) and can access the original waypoints array and any modu
 		const label = this.labels.children[segment_num];
 
     // ----- Construct the ray representing the segment on the canvas ---- //
-		const ray = this.constructSegmentRay(origin, dest);
-				
+    const s = new Segment(origin, dest, this, segments, segment_num, { gridSpaces: gridSpaces });
+    s.last = segment_num === (waypoints.length - 2);
+    
+		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`, s);
+    		
 		// skip if not actually distant
-		if ( ray.distance < 10 ) {
+		// Note: In the original code, label.visible also set to false but unclear why.
+		//       The label is never used because the segment is never added to the segments array.
+		// Also: should this be s.ray.distance or s.distance? In other words, the distance
+		//       of the line on the canvas or the distance of the measured amount? 
+		//       measured amount may catch edge cases where the distance value is different. 
+		if ( s.distance < 10 ) {
 			if ( label ) label.visible = false;
-			continue;
+			continue; // go to next segment
 		}
 		
-		const s = new Segment(ray, this, segments, segment_num, { gridSpaces: gridSpaces });
-		s.last = segment_num === (waypoints.length - 2);
-		
-		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. 
-		     Total distance: ${s.totalDistance}.`, s);
-		     		
+		// add to array only if s.distance is greater or equal to 10     		
 		segments.push(s);
 		
 		// ----- Draw the Ruler Segment ---- //
@@ -99,11 +102,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 		s.highlightMeasurement();
 		
 		// Draw endpoint
-    log(`Waypoint ${segment_num}: ${waypoints[segment_num].x}, ${waypoints[segment_num].y}`, waypoints);
-		s.drawEndpoints(waypoints[segment_num]);
-		
-		// draw last endpoint at the destination
-		if(s.last) s.drawEndpoints(waypoints[waypoints.length - 1]);
+		s.drawEndpoints();
 	}
 	
 	// Return the measured segments
@@ -112,28 +111,13 @@ ruler object (via this) and can access the original waypoints array and any modu
 
 /*
  * For method Ruler.setDestination
+ * Sets destination used when moving the token.
  *
  * @param {PIXI.Point} destination  The destination point to which to measure
  */
 export function libRulerSetDestination(destination) {
   destination = new PIXI.Point(...canvas.grid.getCenter(destination.x, destination.y));
   this.destination = destination;
-}
-
-
-/* 
- * For method constructSegmentRay
- *
- * Ray used to represent the highlighted, or apparent, path traveled 
- *   between origin and destination.
- * Default: straight line between the origin and destination.
- * But the ray created not necessarily equal to the straight line between.
- * 
- * @param {PIXI.Point} origin Where the segment starts on the canvas.
- * @param {PIXI.Point} dest PIXI.Point Where the segment ends on the canvas
- */
-export function libRulerConstructSegmentRay(origin, dest) {
-	return new Ray(origin, dest);
 }
 
 
