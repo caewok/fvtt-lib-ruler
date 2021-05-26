@@ -88,12 +88,13 @@ export class Segment {
    */
   distanceFunction(physical_path) {
     log("physical_path", physical_path);
+    if(physical_path.length < 2) console.error(`${MODULE_ID}|physical path has less than 2 entries.`, physical_path);
     
     const gridSpaces = this.options.gridSpaces;
     
     let distance_segments = [];
-    for(let [i, dest] of physical_path.slice(1).entries()) {
-      distance_segments.push(this.constructRay(physical_path[i - 1], dest));
+    for(let i = 1; i < physical_path.length; i++) {
+      distance_segments.push(this.constructRay(physical_path[i - 1], physical_path[i]));
     }
     
     const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
