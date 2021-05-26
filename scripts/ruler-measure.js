@@ -82,8 +82,8 @@ ruler object (via this) and can access the original waypoints array and any modu
 		//       The label is never used because the segment is never added to the segments array.
 		// Also: should this be s.ray.distance or s.distance? In other words, the distance
 		//       of the line on the canvas or the distance of the measured amount? 
-		//       measured amount may catch edge cases where the distance value is different. 
-		if ( s.distance < 10 ) {
+		//       Using ray.distance b/c otherwise nothing is drawn until 10 feet (assuming a 5 ft square)
+		if ( s.ray.distance < 10 ) {
 			if ( label ) label.visible = false;
 			continue; // go to next segment
 		}
