@@ -69,7 +69,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 		const origin = waypoints[segment_num];
 		const label = this.labels.children[segment_num];
 		
-		log(`Segment ${segment_num}: ${origin.x, origin.y} ⇿ ${dest.x, dest.y}`);
+		log(`Segment ${segment_num}: ${origin.x}, ${origin.y} ⇿ ${dest.x}, ${dest.y}`);
 
     // ----- Construct the ray representing the segment on the canvas ---- //
     const s = new Segment(origin, dest, this, segments, segment_num, { gridSpaces: gridSpaces });
