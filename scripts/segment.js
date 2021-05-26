@@ -94,7 +94,7 @@ export class Segment {
     
     let distance_segments = [];
     for(let i = 1; i < physical_path.length; i++) {
-      distance_segments.push(this.constructRay(physical_path[i - 1], physical_path[i]));
+      distance_segments.push({ray: this.constructRay(physical_path[i - 1], physical_path[i])});
     }
     
     const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
@@ -152,10 +152,9 @@ export class Segment {
     // 3. Apply modifiers    
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
     // Want to avoid using eval() if possible
-    let modifer_string = `${measured_distance}`;
-    if(distanceModifiers.length > 0) {
-      
-      distanceModifiers.forEach(m => {
+    let modifier_string = `${measured_distance}`;
+    if(this.distanceModifiers.length > 0) {
+      this.distanceModifiers.forEach(m => {
         modifier_string = `(${modifier_string} ${m})`;
       });
     }
