@@ -28,8 +28,7 @@ export class Segment {
     this.previous_segments = previous_segments; // chained Array of previous Segments
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
-    this.ray = constructRay(origin, destination);
-    
+    this.ray = this.constructRay(origin, destination);
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
     this.options = options;
