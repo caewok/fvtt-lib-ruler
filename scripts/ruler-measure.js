@@ -64,12 +64,12 @@ ruler object (via this) and can access the original waypoints array and any modu
 	// The ruler line, label, highlighted grid, and endpoint is then drawn
 	let segments = [];
 	for ( let [segment_num, dest] of waypoints.slice(1).entries() ) {
-	  log(`Segment ${segment_num} with dest`, dest);
 	  log(`waypoints`, waypoints);
           
-
 		const origin = waypoints[segment_num];
 		const label = this.labels.children[segment_num];
+		
+		log(`Segment ${segment_num}: ${origin.x, origin.y} ⇿ ${dest.x, dest.y}`);
 
     // ----- Construct the ray representing the segment on the canvas ---- //
     const s = new Segment(origin, dest, this, segments, segment_num, { gridSpaces: gridSpaces });
@@ -83,8 +83,11 @@ ruler object (via this) and can access the original waypoints array and any modu
 		// Also: should this be s.ray.distance or s.distance? In other words, the distance
 		//       of the line on the canvas or the distance of the measured amount? 
 		//       Using ray.distance b/c otherwise nothing is drawn until 10 feet (assuming a 5 ft square)
+		const original_ray = new Ray(origin, dest);
+		log(`Ray distance: ${s.ray.distance}; Segment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
 		if ( s.ray.distance < 10 ) {
 			if ( label ) label.visible = false;
+			s.drawEndpoints(); // draw the first waypoint regardless
 			continue; // go to next segment
 		}
 		
