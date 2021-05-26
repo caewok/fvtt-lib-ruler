@@ -82,7 +82,8 @@ ruler object (via this) and can access the original waypoints array and any modu
 		//       The label is never used because the segment is never added to the segments array.
 		// Also: should this be s.ray.distance or s.distance? In other words, the distance
 		//       of the line on the canvas or the distance of the measured amount? 
-		//       Using ray.distance b/c otherwise nothing is drawn until 10 feet (assuming a 5 ft square)
+		//       Using ray.distance as in original for now.
+		//       If using s.distance, need to multiply by canvas.scene.data.grid. Also, rounding may cause problems. 
 		const original_ray = new Ray(origin, dest);
 		log(`Ray distance: ${s.ray.distance}; Segment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
 		if ( s.ray.distance < 10 ) {
