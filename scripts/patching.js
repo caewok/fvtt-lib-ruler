@@ -1,27 +1,28 @@
 import { MODULE_ID, log } from "./module.js";
 
-import { libRulerMeasure,
-         libRulerSetDestination,
-         libRulerConstructSegmentRay,
+import { libRulerMeasure,  
+         libRulerHighlightMeasurement,
          
-         libRulerHighlightMeasurement
+         libRulerSetDestination       
        } from "./ruler-measure.js";
        
-import { libRulerGetFlag,
+import { libRulerToJSON,
+         libRulerUpdate,
+         
+         libRulerGetFlag,
          libRulerSetFlag,
-         libRulerUnsetFlag,
-         libRulerToJSON,
-         libRulerUpdate
+         libRulerUnsetFlag
        } from "./ruler-flags.js";
        
 import { libRulerMoveToken,
+
          libRulerTestForCollision,
          libRulerAnimateToken 
        } from "./ruler-move-token.js";
 
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');  
   
   libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', libRulerHighlightMeasurement, 'WRAPPER');
   
@@ -70,15 +71,6 @@ Object.defineProperty(Ruler.prototype, "unsetFlag", {
  */
 Object.defineProperty(Ruler.prototype, "setDestination", {
   value: libRulerSetDestination,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method constructSegmentRay for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "constructSegmentRay", {
-  value: libRulerConstructSegmentRay,
   writable: true,
   configurable: true
 });
