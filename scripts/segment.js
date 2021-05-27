@@ -72,7 +72,7 @@ export class Segment {
     if(!this.prior_segment || Object.keys(this.prior_segment).length === 0) return 0;
     
     // first method: just get the prior segment total distance.
-    const total_prior_distance = this.prior_segment.totalDistance(); 
+    const total_prior_distance = this.prior_segment.totalDistance; 
     
     // second method: pull the distance property from traversing the prior segments and add up.
     const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
@@ -80,7 +80,7 @@ export class Segment {
     
     log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
      
-    return total_prior_dist;
+    return total_prior_distance;
   }
   
   get totalDistance() {
@@ -270,7 +270,7 @@ export class Segment {
 			results = results.concat(this.traversePriorSegments(segment.prior_segment, prop, ...args));
 		}
 		
-		log("Returning array length ${results.length}", results);
+		log(`Returning array length ${results.length}`, results);
 	
 		return results;
 	}
