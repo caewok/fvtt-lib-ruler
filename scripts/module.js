@@ -31,7 +31,7 @@ Hooks.once('init', async function() {
 	if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
 	registerLibRuler();		
 	
-	window[MODULE_ID] = { Segment: Segment };
+	window['libRuler'] = { Segment: Segment };
   		
   // tell modules that the libRuler library is set up
   Hooks.callAll('libRulerReady');
