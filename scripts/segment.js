@@ -69,7 +69,10 @@ export class Segment {
   
   get totalPriorDistance() {
     // if no prior segments, should be 0.
-    const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance");    
+    const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
+    log(`Segment ${this.segment_num}: Prior distance length ${total_prior_dist_arr.length}`, total_prior_dist_arr);
+ 
+    if(!total_prior_dist_arr || total_prior_dist_arr.length === 0) return 0;  
     total_prior_dist = total_prior_dist_arr.reduce((acc, curr) => acc + curr.distance, 0) || 0;
     log(`Total prior distance ${total_prior_dist}`);
     return total_prior_dist;
@@ -78,7 +81,7 @@ export class Segment {
   get totalDistance() {
     const total_prior_distance = this.totalPriorDistance;
     const total_current_distance = this.distance;
-    log(`Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
+    log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
   
     return total_prior_distance + total_current_distance;
   }
@@ -239,20 +242,21 @@ export class Segment {
    */
    
 	traversePriorSegments(segment, prop, ...args) { 
+                if(!segment || Object.keys(segment).length === 0) return [];
 		if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
 
-		const results = [];
+		let results = [];
 	
 		// get the value for this object
-		if(obj.hasOwnProperty(prop)) {
-			const is_function = obj[prop] instanceof Function;
-			const res = is_function ? obj[prop](...args) : obj[prop];
+		if(segment.hasOwnProperty(prop)) {
+			const is_function = segment[prop] instanceof Function;
+			const res = is_function ? segment[prop](...args) : segment[prop];
 			results.push(res);
 		}
 	
 		// find the parent for the object; traverse if not empty
-		if(obj.prior_segment) {
-			results = results.concat(this.traversePriorSegment(obj.prior_segment, prop, ...args));
+		if(segment.prior_segment && Object.keys(segment.prior_segment).length > 0) {
+			results = results.concat(this.traversePriorSegments(segment.prior_segment, prop, ...args));
 		}
 	
 		return results;

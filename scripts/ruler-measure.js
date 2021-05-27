@@ -94,7 +94,6 @@ ruler object (via this) and can access the original waypoints array and any modu
 		
 		// add to array only if s.distance is greater or equal to 10    
 		prior_segment = s; 		
-		segments.push(s);
 		
 		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`);
     		
@@ -114,7 +113,9 @@ ruler object (via this) and can access the original waypoints array and any modu
 	}
 	
 	// Return the measured segments
-	return segments;
+        // for consistency with default code, may want to modify segment to be an array;
+        // make each prior_segment one of the array items.
+	return prior_segment;
 }
 
 /*
