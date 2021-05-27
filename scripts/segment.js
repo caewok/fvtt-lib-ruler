@@ -149,7 +149,7 @@ export class Segment {
         
         
     // 3. Apply modifiers    
-    const distance_modifiers = this.getDistanceModifiers();
+    const distance_modifiers = duplicate(this.getDistanceModifiers());
     
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
     // Want to avoid using eval() if possible
@@ -188,14 +188,13 @@ export class Segment {
    *
    * Modifier should be a string representing mathematical formula that can be resolved by 
    * eval. It should begin with an operator. Each modifier is applied in turn. For example:
-   *   distanceModifiers = [{'+2', "flat penalty"}, {'*3', "multiplier"}]
+   *   distanceModifiers = ['+2', '*3']
    *   resolves to ((dist + 2) * 3)
    * @param {string} label A description of the modifier. For informational purposes; can be
    *   any string.
    * @return an array of modifiers
    */
    getDistanceModifiers() {
-     // example: return [{'+2', "flat penalty"}, {'*3', "multiplier"}];
      return [];
    }
    
