@@ -1,31 +1,31 @@
 import { MODULE_ID, log } from "./module.js";
 
-import { libRulerMeasure,
-         libRulerMeasureSetDestination,
-         libRulerConstructSegmentDistanceRay,
-         libRulerConstructSegmentHighlightRay,
-         libRulerCheckCreatedSegments,
-         libRulerDrawLineSegment,
-         libRulerDrawDistanceSegmentLabel,
-         libRulerDrawSegmentEndpoints,
-         libRulerGetSegmentLabel
+import { libRulerMeasure,  
+         libRulerHighlightMeasurement,
+         
+         libRulerSetDestination       
        } from "./ruler-measure.js";
        
-import { libRulerGetFlag,
+import { libRulerToJSON,
+         libRulerUpdate,
+         
+         libRulerGetFlag,
          libRulerSetFlag,
-         libRulerUnsetFlag,
-         libRulerToJSON,
-         libRulerUpdate
+         libRulerUnsetFlag
        } from "./ruler-flags.js";
        
 import { libRulerMoveToken,
+
          libRulerTestForCollision,
          libRulerAnimateToken 
        } from "./ruler-move-token.js";
 
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');  
+  
+  libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', libRulerHighlightMeasurement, 'WRAPPER');
+  
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
 
@@ -64,74 +64,13 @@ Object.defineProperty(Ruler.prototype, "unsetFlag", {
 });  
 
 // ---------------- RULER.MEASURE ------------- // 
+
+
 /*
  * Add method setDestination for Ruler.measure
  */
 Object.defineProperty(Ruler.prototype, "setDestination", {
-  value: libRulerMeasureSetDestination,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method constructSegmentDistanceRay for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "constructSegmentDistanceRay", {
-  value: libRulerConstructSegmentDistanceRay,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method constructSegmentHighlightRay for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "constructSegmentHighlightRay", {
-  value: libRulerConstructSegmentHighlightRay,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method checkCreatedSegments for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "checkCreatedSegments", {
-  value: libRulerCheckCreatedSegments,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method drawLineSegment for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "drawLineSegment", {
-  value: libRulerDrawLineSegment,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method drawDistanceSegmentLabel for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "drawDistanceSegmentLabel", {
-  value: libRulerDrawDistanceSegmentLabel,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method drawSegmentEndpoints for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "drawSegmentEndpoints", {
-  value: libRulerDrawSegmentEndpoints,
-  writable: true,
-  configurable: true
-});
-
-/*
- * Add method getSegmentLabel for Ruler.measure
- */
-Object.defineProperty(Ruler.prototype, "getSegmentLabel", {
-  value: libRulerGetSegmentLabel,
+  value: libRulerSetDestination,
   writable: true,
   configurable: true
 });

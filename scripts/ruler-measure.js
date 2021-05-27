@@ -1,4 +1,5 @@
 import { log } from "./module.js";
+import { Segment } from "./segment.js";
 
 
 /* -------------------------------------------- */
@@ -7,7 +8,7 @@ import { log } from "./module.js";
  * @param {PIXI.Point} destination  The destination point to which to measure
  * @param {boolean} gridSpaces      Restrict measurement only to grid spaces
  * (1) Set destination
- * (2) Construct segment rays for distance measurement and for highlighting / moving
+ * (2) Construct segment rays for the visible ruler
  * (3) Compute measured distance
  * (4) Construct segment labels
  * (5) Draw path and endpoints
@@ -16,210 +17,126 @@ import { log } from "./module.js";
 export function libRulerMeasure(destination, {gridSpaces=true}={}) {
   log("We are measuring!", this);
 
+/* 
+The original measure code seems inefficient b/c it:
+	1. loops over each waypoint
+	2. measures the resulting segments, which requires looping over each segment.
+	3. loops over the resulting distances
+	4. loops over the segments to draw them
+	5. loops over the waypoints to draw endpoints
+	
+canvas.grid.measureDistances uses map over the segments in the default, 
+as does the overwritten dnd5e version. I know of no method that requires 
+knowing all the segments in advance. It seems unlikely, because a segment is
+conceptually discrete and determined by the user on the fly. 
+
+For a ruler, knowing the prior segments may be important to determine distance to 
+date, but knowing the end segments is less likely to matter. Keep in mind that the
+ruler always starts with a single segment, and is built up or destroyed by the user;
+we never really know at this stage what the final destination is.
+
+So this code has been revised to rely on a single loop. Each segment is built up in 
+that loop, and sub-functions are told what segment number we are on and are provided
+the segments built thus far. Beside that information, sub-functions have access to the 
+ruler object (via this) and can access the original waypoints array and any module flags.
+*/
+
 	this.setDestination(destination);
 	
-	const waypoints = this.waypoints.concat([this.destination]);
-	const r = this.ruler;
+	let waypoints = this.waypoints.concat([this.destination]);
+	let r = this.ruler;
 	
-	// Iterate over waypoints and construct segment rays
-	let segments = [];
-	for ( let [i, dest] of waypoints.slice(1).entries() ) {
-		const origin = waypoints[i];
-		const label = this.labels.children[i];
-		
-		const ray = this.constructSegmentDistanceRay(origin, dest, i + 1);
-		
-		if ( ray.distance < 10 ) {
-			if ( label ) label.visible = false;
-			continue;
-		}
-		
-		const highlight_ray = this.constructSegmentHighlightRay(origin, dest, i + 1);
-		segments.push({ray, label, highlight_ray});
-	}
-	
-	log("Segments", segments);
-
-	// Check if any segments need to be adjusted now that all paths are determined
-	// Function returns segments with any necessary modifications
-	segments = this.checkCreatedSegments(segments);
-	
-	
-	// Compute measured distance
-	const distances = canvas.grid.measureDistances(segments, {gridSpaces});
-	let totalDistance = 0;
-	for ( let [i, d] of distances.entries() ) {
-		totalDistance += d;
-		let s = segments[i];
-		s.last = i === (segments.length - 1);
-		s.distance = d;
-		s.text = this.getSegmentLabel(d, totalDistance, s.last, i + 1);
-	}
-  
-  log("Segments after distance measure", segments);
-  // segments is an array of objects.
-	// each object has distance, label, last, ray, text
-  log("Distances", distances);
- 
 	// Clear the grid highlight layer
   // Unclear why this check is necessary; not needed in original.
   if(!canvas.grid.highlightLayers.hasOwnProperty(this.name)) {
-    log(`canvas.grid.highlightLayers does not include ${this.name}; adding.`);
+    //log(`canvas.grid.highlightLayers does not include ${this.name}; adding.`);
     canvas.grid.addHighlightLayer(this.name);
   }
 
-  log("canvas.grid.highlightLayers", canvas.grid.highlightLayers); 
+  //log("canvas.grid.highlightLayers", canvas.grid.highlightLayers); 
   const hlt = canvas.grid.highlightLayers[this.name];
-  hlt.clear();
-	// Draw measured path
+  hlt.clear();  
 	r.clear();
-	for ( let s of segments ) {
-		const {highlight_ray, label, text, last} = s;
-		// Draw line segment
-		this.drawLineSegment(highlight_ray);
+	
+	// Iterate over waypoints to construct segment rays
+	// Each ray represents the path of the ruler on the canvas
+	// Each segment is then annotated with distance, text label, and indicator if last.
+	// The ruler line, label, highlighted grid, and endpoint is then drawn
+	let segments = [];
+	for ( let [segment_num, dest] of waypoints.slice(1).entries() ) {
+	  log(`waypoints`, waypoints);
+          
+		const origin = waypoints[segment_num];
+		const label = this.labels.children[segment_num];
+		
+		log(`Segment ${segment_num}: ${origin.x}, ${origin.y} ⇿ ${dest.x}, ${dest.y}`);
+
+    // ----- Construct the ray representing the segment on the canvas ---- //
+    const s = new Segment(origin, dest, this, segments, segment_num, { gridSpaces: gridSpaces });
+    s.last = segment_num === (waypoints.length - 2);
+    
+		log(`Segment ${segment_num}:`, s);
+    		
+		// skip if not actually distant
+		// Note: In the original code, label.visible also set to false but unclear why.
+		//       The label is never used because the segment is never added to the segments array.
+		// Also: should this be s.ray.distance or s.distance? In other words, the distance
+		//       of the line on the canvas or the distance of the measured amount? 
+		//       Using ray.distance as in original for now.
+		//       If using s.distance, need to multiply by canvas.scene.data.grid. Also, rounding may cause problems. 
+		const original_ray = new Ray(origin, dest);
+		//	log(`Ray distance: ${s.ray.distance}; Segment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
+		if ( s.ray.distance < 10 ) {
+			if ( label ) label.visible = false;
+			s.drawEndpoints(); // draw the first waypoint regardless
+			continue; // go to next segment
+		}
+		
+		// add to array only if s.distance is greater or equal to 10     		
+		segments.push(s);
+		
+		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`);
+    		
+		
+		// ----- Draw the Ruler Segment ---- //
+		// 
+		s.drawLine();
 		
 		// Draw the distance label just after the endpoint of the segment
-		this.drawDistanceSegmentLabel(label, text, last, highlight_ray);
+		s.drawDistanceLabel();
 		
 		// Highlight grid positions
-		this._highlightMeasurement(highlight_ray);
+		s.highlightMeasurement();
+		
+		// Draw endpoint
+		s.drawEndpoints();
 	}
-	// Draw endpoints
-	for ( let p of waypoints ) {
-	  this.drawSegmentEndpoints(p);	
-	}
+	
 	// Return the measured segments
 	return segments;
 }
 
 /*
- * For method setDestination
+ * For method Ruler.setDestination
+ * Sets destination used when moving the token.
+ *
  * @param {PIXI.Point} destination  The destination point to which to measure
  */
-export function libRulerMeasureSetDestination(destination) {
+export function libRulerSetDestination(destination) {
   destination = new PIXI.Point(...canvas.grid.getCenter(destination.x, destination.y));
   this.destination = destination;
 }
 
-/* 
- * For method constructSegmentDistanceRay
- *
- * Ray used to represent the path traveled between origin and destination.
- * Default: straight line between the origin and destination.
- * But the ray created not necessarily equal to the straight line between.
- *
- * @param {PIXI.Point} origin Where the segment starts on the canvas.
- * @param {PIXI.Point} dest PIXI.Point Where the segment ends on the canvas
- * @param {integer} segment_num The segment number, where 1 is the
- *    first segment between origin and the first waypoint (or destination),
- *    2 is the segment between the first and second waypoints.
- *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
- */
-export function libRulerConstructSegmentDistanceRay(origin, dest, segment_num) {
-	return new Ray(origin, dest);
-}
 
 /* 
- * For method constructSegmentHighlightRay
- *
- * Ray used to represent the highlighted, or apparent, path traveled 
- *   between origin and destination.
- * Default: straight line between the origin and destination.
- * But the ray created not necessarily equal to the straight line between.
- * 
- * @param {PIXI.Point} origin Where the segment starts on the canvas.
- * @param {PIXI.Point} dest PIXI.Point Where the segment ends on the canvas
- * @param {integer} segment_num The segment number, where 1 is the
- *    first segment between origin and the first waypoint (or destination),
- *    2 is the segment between the first and second waypoints.
- *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
+ * Override _highlightMeasurement to catch modules that are
+ * inadvertently overriding rather than using Segment.highlightMeasurement.
  */
-export function libRulerConstructSegmentHighlightRay(origin, dest, segment_num) {
-	return new Ray(origin, dest);
+export function libRulerHighlightMeasurement(wrapped, ...args) {
+  if(game.user.isGM) {
+    ui.notifications.warn("A module or other code is calling Ruler._highlightMeasurement, which has been deprecated by libRuler. This may cause unanticipated results.");
+  }
+  
+  return wrapped(...args);
 }
-
-/* 
- * For method checkCreatedSegments
- *
- * Function takes in the full segment array and returns the segment array.
- * Permits modifications, if necessary, once the entire segment array is constructed.
- * @param segments Array of segment objects. See libRulerMeasure.
- */
-export function libRulerCheckCreatedSegments(segments) {
-  return segments;
-}
-
-/* 
- * For method drawLineSegment
- *
- * Takes the segment array and draws the highlighted measure line on the canvas.
- * @param ray PIXI.Point
- */
-export function libRulerDrawLineSegment(ray) {
-  this.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
-		 .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
-}
-
-/* 
- * For method drawDistanceSegmentLabel
- *
- * Takes the segment array and draws the highlighted measure line on the canvas.
- * @param ray PIXI.Point
- */
-export function libRulerDrawDistanceSegmentLabel(label, text, last, ray) {
-  if ( label ) {
-			label.text = text;
-			label.alpha = last ? 1.0 : 0.5;
-			label.visible = true;
-			let labelPosition = ray.project((ray.distance + 50) / ray.distance);
-			label.position.set(labelPosition.x, labelPosition.y);
-		}
-	return label;	// in case another function wants to modify the label.
-}
-
-/* 
- * For method drawSegmentEndpoints
- *
- * Takes the segment array and draws the highlighted measure line on the canvas.
- * @param ray PIXI.Point
- */
-export function libRulerDrawSegmentEndpoints(waypoint) {
-  this.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(waypoint.x, waypoint.y, 8);
-}
-
-/*
- * For method getSegmentLabel
- * 
- * Adds an index number for other modules to reference as necessary
- * For default, calls _getSegmentLabel() as in the base code.
- * 
- * waypoint_num is not used in the default implementation.
- * 
- * @param {number} segmentDistance
- * @param {number} totalDistance
- * @param {boolean} isTotal
- * @param {integer} segment_num The segment number, where 1 is the
- *    first segment between origin and the first waypoint (or destination),
- *    2 is the segment between the first and second waypoints.
- *
- *    The segment_num can also be considered the waypoint number, equal to the index 
- *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
- *    the first waypoint in this.waypoints is actually the origin 
- *    and segment_num will never be 0.
- * @return {string} Text label displayed in the rule to indicate distance traveled.
- */
-export function libRulerGetSegmentLabel(segmentDistance, totalDistance, isTotal, segment_num) {
-  return this._getSegmentLabel(segmentDistance, totalDistance, isTotal);
-}
-
-
-
 
