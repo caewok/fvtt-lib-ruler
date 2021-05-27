@@ -41,7 +41,7 @@ Apply modifiers in sequence for (3) after measuring the distance.
 
 
 export class Segment {
-  previous_segments = [];
+  prior_segment = {};
   segment_num = 0;
   last = false;
   flags = {};
@@ -50,12 +50,12 @@ export class Segment {
   color = "";
   options = { gridSpaces: true };
 
-  constructor(origin, destination, ruler, previous_segments = [], segment_num = 0, options = {gridSpaces: true}) {
+  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {gridSpaces: true}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
   
-    this.previous_segments = previous_segments; // chained Array of previous Segments
+    this.prior_segment = prior_segment; // chained prior Segments
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
     this.ray = this.constructRay(origin, destination);
@@ -69,7 +69,9 @@ export class Segment {
   
   get totalPriorDistance() {
     // if no prior segments, should be 0.
-    const total_prior_dist = this.previous_segments.reduce((acc, curr) => acc + curr.distance, 0) || 0;
+    const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance");
+    
+    total_prior_dist = total_prior_dist_arr.reduce((acc, curr) => acc + curr.distance, 0) || 0;
     log(`Total prior distance ${total_prior_dist}`);
   }
   
@@ -231,7 +233,31 @@ export class Segment {
      return new Ray(origin, destination);
    }
    
-    
+  /*
+   * Helper function: traverse the prior segments.
+   * pull a property or execute a method with supplied arguments for each prior segment.
+   */
+   
+	traversePriorSegments(segment, prop, ...args) { 
+		if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
+
+		const results = [];
+	
+		// get the value for this object
+		if(obj.hasOwnProperty(prop)) {
+			const is_function = obj[prop] instanceof Function;
+			const res = is_function ? obj[prop](...args) : obj[prop];
+			results.push(res);
+		}
+	
+		// find the parent for the object; traverse if not empty
+		if(obj.prior_segment) {
+			results = results.concat(this.traversePriorSegment(obj.prior_segment, prop, ...args));
+		}
+	
+		return results;
+	}
+
  
   
   /* 
@@ -362,4 +388,5 @@ Segment.prototype.unsetFlag = libRulerUnsetFlag;
 function looseJsonParse(obj){
     return Function('"use strict";return (' + obj + ')')();
 }
+
 

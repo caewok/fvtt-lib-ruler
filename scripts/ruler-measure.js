@@ -62,7 +62,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 	// Each ray represents the path of the ruler on the canvas
 	// Each segment is then annotated with distance, text label, and indicator if last.
 	// The ruler line, label, highlighted grid, and endpoint is then drawn
-	let segments = [];
+	let prior_segment = {};
 	for ( let [segment_num, dest] of waypoints.slice(1).entries() ) {
 	  log(`waypoints`, waypoints);
           
@@ -72,7 +72,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 		log(`Segment ${segment_num}: ${origin.x}, ${origin.y} ⇿ ${dest.x}, ${dest.y}`);
 
     // ----- Construct the ray representing the segment on the canvas ---- //
-    const s = new Segment(origin, dest, this, segments, segment_num, { gridSpaces: gridSpaces });
+    const s = new Segment(origin, dest, this, prior_segment, segment_num, { gridSpaces: gridSpaces });
     s.last = segment_num === (waypoints.length - 2);
     
 		log(`Segment ${segment_num}:`, s);
@@ -92,7 +92,8 @@ ruler object (via this) and can access the original waypoints array and any modu
 			continue; // go to next segment
 		}
 		
-		// add to array only if s.distance is greater or equal to 10     		
+		// add to array only if s.distance is greater or equal to 10    
+		prior_segment = s; 		
 		segments.push(s);
 		
 		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`);
