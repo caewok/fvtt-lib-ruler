@@ -123,7 +123,6 @@ export class Segment {
    * @return {Array} An Array of points
 	 */
    constructPhysicalPath(destination_point = this.ray.B) {
-     log("destination point", destination_point);
      return [this.ray.A, destination_point];
    }   
   
