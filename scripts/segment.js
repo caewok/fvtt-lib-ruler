@@ -69,12 +69,17 @@ export class Segment {
   
   get totalPriorDistance() {
     // if no prior segments, should be 0.
+    if(!this.prior_segment || Object.keys(this.prior_segment).length === 0) return 0;
+    
+    // first method: just get the prior segment total distance.
+    const total_prior_distance = this.prior_segment.totalDistance(); 
+    
+    // second method: pull the distance property from traversing the prior segments and add up.
     const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
-    log(`Segment ${this.segment_num}: Prior distance length ${total_prior_dist_arr.length}`, total_prior_dist_arr);
- 
-    if(!total_prior_dist_arr || total_prior_dist_arr.length === 0) return 0;  
-    total_prior_dist = total_prior_dist_arr.reduce((acc, curr) => acc + curr.distance, 0) || 0;
-    log(`Total prior distance ${total_prior_dist}`);
+    const total_prior_dist_m2 = total_prior_dist_arr.reduce((acc, curr) => acc + curr.distance, 0) || 0;
+    
+    log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
+     
     return total_prior_dist;
   }
   
@@ -242,7 +247,11 @@ export class Segment {
    */
    
 	traversePriorSegments(segment, prop, ...args) { 
-                if(!segment || Object.keys(segment).length === 0) return [];
+	  log(`traversing ${prop}.`, segment)	
+    if(!segment || Object.keys(segment).length === 0) {
+      log("Returning []")
+      return [];
+    }
 		if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
 
 		let results = [];
@@ -258,6 +267,8 @@ export class Segment {
 		if(segment.prior_segment && Object.keys(segment.prior_segment).length > 0) {
 			results = results.concat(this.traversePriorSegments(segment.prior_segment, prop, ...args));
 		}
+		
+		log("Returning array length ${results.length}", results);
 	
 		return results;
 	}
