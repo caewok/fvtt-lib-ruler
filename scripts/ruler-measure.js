@@ -49,11 +49,11 @@ ruler object (via this) and can access the original waypoints array and any modu
 	// Clear the grid highlight layer
   // Unclear why this check is necessary; not needed in original.
   if(!canvas.grid.highlightLayers.hasOwnProperty(this.name)) {
-    log(`canvas.grid.highlightLayers does not include ${this.name}; adding.`);
+    //log(`canvas.grid.highlightLayers does not include ${this.name}; adding.`);
     canvas.grid.addHighlightLayer(this.name);
   }
 
-  log("canvas.grid.highlightLayers", canvas.grid.highlightLayers); 
+  //log("canvas.grid.highlightLayers", canvas.grid.highlightLayers); 
   const hlt = canvas.grid.highlightLayers[this.name];
   hlt.clear();  
 	r.clear();
@@ -75,7 +75,7 @@ ruler object (via this) and can access the original waypoints array and any modu
     const s = new Segment(origin, dest, this, segments, segment_num, { gridSpaces: gridSpaces });
     s.last = segment_num === (waypoints.length - 2);
     
-		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`, s);
+		log(`Segment ${segment_num}:`, s);
     		
 		// skip if not actually distant
 		// Note: In the original code, label.visible also set to false but unclear why.
@@ -85,7 +85,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 		//       Using ray.distance as in original for now.
 		//       If using s.distance, need to multiply by canvas.scene.data.grid. Also, rounding may cause problems. 
 		const original_ray = new Ray(origin, dest);
-		log(`Ray distance: ${s.ray.distance}; Segment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
+		//	log(`Ray distance: ${s.ray.distance}; Segment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
 		if ( s.ray.distance < 10 ) {
 			if ( label ) label.visible = false;
 			s.drawEndpoints(); // draw the first waypoint regardless
@@ -94,6 +94,9 @@ ruler object (via this) and can access the original waypoints array and any modu
 		
 		// add to array only if s.distance is greater or equal to 10     		
 		segments.push(s);
+		
+		log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`);
+    		
 		
 		// ----- Draw the Ruler Segment ---- //
 		// 

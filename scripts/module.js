@@ -1,4 +1,5 @@
 import { registerLibRuler } from "./patching.js";
+import { Segment } from "./segment.js";
 
 export const MODULE_ID = 'lib-ruler';
 const FORCE_DEBUG = false; // used for logging before dev mode is set up
@@ -29,6 +30,8 @@ Hooks.once('init', async function() {
 	log("Initializing libRuler.");
 	if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
 	registerLibRuler();		
+	
+	window['libRuler'] = { Segment: Segment };
   		
   // tell modules that the libRuler library is set up
   Hooks.callAll('libRulerReady');
