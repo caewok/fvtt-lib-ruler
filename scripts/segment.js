@@ -68,11 +68,16 @@ export class Segment {
   }
   
   get totalPriorDistance() {
-    return this.previous_segments.reduce((acc, curr) => acc + curr.distance, 0);
+    const total_prior_dist = this.previous_segments.reduce((acc, curr) => acc + curr.distance, 0);
+    log(`Total prior distance ${total_prior_dist}`);
   }
   
   get totalDistance() {
-    return this.totalPriorDistance + this.distance;
+    const total_prior_distance = this.totalPriorDistance;
+    const total_current_distance = this.distance;
+    log(`Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
+  
+    return total_prior_distance + total_current_distance;
   }
 
   get distance() {
@@ -149,7 +154,7 @@ export class Segment {
         
         
     // 3. Apply modifiers    
-    const distance_modifiers = duplicate(this.getDistanceModifiers());
+    const distance_modifiers = duplicate(this.getDistanceModifiers()); // avoid possibility of pointers from arrays
     
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
     // Want to avoid using eval() if possible
@@ -173,7 +178,11 @@ export class Segment {
    * Get the text label for the segment.
    */  
   get text() {
-    return this.ruler._getSegmentLabel(this.distance, this.totalDistance, this.last);
+    const total_distance = this.totalDistance;
+    const total_current_distance = this.distance;
+    log(`Total distance ${total_distance} + current distance ${total_current_distance}`);
+  
+    return this.ruler._getSegmentLabel(total_current_distance, total_distance, this.last);
   }
   
   /*
