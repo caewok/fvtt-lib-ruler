@@ -258,7 +258,9 @@ export class Segment {
 	
 		// get the value for this object
 		if(segment.hasOwnProperty(prop)) {
+		  
 			const is_function = segment[prop] instanceof Function;
+			log(`segment has property ${prop} which is ${is_function ? "" : "not"} a function.`);
 			const res = is_function ? segment[prop](...args) : segment[prop];
 			results.push(res);
 		}
