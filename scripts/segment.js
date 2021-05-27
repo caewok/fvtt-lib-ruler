@@ -69,10 +69,10 @@ export class Segment {
   
   get totalPriorDistance() {
     // if no prior segments, should be 0.
-    const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance");
-    
+    const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance");    
     total_prior_dist = total_prior_dist_arr.reduce((acc, curr) => acc + curr.distance, 0) || 0;
     log(`Total prior distance ${total_prior_dist}`);
+    return total_prior_dist;
   }
   
   get totalDistance() {
