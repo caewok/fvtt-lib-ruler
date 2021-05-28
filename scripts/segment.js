@@ -75,10 +75,10 @@ export class Segment {
     const total_prior_distance = this.prior_segment.totalDistance; 
     
     // second method: pull the distance property from traversing the prior segments and add up.
-    const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
-    const total_prior_dist_m2 = total_prior_dist_arr.reduce((acc, curr) => acc + curr, 0) || 0;
+    //const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
+    //const total_prior_dist_m2 = total_prior_dist_arr.reduce((acc, curr) => acc + curr, 0) || 0;
     
-    log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
+    //log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
      
     return total_prior_distance;
   }
@@ -247,9 +247,9 @@ export class Segment {
    */
    
 	traversePriorSegments(segment, prop, ...args) { 
-	  log(`traversing ${prop} which is type ${typeof segment[prop]}.`, segment)	
+	  //log(`traversing ${prop} which is type ${typeof segment[prop]}.`, segment)	
     if(!segment || Object.keys(segment).length === 0) {
-      log("Returning []")
+      //log("Returning []")
       return [];
     }
 		if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
@@ -261,22 +261,17 @@ export class Segment {
 		if(prop in segment) {
 			const is_function = segment[prop] instanceof Function;
 		  
-			log(`segment has property ${prop} which is ${is_function ? "" : "not"} a function.`);
+			//log(`segment has property ${prop} which is ${is_function ? "" : "not"} a function.`);
 			const res = is_function ? segment[prop](...args) : segment[prop];
 			results.push(res);
-		} else {
-  log(`segment does not have property ${prop}`);
-}
+		} 
 	
 		// find the parent for the object; traverse if not empty
 		if(segment.prior_segment && Object.keys(segment.prior_segment).length > 0) {
 			results = results.concat(this.traversePriorSegments(segment.prior_segment, prop, ...args));
-		} else {
-
-  log(`segment does not have a prior segment.`);
-}
+		} 
 		
-		log(`Returning array length ${results.length}`, results);
+		//log(`Returning array length ${results.length}`, results);
 	
 		return results;
 	}
