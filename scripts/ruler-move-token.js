@@ -15,12 +15,12 @@ import { log } from "./module.js";
 export async function libRulerMoveToken() {
     let wasPaused = game.paused;
     if ( wasPaused && !game.user.isGM ) {
-      ui.notifications.warn(game.i18n.localize("GAME.PausedWarning"));
+      ui.notifications.warn("GAME.PausedWarning", {localize: true});
       return false;
     }
     if ( !this.visible || !this.destination ) return false;
     const token = this._getMovementToken();
-    if ( !token ) return;
+    if ( !token ) return false;
     log("token", token);
     
     // Get the movement rays and check collision along each Ray
@@ -29,8 +29,8 @@ export async function libRulerMoveToken() {
     const hasCollision = this.testForCollision(rays);
     
     if ( hasCollision ) {
-      ui.notifications.error(game.i18n.localize("ERROR.TokenCollide"));
-      return;
+      ui.notifications.error("ERROR.TokenCollide", {localize: true});
+      return false;
     }
     // Execute the movement path.
     // Transform each center-to-center ray into a top-left to top-left ray using the prior token offsets.
@@ -88,6 +88,11 @@ export async function libRulerAnimateToken(token, ray, dx, dy, segment_num) {
   log(`Animating token for segment_num ${segment_num}`);
   const dest = canvas.grid.getTopLeft(ray.B.x, ray.B.y);
   const path = new Ray({x: token.data.x, y: token.data.y}, {x: dest[0] + dx, y: dest[1] + dy});
-  await token.update(path.B);
+  // Commit the movement
+	await token.document.update(path.B);
+
+	// Update the path which may have changed during the update, and animate it
+	path.B.x = token.data.x;
+	path.B.y = token.data.y;
   await token.animateMovement(path);
 }

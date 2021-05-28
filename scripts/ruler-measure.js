@@ -47,14 +47,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 	let r = this.ruler;
 	
 	// Clear the grid highlight layer
-  // Unclear why this check is necessary; not needed in original.
-  if(!canvas.grid.highlightLayers.hasOwnProperty(this.name)) {
-    //log(`canvas.grid.highlightLayers does not include ${this.name}; adding.`);
-    canvas.grid.addHighlightLayer(this.name);
-  }
-
-  //log("canvas.grid.highlightLayers", canvas.grid.highlightLayers); 
-  const hlt = canvas.grid.highlightLayers[this.name];
+  const hlt = canvas.grid.highlightLayers[this.name] || canvas.grid.addHighlightLayer(this.name);
   hlt.clear();  
 	r.clear();
 	
