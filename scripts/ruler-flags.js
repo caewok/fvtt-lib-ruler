@@ -13,7 +13,7 @@ import { log } from "./module.js";
  * @return {*}              The flag value
  */
 export function libRulerGetFlag(scope, key) {
-	const scopes = SetupConfiguration.getPackageScopes();
+	const scopes = Game.getPackageScopes();
 	if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
 	key = `${scope}.${key}`;
 	return getProperty(this.flags, key);
@@ -41,7 +41,7 @@ export function libRulerGetFlag(scope, key) {
 
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
 export function libRulerSetFlag(scope, key, value) {
-	const scopes = SetupConfiguration.getPackageScopes();
+	const scopes = Game.getPackageScopes();
 	if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
 	key = `flags.${scope}.${key}`;
 	return setProperty(this, key, value);
@@ -55,7 +55,7 @@ export function libRulerSetFlag(scope, key, value) {
  */
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
 export function libRulerUnsetFlag(scope, key) {
-	const scopes = SetupConfiguration.getPackageScopes();
+	const scopes = Game.getPackageScopes();
 	if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
 	key = `flags.${scope}.-=${key}`;
 	return setProperty(this, key, null);
