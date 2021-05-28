@@ -1,2 +1,3 @@
 sync_to_module.sh
+test_sync_to_module.sh
 .DS_Store
