@@ -1,3 +1,9 @@
+## 0.0.3
+Bug fixes when testing module interactions.
+- Switch to a chained approach to prior segments. Each segment points to the previous segment in the ruler.
+- Add a helper function to traverse the segment chain.
+- Fix bug with total distance calculation.
+
 ## 0.0.2
 Switch to using a Segment Class for most measure functionality.
 - Single loop in Ruler.measure to iterate over the segments.

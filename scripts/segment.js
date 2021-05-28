@@ -41,7 +41,7 @@ Apply modifiers in sequence for (3) after measuring the distance.
 
 
 export class Segment {
-  previous_segments = [];
+  prior_segment = {};
   segment_num = 0;
   last = false;
   flags = {};
@@ -50,12 +50,12 @@ export class Segment {
   color = "";
   options = { gridSpaces: true };
 
-  constructor(origin, destination, ruler, previous_segments = [], segment_num = 0, options = {gridSpaces: true}) {
+  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {gridSpaces: true}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
   
-    this.previous_segments = previous_segments; // chained Array of previous Segments
+    this.prior_segment = prior_segment; // chained prior Segments
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
     this.ray = this.constructRay(origin, destination);
@@ -68,11 +68,27 @@ export class Segment {
   }
   
   get totalPriorDistance() {
-    return this.previous_segments.reduce((acc, curr) => acc + curr.distance, 0);
+    // if no prior segments, should be 0.
+    if(!this.prior_segment || Object.keys(this.prior_segment).length === 0) return 0;
+    
+    // first method: just get the prior segment total distance.
+    const total_prior_distance = this.prior_segment.totalDistance; 
+    
+    // second method: pull the distance property from traversing the prior segments and add up.
+    //const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
+    //const total_prior_dist_m2 = total_prior_dist_arr.reduce((acc, curr) => acc + curr, 0) || 0;
+    
+    //log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
+     
+    return total_prior_distance;
   }
   
   get totalDistance() {
-    return this.totalPriorDistance + this.distance;
+    const total_prior_distance = this.totalPriorDistance;
+    const total_current_distance = this.distance;
+    log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
+  
+    return total_prior_distance + total_current_distance;
   }
 
   get distance() {
@@ -123,6 +139,8 @@ export class Segment {
    * @return {Array} An Array of points
 	 */
    constructPhysicalPath(destination_point = this.ray.B) {
+     log("Physical path for destination", this.ray.A, destination_point);
+   
      return [this.ray.A, destination_point];
    }   
   
@@ -141,6 +159,7 @@ export class Segment {
     // 3. Apply any modifiers (typically a multiple or adder) to the distance number.
     
     // 1. Construct a physical path.    
+    log(`Constructing physical path.`);
     const physical_path = this.constructPhysicalPath(destination_point);
     
     // 2. Use specified measurement function.
@@ -149,7 +168,8 @@ export class Segment {
         
         
     // 3. Apply modifiers    
-    const distance_modifiers = this.getDistanceModifiers();
+    const distance_modifiers = duplicate(this.getDistanceModifiers()); // avoid possibility of pointers from arrays
+    log("distance modifiers", distance_modifiers);
     
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
     // Want to avoid using eval() if possible
@@ -173,7 +193,11 @@ export class Segment {
    * Get the text label for the segment.
    */  
   get text() {
-    return this.ruler._getSegmentLabel(this.distance, this.totalDistance, this.last);
+    const total_distance = this.totalDistance;
+    const total_current_distance = this.distance;
+    log(`Total distance ${total_distance} + current distance ${total_current_distance}`);
+  
+    return this.ruler._getSegmentLabel(total_current_distance, total_distance, this.last);
   }
   
   /*
@@ -188,14 +212,13 @@ export class Segment {
    *
    * Modifier should be a string representing mathematical formula that can be resolved by 
    * eval. It should begin with an operator. Each modifier is applied in turn. For example:
-   *   distanceModifiers = [{'+2', "flat penalty"}, {'*3', "multiplier"}]
+   *   distanceModifiers = ['+2', '*3']
    *   resolves to ((dist + 2) * 3)
    * @param {string} label A description of the modifier. For informational purposes; can be
    *   any string.
    * @return an array of modifiers
    */
    getDistanceModifiers() {
-     // example: return [{'+2', "flat penalty"}, {'*3', "multiplier"}];
      return [];
    }
    
@@ -222,7 +245,41 @@ export class Segment {
      return new Ray(origin, destination);
    }
    
-    
+  /*
+   * Helper function: traverse the prior segments.
+   * pull a property or execute a method with supplied arguments for each prior segment.
+   */
+   
+	traversePriorSegments(segment, prop, ...args) { 
+	  //log(`traversing ${prop} which is type ${typeof segment[prop]}.`, segment)	
+    if(!segment || Object.keys(segment).length === 0) {
+      //log("Returning []")
+      return [];
+    }
+		if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
+
+		let results = [];
+	
+		// get the value for this object
+
+		if(prop in segment) {
+			const is_function = segment[prop] instanceof Function;
+		  
+			//log(`segment has property ${prop} which is ${is_function ? "" : "not"} a function.`);
+			const res = is_function ? segment[prop](...args) : segment[prop];
+			results.push(res);
+		} 
+	
+		// find the parent for the object; traverse if not empty
+		if(segment.prior_segment && Object.keys(segment.prior_segment).length > 0) {
+			results = results.concat(this.traversePriorSegments(segment.prior_segment, prop, ...args));
+		} 
+		
+		//log(`Returning array length ${results.length}`, results);
+	
+		return results;
+	}
+
  
   
   /* 
@@ -257,6 +314,7 @@ export class Segment {
     const last = this.last;
 	
 		if ( label ) {
+		    log(`Drawing label ${text}.`);
 				label.text = text;
 				label.alpha = last ? 1.0 : 0.5;
 				label.visible = true;
@@ -353,4 +411,5 @@ Segment.prototype.unsetFlag = libRulerUnsetFlag;
 function looseJsonParse(obj){
     return Function('"use strict";return (' + obj + ')')();
 }
+
 
