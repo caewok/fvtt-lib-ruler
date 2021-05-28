@@ -139,6 +139,8 @@ export class Segment {
    * @return {Array} An Array of points
 	 */
    constructPhysicalPath(destination_point = this.ray.B) {
+     log("Physical path for destination", this.ray.A, destination_point);
+   
      return [this.ray.A, destination_point];
    }   
   
@@ -157,6 +159,7 @@ export class Segment {
     // 3. Apply any modifiers (typically a multiple or adder) to the distance number.
     
     // 1. Construct a physical path.    
+    log(`Constructing physical path.`);
     const physical_path = this.constructPhysicalPath(destination_point);
     
     // 2. Use specified measurement function.
@@ -166,6 +169,7 @@ export class Segment {
         
     // 3. Apply modifiers    
     const distance_modifiers = duplicate(this.getDistanceModifiers()); // avoid possibility of pointers from arrays
+    log("distance modifiers", distance_modifiers);
     
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
     // Want to avoid using eval() if possible
@@ -310,6 +314,7 @@ export class Segment {
     const last = this.last;
 	
 		if ( label ) {
+		    log(`Drawing label ${text}.`);
 				label.text = text;
 				label.alpha = last ? 1.0 : 0.5;
 				label.visible = true;
