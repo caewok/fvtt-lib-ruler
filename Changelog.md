@@ -1,3 +1,10 @@
+## 0.0.4
+Update to Foundry 0.8.5.
+- Update flag functions to call game.getPackageScopes.
+- Incorporate changes to how moving the token works under the new Document structure.
+- Incorporate other updates from 0.8.5.
+- Add a README.md.
+
 ## 0.0.3
 Bug fixes when testing module interactions.
 - Switch to a chained approach to prior segments. Each segment points to the previous segment in the ruler.
