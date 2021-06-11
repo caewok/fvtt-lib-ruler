@@ -1,62 +1,57 @@
 import { log } from "./module.js";
 
 // Flag methods for the Ruler class
-// Closely mimic PlaceableObject or other flag methods in Foundry.
   
 /* -------------------------------------------- */
 /**
- * Get the value of a "flag" for this PlaceableObject
- * See the setFlag method for more details on flags
+ * Get the value of a "flag" for this Ruler or Segment.
+ * Faster than the Foundry version but performs less checks.
  *
  * @param {string} scope    The flag scope which namespaces the key
  * @param {string} key      The flag key
  * @return {*}              The flag value
  */
 export function libRulerGetFlag(scope, key) {
-  const scopes = game.getPackageScopes();
-  if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
   key = `${scope}.${key}`;
   return getProperty(this.flags, key);
+  
+  // use flags.scope?.key ?? 
 }
 /* -------------------------------------------- */
 /**
  * Assign a "flag" to this Entity.
- * Flags represent key-value type data which can be used to store flexible or arbitrary data required by either
- * the core software, game systems, or user-created modules.
+ * Flags represent key-value type data which can be used to store 
+ * flexible or arbitrary data required by modules using libRuler.
+ * Flags can be set on Ruler or Segment instantiations. 
  *
- * Each flag should be set using a scope which provides a namespace for the flag to help prevent collisions.
- *
- * Flags set by the core software use the "core" scope.
- * Flags set by game systems or modules should use the canonical name attribute for the module
- * Flags set by an individual world should "world" as the scope.
- *
- * Flag values can assume almost any data type. Setting a flag value to null will delete that flag. Typically you should do this using unsetFlag method
+ * Flag values can assume almost any data type. Setting a flag value to null will delete that flag. Typically you should do this using unsetFlag method.
+ * 
+ * Performs less checks than the Foundry version.
  *
  * @param {string} scope    The flag scope which namespaces the key
  * @param {string} key      The flag key
  * @param {*} value         The flag value
  *
- * @return {Promise}        A Promise resolving to the updated PlaceableObject
+ * @return The updated object
  */
 
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
 export function libRulerSetFlag(scope, key, value) {
-  const scopes = game.getPackageScopes();
-  if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
   key = `flags.${scope}.${key}`;
   return setProperty(this, key, value);
 }
 /* -------------------------------------------- */
 /**
- * Remove a flag assigned to the Entity
+ * Remove a flag assigned to the Entity.
+ *
+ * Performs less checks than the Foundry version.
+ * 
  * @param {string} scope    The flag scope which namespaces the key
  * @param {string} key      The flag key
- * @return {Promise}        A Promise resolving to the updated Entity
+ * @return The updated object
  */
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
 export function libRulerUnsetFlag(scope, key) {
-  const scopes = game.getPackageScopes();
-  if ( !scopes.includes(scope) ) throw new Error(`Invalid scope for flag ${key}`);
   key = `flags.${scope}.-=${key}`;
   return setProperty(this, key, null);
 }
