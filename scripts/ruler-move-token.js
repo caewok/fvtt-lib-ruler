@@ -63,7 +63,7 @@ export async function libRulerMoveToken() {
  * @return {boolean} true if a collision will occur
  */
 export function libRulerTestForCollision(rays) {
-	return rays.some(r => canvas.walls.checkCollision(r));
+  return rays.some(r => canvas.walls.checkCollision(r));
 }
 
 /*
@@ -89,10 +89,10 @@ export async function libRulerAnimateToken(token, ray, dx, dy, segment_num) {
   const dest = canvas.grid.getTopLeft(ray.B.x, ray.B.y);
   const path = new Ray({x: token.data.x, y: token.data.y}, {x: dest[0] + dx, y: dest[1] + dy});
   // Commit the movement
-	await token.document.update(path.B);
+  await token.document.update(path.B);
 
-	// Update the path which may have changed during the update, and animate it
-	path.B.x = token.data.x;
-	path.B.y = token.data.y;
+  // Update the path which may have changed during the update, and animate it
+  path.B.x = token.data.x;
+  path.B.y = token.data.y;
   await token.animateMovement(path);
 }
