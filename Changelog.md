@@ -1,3 +1,6 @@
+## 0.0.6
+Fix for failure to incorporate changes from 0.0.5 into release.
+
 ## 0.0.5
 Incorporate changes suggested by Stäbchenfisch. 
 - Simplify flag functions to prioritize speed over checks.
