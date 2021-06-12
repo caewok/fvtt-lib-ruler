@@ -59,7 +59,7 @@ export class Segment {
     this.ray = this.constructRay(origin, destination);
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
-    this.options = mergeObject(options, { gridSpaces: true };
+    this.options = mergeObject(options, { gridSpaces: true });
     this.physical_path = this.ray;
     
     this.addProperties();
