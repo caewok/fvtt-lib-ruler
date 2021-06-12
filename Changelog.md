@@ -17,9 +17,9 @@ Switch to using a Segment Class for most measure functionality.
 - Drawing and distance measure handled by Segment Class.
 - Add Segment Class to window['libRuler'].
 - 3-step distance measure:
-	1. Construct a physical path of "movement" by creating Array of points. 
-	2. Use defined measurement function to measure the Array of points.
-	3. Add modifiers to the distance number.
+  1. Construct a physical path of "movement" by creating Array of points. 
+  2. Use defined measurement function to measure the Array of points.
+  3. Add modifiers to the distance number.
 
 
 ## 0.0.1

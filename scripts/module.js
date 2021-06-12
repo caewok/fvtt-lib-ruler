@@ -27,12 +27,12 @@ export function log(...args) {
 // At this point, the game global exists, but hasn't yet been initialized, 
 // but all of the core foundry code has been loaded.
 Hooks.once('init', async function() {
-	log("Initializing libRuler.");
-	if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
-	registerLibRuler();		
-	
-	window['libRuler'] = { Segment: Segment };
-  		
+  log("Initializing libRuler.");
+  if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
+  registerLibRuler();    
+  
+  window['libRuler'] = { Segment: Segment };
+      
   // tell modules that the libRuler library is set up
   Hooks.callAll('libRulerReady');
 });
@@ -41,13 +41,13 @@ Hooks.once('init', async function() {
 // setup is called after settings and localization have been initialized, 
 // but before entities, packs, UI, canvas, etc. has been initialized
 Hooks.once('setup', async function() {
-		log("libRuler setup.");
+    log("libRuler setup.");
 });
 
 // modules ready
 // ready is called once everything is loaded up and ready to go.
 Hooks.once('ready', async function() {
-		log("libRuler ready.");
+    log("libRuler ready.");
 });
 
 // https://github.com/League-of-Foundry-Developers/foundryvtt-devMode
