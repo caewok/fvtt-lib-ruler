@@ -1,7 +1,6 @@
 import { MODULE_ID, log } from "./module.js";
 
 import { libRulerMeasure,  
-         libRulerHighlightMeasurement,
          
          libRulerSetDestination       
        } from "./ruler-measure.js";
