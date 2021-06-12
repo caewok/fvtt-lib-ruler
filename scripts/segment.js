@@ -162,7 +162,7 @@ export class Segment {
     //    This path does not modify the ruler display but rather symbolizes how
     //    the token moves in space.
     // 2. Use the specified measurement function to measure distance of the physical path.
-    // 3. Apply any modifiers (typically a multiple or adder) to the distance number.
+    // 3. Modify the resulting distance number.
     
     // 1. Construct a physical path.    
     log(`Constructing physical path.`);
@@ -172,26 +172,8 @@ export class Segment {
     const measured_distance = this.distanceFunction(physical_path);
     log(`Distance to point ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
         
-        
-    // 3. Apply modifiers    
-    const distance_modifiers = duplicate(this.getDistanceModifiers()); // avoid possibility of pointers from arrays
-    log("distance modifiers", distance_modifiers);
-    
-    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
-    // Want to avoid using eval() if possible
-    let modifier_string = `${measured_distance}`;
-    if(distance_modifiers.length > 0) {
-      distance_modifiers.forEach(m => {
-        modifier_string = `(${modifier_string} ${m})`;
-      });
-    }
-    
-    log(`modifier_string: ${modifier_string}`);
-    
-    // Note: In theory, modifiers could include function calls if looseJsonParse 
-    //       added the function to the scope. 
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
-    return looseJsonParse(modifier_string);    
+    // 3. Apply modifiers 
+    return this.modifyDistanceResult(measured_distance);
   }
   
   
@@ -207,27 +189,23 @@ export class Segment {
   }
   
   /*
-   * Each segment tracks modifications to the ray.distance.
-   * When measuring distance, the ray is first measured as normal, and then 
-   * any modifiers are applied in the order they are in the array.
-   * This helper function adds a new modifier to the end of the array.
-   * You can also modify the array directly by accessing this.distanceModifiers 
-   * where 'this' is a segment Class.
+   * Each segment permits modifications to the measured ray distance.
+   * For example, a module might penalize the distance based on terrain.
+   * Conceptually, this function should be used if you are not modifying the 
+   *   physical path but instead applying penalties, bonuses, or other extraneous
+   *   values to represent the "cost" of the path.
    *
+   * Note that all the properties of the Segment being measured 
+   *   are available here using this.
+   * 
    * For more complicated distance measurements, you can wrap measureDistance.
    *
-   * Modifier should be a string representing mathematical formula that can be resolved by 
-   * eval. It should begin with an operator. Each modifier is applied in turn. For example:
-   *   distanceModifiers = ['+2', '*3']
-   *   resolves to ((dist + 2) * 3)
-   * @param {string} label A description of the modifier. For informational purposes; can be
-   *   any string.
-   * @return an array of modifiers
+   * @param {Number} measured_distance The distance measured for the physical path.
+   * @return {Number} The distance as modified.
    */
-   getDistanceModifiers() {
-     return [];
+   modifyDistanceResult(measured_distance) {
+     return measured_distance;
    }
-   
    
   
    /*
@@ -411,11 +389,4 @@ export class Segment {
 Segment.prototype.getFlag = libRulerGetFlag;
 Segment.prototype.setFlag = libRulerSetFlag;
 Segment.prototype.unsetFlag = libRulerUnsetFlag;
-
-// Helper function in lieu of using eval()
-// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
-function looseJsonParse(obj){
-    return Function('"use strict";return (' + obj + ')')();
-}
-
 
