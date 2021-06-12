@@ -96,22 +96,25 @@ export class Segment {
   }
   
   /*
-   * What function to use to measure the distance of a segment?
+   * Function to measure the distance of a segment.
    * For example, if you didn't like 5e's Euclidean measure, you could implement your own here.
-   * @param {Array} See constructPhysicalPath function description.
+   * Note that the default here relies on canvas.grid.measureDistances, which 5e overrides with 
+   *   three different measurement functions, depending on user-setting. 
+   * @param {Object} See constructPhysicalPath function description.
+   * @return {Number} The distance of the segment.
    */
   distanceFunction(physical_path) {
     log("physical_path", physical_path);
-    if(physical_path.length < 2) console.error(`${MODULE_ID}|physical path has less than 2 entries.`, physical_path);
-    
+    if(!physical_path.origin) console.error(`${MODULE_ID}|physical path has no origin.`, physical_path);
+    if(!physical_path.destination) console.error(`${MODULE_ID}|physical path has no destination.`, physical_path);
+        
     const gridSpaces = this.options.gridSpaces;
-    
-    let distance_segments = [];
-    for(let i = 1; i < physical_path.length; i++) {
-      distance_segments.push({ray: this.constructRay(physical_path[i - 1], physical_path[i])});
-    }
-    
+   
+    //  canvas.grid.measureDistances takes an array of segments
+    let distance_segments = [{ ray: this.constructRay(physical_path.origin, physical_path.destination) }];
     const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
+    
+    // In the default, should only be one distance...
     return distances.reduce((acc, d) => acc + d, 0);
   }
 
@@ -120,26 +123,31 @@ export class Segment {
    * Construct a physical path for the segment that represents how the measured item 
    *   actually would move.
    *  
-   * The default is [{x0,y0}, {x1, y1}], where {x0, y0} is the origin and 
-   *    {x1, y1} is the destination along the 2-D canvas.
+   * The default is an Object {origin: {x0,y0}, destination: {x1, y1}}, representing
+   *   a physical line along the 2-D canvas.
    * If operating in 3 (or more) dimensions, you should modify this accordingly
    *   so that other modules can account for physical movement if they want.
-   *   You will also need to modify the distanceFunction to handle a 3-D (or more) measurement.
+   *   You would also need to modify the distanceFunction to handle a 3-D (or more) measurement.
    * For multiple dimensions, each point should be: {x, y, z, ...} where z is orthogonal to 
    *   the x,y plane and each dimension after z is orthogonal to the object prior.
    *
-   * If you intend to create deviations from a line, the returned object should be an array
-   *   of points where element 0 is origin and element array.length - 1 is destination. 
-   *   Again, modifying distanceFunction will be necessary.   
+   * If you intend to create deviations from a line, you may want to include 
+   *   additional properties to represent those deviations. For example, a property 
+   *   for a formula to represent a curve.
+   *   Again, modifying distanceFunction would be necessary.   
    *
-   * @param {Segment} segment If provided, this should be either a Segment class or an object
+   * @param {Segment} destination_point If provided, this should be either a Segment class or an object
    *     with the properties ray containing a Ray object. 
-   * @return {Array} An Array of points
+   * @return {Object} An object that contains {origin, destination}. 
+   *   It may contain other properties related to the physical path to be handled by specific modules.
    */
    constructPhysicalPath(destination_point = this.ray.B) {
-     log("Physical path for destination", this.ray.A, destination_point);
+     log("Physical path from origin to destination", this.ray.A, destination_point);
+     
+     // Changed from array to allow simpler returns in the base case.
+     // Module may add intermediate points or other representations by adding properties.
    
-     return [this.ray.A, destination_point];
+     return { origin: this.ray.A, destination: destination_point };
    }   
   
  /* 
