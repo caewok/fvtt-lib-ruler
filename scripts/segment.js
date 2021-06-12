@@ -405,6 +405,7 @@ export class Segment {
   }
 }
  
+// Pull in flag functions. See ruler-flags.js 
 Segment.prototype.getFlag = libRulerGetFlag;
 Segment.prototype.setFlag = libRulerSetFlag;
 Segment.prototype.unsetFlag = libRulerUnsetFlag;
