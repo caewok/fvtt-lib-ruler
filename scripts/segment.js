@@ -41,27 +41,25 @@ Apply modifiers in sequence for (3) after measuring the distance.
 
 
 export class Segment {
-  prior_segment = {};
-  segment_num = 0;
-  last = false;
-  flags = {};
-  distanceValue = null; // private fields (#distanceValue) not currently supported.
-  distanceModifiers = [];
-  color = "";
-  options = { gridSpaces: true };
-
-  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {gridSpaces: true}) {
+ 
+  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
-  
+    
+    // basic defaults
+    this.last = false;
+    this.flags = {};
+    this.distanceValue = null; // private fields (#distanceValue) not currently supported.
+    this.distanceModifiers = [];
+
     this.prior_segment = prior_segment; // chained prior Segments
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
     this.ray = this.constructRay(origin, destination);
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
-    this.options = options;
+    this.options = mergeObject(options, { gridSpaces: true };
     this.physical_path = this.ray;
     
     this.addProperties();
