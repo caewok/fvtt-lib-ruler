@@ -1,3 +1,11 @@
+## 0.0.5
+Incorporate changes suggested by Stäbchenfisch. 
+- Simplify flag functions to prioritize speed over checks.
+- Use an object with origin and destination for the physical path.
+- Simplify `measureDistance` by using a `modifyResult` function to allow 
+    modifications such as for terrain penalties.
+- Detour `Ruler._highlightMeasurement` into `Segment.highlightMeasurement`.
+
 ## 0.0.4
 Update to Foundry 0.8.5.
 - Update flag functions to call game.getPackageScopes.
