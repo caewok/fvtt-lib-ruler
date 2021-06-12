@@ -1,7 +1,6 @@
 import { MODULE_ID, log } from "./module.js";
 
 import { libRulerMeasure,  
-         libRulerHighlightMeasurement,
          
          libRulerSetDestination       
        } from "./ruler-measure.js";
@@ -19,12 +18,13 @@ import { libRulerMoveToken,
          libRulerTestForCollision,
          libRulerAnimateToken 
        } from "./ruler-move-token.js";
+       
+import { Segment } from "./segment.js";
 
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');  
-  
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', libRulerHighlightMeasurement, 'WRAPPER');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', Segment.prototype.highlightMeasurement, 'OVERRIDE');
   
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');

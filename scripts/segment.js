@@ -15,22 +15,22 @@ Possible movements / representation of a measured path:
 
 (1) modifies the represented physical path 
   (does not modify the ruler display but symbolizes how in fact the token moves in space)
-	- elevate into 3-D space (or more dimensions, why not!)
-	- approximate a curve or other linear path that may or may not be 2-D
-	- interjects something non-linear, like stumbling or teleport, into the path 
-	  (probably would require a different measure function to accommodate multiple segments,
-	    or would require interjecting segments into the segments Array in some manner)
-	- physically deviate the 2-D path from what is represented by the ruler    
+  - elevate into 3-D space (or more dimensions, why not!)
+  - approximate a curve or other linear path that may or may not be 2-D
+  - interjects something non-linear, like stumbling or teleport, into the path 
+    (probably would require a different measure function to accommodate multiple segments,
+      or would require interjecting segments into the segments Array in some manner)
+  - physically deviate the 2-D path from what is represented by the ruler    
 (2) modifies rules for measuring distance
- 	- e.g., dnd5e measure functions (5-5-5, 5-10-5, Euclidean) 
- 	  (built-in to canvas.grid.measureDistances but otherwise would require a function)
- 	- possibly some curve approximations (like assuming the ruler represents a thrown object 
- 	  along a parabola)
- 	- handle modifications from (1), such as projecting 3-D to a 2-D canvas  
+   - e.g., dnd5e measure functions (5-5-5, 5-10-5, Euclidean) 
+     (built-in to canvas.grid.measureDistances but otherwise would require a function)
+   - possibly some curve approximations (like assuming the ruler represents a thrown object 
+     along a parabola)
+   - handle modifications from (1), such as projecting 3-D to a 2-D canvas  
 (3) increases the cost of the distance amount but not really the path per se
-	- multiplier for part or all of a path
-	- adder for part or all of a path
-	- zero out some or all of the distance cost
+  - multiplier for part or all of a path
+  - adder for part or all of a path
+  - zero out some or all of the distance cost
 - ?
 
 Call a function to get the physical path for a segment for (1).
@@ -41,27 +41,25 @@ Apply modifiers in sequence for (3) after measuring the distance.
 
 
 export class Segment {
-  prior_segment = {};
-  segment_num = 0;
-  last = false;
-  flags = {};
-  distanceValue = null; // private fields (#distanceValue) not currently supported.
-  distanceModifiers = [];
-  color = "";
-  options = { gridSpaces: true };
-
-  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {gridSpaces: true}) {
+ 
+  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
-  
+    
+    // basic defaults
+    this.last = false;
+    this.flags = {};
+    this.distanceValue = null; // private fields (#distanceValue) not currently supported.
+    this.distanceModifiers = [];
+
     this.prior_segment = prior_segment; // chained prior Segments
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
     this.ray = this.constructRay(origin, destination);
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
-    this.options = options;
+    this.options = mergeObject(options, { gridSpaces: true });
     this.physical_path = this.ray;
     
     this.addProperties();
@@ -98,50 +96,58 @@ export class Segment {
   }
   
   /*
-   * What function to use to measure the distance of a segment?
+   * Function to measure the distance of a segment.
    * For example, if you didn't like 5e's Euclidean measure, you could implement your own here.
-   * @param {Array} See constructPhysicalPath function description.
+   * Note that the default here relies on canvas.grid.measureDistances, which 5e overrides with 
+   *   three different measurement functions, depending on user-setting. 
+   * @param {Object} See constructPhysicalPath function description.
+   * @return {Number} The distance of the segment.
    */
   distanceFunction(physical_path) {
     log("physical_path", physical_path);
-    if(physical_path.length < 2) console.error(`${MODULE_ID}|physical path has less than 2 entries.`, physical_path);
-    
+    if(!physical_path.origin) console.error(`${MODULE_ID}|physical path has no origin.`, physical_path);
+    if(!physical_path.destination) console.error(`${MODULE_ID}|physical path has no destination.`, physical_path);
+        
     const gridSpaces = this.options.gridSpaces;
-    
-    let distance_segments = [];
-    for(let i = 1; i < physical_path.length; i++) {
-      distance_segments.push({ray: this.constructRay(physical_path[i - 1], physical_path[i])});
-    }
-    
+   
+    //  canvas.grid.measureDistances takes an array of segments
+    let distance_segments = [{ ray: this.constructRay(physical_path.origin, physical_path.destination) }];
     const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
+    
+    // In the default, should only be one distance...
     return distances.reduce((acc, d) => acc + d, 0);
   }
 
   
-	/*
-	 * Construct a physical path for the segment that represents how the measured item 
-	 *   actually would move.
-	 *  
-	 * The default is [{x0,y0}, {x1, y1}], where {x0, y0} is the origin and 
-	 *    {x1, y1} is the destination along the 2-D canvas.
-	 * If operating in 3 (or more) dimensions, you should modify this accordingly
-	 *   so that other modules can account for physical movement if they want.
-	 *   You will also need to modify the distanceFunction to handle a 3-D (or more) measurement.
-	 * For multiple dimensions, each point should be: {x, y, z, ...} where z is orthogonal to 
-	 *   the x,y plane and each dimension after z is orthogonal to the object prior.
-	 *
-	 * If you intend to create deviations from a line, the returned object should be an array
-	 *   of points where element 0 is origin and element array.length - 1 is destination. 
-	 *   Again, modifying distanceFunction will be necessary.   
-	 *
-	 * @param {Segment} segment If provided, this should be either a Segment class or an object
+  /*
+   * Construct a physical path for the segment that represents how the measured item 
+   *   actually would move.
+   *  
+   * The default is an Object {origin: {x0,y0}, destination: {x1, y1}}, representing
+   *   a physical line along the 2-D canvas.
+   * If operating in 3 (or more) dimensions, you should modify this accordingly
+   *   so that other modules can account for physical movement if they want.
+   *   You would also need to modify the distanceFunction to handle a 3-D (or more) measurement.
+   * For multiple dimensions, each point should be: {x, y, z, ...} where z is orthogonal to 
+   *   the x,y plane and each dimension after z is orthogonal to the object prior.
+   *
+   * If you intend to create deviations from a line, you may want to include 
+   *   additional properties to represent those deviations. For example, a property 
+   *   for a formula to represent a curve.
+   *   Again, modifying distanceFunction would be necessary.   
+   *
+   * @param {Segment} destination_point If provided, this should be either a Segment class or an object
    *     with the properties ray containing a Ray object. 
-   * @return {Array} An Array of points
-	 */
+   * @return {Object} An object that contains {origin, destination}. 
+   *   It may contain other properties related to the physical path to be handled by specific modules.
+   */
    constructPhysicalPath(destination_point = this.ray.B) {
-     log("Physical path for destination", this.ray.A, destination_point);
+     log("Physical path from origin to destination", this.ray.A, destination_point);
+     
+     // Changed from array to allow simpler returns in the base case.
+     // Module may add intermediate points or other representations by adding properties.
    
-     return [this.ray.A, destination_point];
+     return { origin: this.ray.A, destination: destination_point };
    }   
   
  /* 
@@ -156,7 +162,7 @@ export class Segment {
     //    This path does not modify the ruler display but rather symbolizes how
     //    the token moves in space.
     // 2. Use the specified measurement function to measure distance of the physical path.
-    // 3. Apply any modifiers (typically a multiple or adder) to the distance number.
+    // 3. Modify the resulting distance number.
     
     // 1. Construct a physical path.    
     log(`Constructing physical path.`);
@@ -166,26 +172,8 @@ export class Segment {
     const measured_distance = this.distanceFunction(physical_path);
     log(`Distance to point ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
         
-        
-    // 3. Apply modifiers    
-    const distance_modifiers = duplicate(this.getDistanceModifiers()); // avoid possibility of pointers from arrays
-    log("distance modifiers", distance_modifiers);
-    
-    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
-    // Want to avoid using eval() if possible
-    let modifier_string = `${measured_distance}`;
-    if(distance_modifiers.length > 0) {
-      distance_modifiers.forEach(m => {
-        modifier_string = `(${modifier_string} ${m})`;
-      });
-    }
-    
-    log(`modifier_string: ${modifier_string}`);
-    
-    // Note: In theory, modifiers could include function calls if looseJsonParse 
-    //       added the function to the scope. 
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
-    return looseJsonParse(modifier_string);    
+    // 3. Apply modifiers 
+    return this.modifyDistanceResult(measured_distance);
   }
   
   
@@ -201,27 +189,23 @@ export class Segment {
   }
   
   /*
-   * Each segment tracks modifications to the ray.distance.
-   * When measuring distance, the ray is first measured as normal, and then 
-   * any modifiers are applied in the order they are in the array.
-   * This helper function adds a new modifier to the end of the array.
-   * You can also modify the array directly by accessing this.distanceModifiers 
-   * where 'this' is a segment Class.
+   * Each segment permits modifications to the measured ray distance.
+   * For example, a module might penalize the distance based on terrain.
+   * Conceptually, this function should be used if you are not modifying the 
+   *   physical path but instead applying penalties, bonuses, or other extraneous
+   *   values to represent the "cost" of the path.
    *
+   * Note that all the properties of the Segment being measured 
+   *   are available here using this.
+   * 
    * For more complicated distance measurements, you can wrap measureDistance.
    *
-   * Modifier should be a string representing mathematical formula that can be resolved by 
-   * eval. It should begin with an operator. Each modifier is applied in turn. For example:
-   *   distanceModifiers = ['+2', '*3']
-   *   resolves to ((dist + 2) * 3)
-   * @param {string} label A description of the modifier. For informational purposes; can be
-   *   any string.
-   * @return an array of modifiers
+   * @param {Number} measured_distance The distance measured for the physical path.
+   * @return {Number} The distance as modified.
    */
-   getDistanceModifiers() {
-     return [];
+   modifyDistanceResult(measured_distance) {
+     return measured_distance;
    }
-   
    
   
    /*
@@ -250,35 +234,35 @@ export class Segment {
    * pull a property or execute a method with supplied arguments for each prior segment.
    */
    
-	traversePriorSegments(segment, prop, ...args) { 
-	  //log(`traversing ${prop} which is type ${typeof segment[prop]}.`, segment)	
+  traversePriorSegments(segment, prop, ...args) { 
+    //log(`traversing ${prop} which is type ${typeof segment[prop]}.`, segment)  
     if(!segment || Object.keys(segment).length === 0) {
       //log("Returning []")
       return [];
     }
-		if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
+    if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
 
-		let results = [];
-	
-		// get the value for this object
+    let results = [];
+  
+    // get the value for this object
 
-		if(prop in segment) {
-			const is_function = segment[prop] instanceof Function;
-		  
-			//log(`segment has property ${prop} which is ${is_function ? "" : "not"} a function.`);
-			const res = is_function ? segment[prop](...args) : segment[prop];
-			results.push(res);
-		} 
-	
-		// find the parent for the object; traverse if not empty
-		if(segment.prior_segment && Object.keys(segment.prior_segment).length > 0) {
-			results = results.concat(this.traversePriorSegments(segment.prior_segment, prop, ...args));
-		} 
-		
-		//log(`Returning array length ${results.length}`, results);
-	
-		return results;
-	}
+    if(prop in segment) {
+      const is_function = segment[prop] instanceof Function;
+      
+      //log(`segment has property ${prop} which is ${is_function ? "" : "not"} a function.`);
+      const res = is_function ? segment[prop](...args) : segment[prop];
+      results.push(res);
+    } 
+  
+    // find the parent for the object; traverse if not empty
+    if(segment.prior_segment && Object.keys(segment.prior_segment).length > 0) {
+      results = results.concat(this.traversePriorSegments(segment.prior_segment, prop, ...args));
+    } 
+    
+    //log(`Returning array length ${results.length}`, results);
+  
+    return results;
+  }
 
  
   
@@ -297,12 +281,12 @@ export class Segment {
   /*
    * Draws the highlighted measure line on the canvas for the segment.
    */
-	drawLine() {
-		const ray = this.ray;
+  drawLine() {
+    const ray = this.ray;
 
-		this.ruler.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
-		 .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
-	}
+    this.ruler.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
+     .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
+  }
   
   /*
    * Draws the highlighted measure line on the canvas.
@@ -312,16 +296,16 @@ export class Segment {
     const text = this.text;
     const ray = this.ray;
     const last = this.last;
-	
-		if ( label ) {
-		    log(`Drawing label ${text}.`);
-				label.text = text;
-				label.alpha = last ? 1.0 : 0.5;
-				label.visible = true;
-				let labelPosition = ray.project((ray.distance + 50) / ray.distance);
-				label.position.set(labelPosition.x, labelPosition.y);
-			}
-		return label;	// in case another module wants to modify the label.
+  
+    if ( label ) {
+        log(`Drawing label ${text}.`);
+        label.text = text;
+        label.alpha = last ? 1.0 : 0.5;
+        label.visible = true;
+        let labelPosition = ray.project((ray.distance + 50) / ray.distance);
+        label.position.set(labelPosition.x, labelPosition.y);
+      }
+    return label;  // in case another module wants to modify the label.
   }
   
   /*
@@ -340,44 +324,63 @@ export class Segment {
   
   /*
    * Modified version of Ruler._highlightMeasurement
+   * This version allows modules to override highlightPosition,
+   *   used for things like changing the color of the ruler highlight.
+   * If somehow a module calls the original version, this function provides
+   *   for a compatible version. The original is called from Ruler class, not Segment class.
+   * @param {Ray} Optional Ray. Kept for compatibility with original function.
+   * 
    */
-  highlightMeasurement() {
-    const ray = this.ray;
+  highlightMeasurement(ray = this.ray) {
+    const is_ruler_class = !(this instanceof Segment);
+    
+    if(is_ruler_class) {
+      console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
+    }
+      
+    const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
+    const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
+    const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
+    
+    // Track prior position
+    let prior = null;
   
-		const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
-		const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
-		const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
-		
-		// Track prior position
-		let prior = null;
-	
-		// Iterate over ray portions
-		for ( let [i, t] of tMax.entries() ) {
-			log(`iterating over ray portion ${i}.`);
-			let {x, y} = ray.project(t);
-		
-			// Get grid position
-			let [x0, y0] = (i === 0) ? [null, null] : prior;
-			let [x1, y1] = canvas.grid.grid.getGridPositionFromPixels(x, y);
-			if ( x0 === x1 && y0 === y1 ) continue;
-		
-			// Highlight the grid position
-			let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
-			this.highlightPosition({x: xg, y: yg});
-				
-			// Skip the first one
-			prior = [x1, y1];
-			if ( i === 0 ) continue;
-		
-			// If the positions are not neighbors, also highlight their halfway point
-			if ( !canvas.grid.isNeighbor(x0, y0, x1, y1) ) {
-				let th = tMax[i - 1] + (0.5 / nMax);
-				let {x, y} = ray.project(th);
-				let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
-				let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
-				this.highlightPosition({x: xgh, y: ygh})
-			}
-		}
+    // Iterate over ray portions
+    for ( let [i, t] of tMax.entries() ) {
+      log(`iterating over ray portion ${i}.`);
+      let {x, y} = ray.project(t);
+    
+      // Get grid position
+      let [x0, y0] = (i === 0) ? [null, null] : prior;
+      let [x1, y1] = canvas.grid.grid.getGridPositionFromPixels(x, y);
+      if ( x0 === x1 && y0 === y1 ) continue;
+    
+      // Highlight the grid position
+      let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
+      if(is_ruler_class) {
+        canvas.grid.highlightPosition(this.name, {x: xg, y: yg, color: this.color});
+      } else {
+        this.highlightPosition({x: xg, y: yg});
+      }
+        
+      // Skip the first one
+      prior = [x1, y1];
+      if ( i === 0 ) continue;
+    
+      // If the positions are not neighbors, also highlight their halfway point
+      if ( !canvas.grid.isNeighbor(x0, y0, x1, y1) ) {
+        let th = tMax[i - 1] + (0.5 / nMax);
+        let {x, y} = ray.project(th);
+        let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
+        let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
+        if(is_ruler_class) {
+          canvas.grid.highlightPosition(this.name, {x: xgh, y: ygh, color: this.color});
+        } else {
+          this.highlightPosition({x: xgh, y: ygh})
+        }
+        
+      }
+    }
   
   }
   
@@ -402,14 +405,8 @@ export class Segment {
   }
 }
  
+// Pull in flag functions. See ruler-flags.js 
 Segment.prototype.getFlag = libRulerGetFlag;
 Segment.prototype.setFlag = libRulerSetFlag;
 Segment.prototype.unsetFlag = libRulerUnsetFlag;
-
-// Helper function in lieu of using eval()
-// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
-function looseJsonParse(obj){
-    return Function('"use strict";return (' + obj + ')')();
-}
-
 

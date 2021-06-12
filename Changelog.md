@@ -1,3 +1,11 @@
+## 0.0.5
+Incorporate changes suggested by Stäbchenfisch. 
+- Simplify flag functions to prioritize speed over checks.
+- Use an object with origin and destination for the physical path.
+- Simplify `measureDistance` by using a `modifyResult` function to allow 
+    modifications such as for terrain penalties.
+- Detour `Ruler._highlightMeasurement` into `Segment.highlightMeasurement`.
+
 ## 0.0.4
 Update to Foundry 0.8.5.
 - Update flag functions to call game.getPackageScopes.
@@ -17,9 +25,9 @@ Switch to using a Segment Class for most measure functionality.
 - Drawing and distance measure handled by Segment Class.
 - Add Segment Class to window['libRuler'].
 - 3-step distance measure:
-	1. Construct a physical path of "movement" by creating Array of points. 
-	2. Use defined measurement function to measure the Array of points.
-	3. Add modifiers to the distance number.
+  1. Construct a physical path of "movement" by creating Array of points. 
+  2. Use defined measurement function to measure the Array of points.
+  3. Add modifiers to the distance number.
 
 
 ## 0.0.1

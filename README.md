@@ -6,9 +6,13 @@ Library for [Foundry VTT](https://foundryvtt.com) which provides module develope
 
 [![Version (latest)](https://img.shields.io/github/v/release/caewok/fvtt-lib-ruler)](https://github.com/caewok/fvtt-lib-ruler/releases/latest)
 
-[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibleCoreVersion&colorB=blueviolet)](https://github.com/ruipin/fvtt-lib-wrapper/releases/latest)
+[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibleCoreVersion&colorB=blueviolet)](https://github.com/caewok/fvtt-lib-ruler/releases/latest)
 
 # Installation
+
+## Dependencies
+
+- [libWrapper Module](https://github.com/ruipin/fvtt-lib-wrapper)
 
 ## As a Module
 1.  Copy this link and use it in Foundry's Module Manager to install the Module.
