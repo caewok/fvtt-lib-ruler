@@ -324,10 +324,20 @@ export class Segment {
   
   /*
    * Modified version of Ruler._highlightMeasurement
+   * This version allows modules to override highlightPosition,
+   *   used for things like changing the color of the ruler highlight.
+   * If somehow a module calls the original version, this function provides
+   *   for a compatible version. The original is called from Ruler class, not Segment class.
+   * @param {Ray} Optional Ray. Kept for compatibility with original function.
+   * 
    */
-  highlightMeasurement() {
-    const ray = this.ray;
-  
+  highlightMeasurement(ray = this.ray) {
+    const is_ruler_class = !(this instanceof Segment);
+    
+    if(is_ruler_class) {
+      console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
+    }
+      
     const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
     const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
     const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
@@ -347,7 +357,11 @@ export class Segment {
     
       // Highlight the grid position
       let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
-      this.highlightPosition({x: xg, y: yg});
+      if(is_ruler_class) {
+        canvas.grid.highlightPosition(this.name, {x: xg, y: yg, color: this.color});
+      } else {
+        this.highlightPosition({x: xg, y: yg});
+      }
         
       // Skip the first one
       prior = [x1, y1];
@@ -359,7 +373,12 @@ export class Segment {
         let {x, y} = ray.project(th);
         let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
         let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
-        this.highlightPosition({x: xgh, y: ygh})
+        if(is_ruler_class) {
+          canvas.grid.highlightPosition(this.name, {x: xgh, y: ygh, color: this.color});
+        } else {
+          this.highlightPosition({x: xgh, y: ygh})
+        }
+        
       }
     }
   
