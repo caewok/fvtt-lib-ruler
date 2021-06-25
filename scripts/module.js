@@ -37,19 +37,6 @@ Hooks.once('init', async function() {
   Hooks.callAll('libRulerReady');
 });
 
-// setup is after init; before ready. 
-// setup is called after settings and localization have been initialized, 
-// but before entities, packs, UI, canvas, etc. has been initialized
-Hooks.once('setup', async function() {
-    log("libRuler setup.");
-});
-
-// modules ready
-// ready is called once everything is loaded up and ready to go.
-Hooks.once('ready', async function() {
-    log("libRuler ready.");
-});
-
 // https://github.com/League-of-Foundry-Developers/foundryvtt-devMode
 Hooks.once('devModeReady', ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
