@@ -42,7 +42,7 @@ Apply modifiers in sequence for (3) after measuring the distance.
 
 export class Segment {
  
-  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {}) {
+  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, measure_distance_options = {gridSpaces: true}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
@@ -59,7 +59,7 @@ export class Segment {
     this.ray = this.constructRay(origin, destination);
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
-    this.options = mergeObject(options, { gridSpaces: true });
+    this.measure_distance_options = measure_distance_options;
     this.physical_path = this.ray;
     
     this.addProperties();
@@ -108,11 +108,9 @@ export class Segment {
     if(!physical_path.origin) console.error(`${MODULE_ID}|physical path has no origin.`, physical_path);
     if(!physical_path.destination) console.error(`${MODULE_ID}|physical path has no destination.`, physical_path);
         
-    const gridSpaces = this.options.gridSpaces;
-   
     //  canvas.grid.measureDistances takes an array of segments
     let distance_segments = [{ ray: this.constructRay(physical_path.origin, physical_path.destination) }];
-    const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
+    const distances = canvas.grid.measureDistances(distance_segments, this.measure_distance_options);
     
     // In the default, should only be one distance...
     return distances.reduce((acc, d) => acc + d, 0);
