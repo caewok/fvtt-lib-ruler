@@ -1,3 +1,6 @@
+## 0.0.7
+Store an option that is passed to measureDistance options. Minor cleanup of hook functions.
+
 ## 0.0.6
 Fix for failure to incorporate changes from 0.0.5 into release.
 
