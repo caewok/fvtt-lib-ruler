@@ -1,3 +1,6 @@
+## 0.0.8
+Update the module.json to use a name without special characters to conform to Foundry requirements.
+
 ## 0.0.7
 Store an option that is passed to measureDistance options. Minor cleanup of hook functions.
 
