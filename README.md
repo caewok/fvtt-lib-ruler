@@ -2,13 +2,13 @@
 Library for [Foundry VTT](https://foundryvtt.com) which provides module developers with a means to modify the Ruler class in core Foundry VTT code, while reducing the likelihood of conflict with other modules. Also aims to make certain overrides of the Foundry ruler easier to accomplish.
 
 <!--- Downloads @ Latest Badge -->
+[![Version (latest)](https://img.shields.io/github/v/release/caewok/fvtt-lib-ruler)](https://github.com/caewok/fvtt-lib-ruler/releases/latest)
+[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibleCoreVersion&colorB=blueviolet)](https://github.com/caewok/fvtt-lib-ruler/releases/latest)
 [![License](https://img.shields.io/github/license/caewok/fvtt-lib-ruler)](LICENSE)
 
-[![Version (latest)](https://img.shields.io/github/v/release/caewok/fvtt-lib-ruler)](https://github.com/caewok/fvtt-lib-ruler/releases/latest)
-
-[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibleCoreVersion&colorB=blueviolet)](https://github.com/caewok/fvtt-lib-ruler/releases/latest)
-
 # Installation
+
+Add this [Manifest URL](https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json) in Foundry to install.
 
 ## Dependencies
 

@@ -1,7 +1,7 @@
 import { registerLibRuler } from "./patching.js";
 import { Segment } from "./segment.js";
 
-export const MODULE_ID = 'lib-ruler';
+export const MODULE_ID = 'libruler';
 const FORCE_DEBUG = false; // used for logging before dev mode is set up
 
 /* 
@@ -28,7 +28,7 @@ export function log(...args) {
 // but all of the core foundry code has been loaded.
 Hooks.once('init', async function() {
   log("Initializing libRuler.");
-  if(!game.modules.get('lib-wrapper')?.active && game.user.isGM) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
+  
   registerLibRuler();    
   
   window['libRuler'] = { Segment: Segment };
@@ -40,4 +40,10 @@ Hooks.once('init', async function() {
 // https://github.com/League-of-Foundry-Developers/foundryvtt-devMode
 Hooks.once('devModeReady', ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
+});
+
+Hooks.once('ready', async function() {
+  if(game?.user?.isGM === undefined || game.user.isGM) {
+    if(!game.modules.get('lib-wrapper')?.active) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
+  }
 });
