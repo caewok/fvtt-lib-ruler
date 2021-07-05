@@ -1,7 +1,7 @@
 import { registerLibRuler } from "./patching.js";
 import { Segment } from "./segment.js";
 
-export const MODULE_ID = 'lib-ruler';
+export const MODULE_ID = 'libruler';
 const FORCE_DEBUG = false; // used for logging before dev mode is set up
 
 /* 
