@@ -1,3 +1,6 @@
+## 0.0.9
+Update Module ID in code to match that of the module.json. 
+
 ## 0.0.8
 Update the module.json to use a name without special characters to conform to Foundry requirements.
 
