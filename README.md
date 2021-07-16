@@ -37,7 +37,7 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
     
     // or 
     
-    if(game.modules.get('lib-ruler')?.active) {
+    if(game.modules.get('libruler')?.active) {
      // DO LIB-RULER VERSION
     }
     
@@ -50,7 +50,7 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
 
     ```javascript
     Hooks.once('ready', () => {
-        if(!game.modules.get('lib-ruler')?.active && game.user.isGM)
+        if(!game.modules.get('libruler')?.active && game.user.isGM)
             ui.notifications.error("Module XYZ requires the 'libRuler' module. Please install and activate this dependency.");
     });
     ```
@@ -60,7 +60,7 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
     ```javascript
     "dependencies": [
         {
-            "name": "lib-ruler"
+            "name": "libruler"
         }
     ]
     ```
