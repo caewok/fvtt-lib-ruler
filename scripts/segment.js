@@ -4,10 +4,10 @@ import { libRulerGetFlag,
          libRulerUnsetFlag 
        } from "./ruler-flags.js";
        
-// Define a Segment class used by Ruler.measure
+// Define a RulerSegment class used by Ruler.measure
 // The segment represents the path between two 
 // waypoints (incl. origin or destination) in a ruler.
-// Segments are chained: each Segment contains a previous_segments Array 
+// RulerSegments are chained: each RulerSegment contains a previous_segments Array 
 // that should include each of the earlier segments in the Ruler path
 
 /*
@@ -40,11 +40,11 @@ Apply modifiers in sequence for (3) after measuring the distance.
 */
 
 
-export class Segment {
+export class RulerSegment {
  
   constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, measure_distance_options = {gridSpaces: true}) {
-    //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
-    //  throw new TypeError("Previous Segments Array not all Segment Class");
+    //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf RulerSegment)) {
+    //  throw new TypeError("Previous Segments Array not all RulerSegment Class");
     //}
     
     // basic defaults
@@ -53,7 +53,7 @@ export class Segment {
     this.distanceValue = null; // private fields (#distanceValue) not currently supported.
     this.distanceModifiers = [];
 
-    this.prior_segment = prior_segment; // chained prior Segments
+    this.prior_segment = prior_segment; // chained prior RulerSegment
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
     this.ray = this.constructRay(origin, destination);
@@ -76,7 +76,7 @@ export class Segment {
     //const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
     //const total_prior_dist_m2 = total_prior_dist_arr.reduce((acc, curr) => acc + curr, 0) || 0;
     
-    //log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
+    //log(`RulerSegment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
      
     return total_prior_distance;
   }
@@ -84,7 +84,7 @@ export class Segment {
   get totalDistance() {
     const total_prior_distance = this.totalPriorDistance;
     const total_current_distance = this.distance;
-    log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
+    log(`RulerSegment ${this.segment_num}: Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
   
     return total_prior_distance + total_current_distance;
   }
@@ -134,7 +134,7 @@ export class Segment {
    *   for a formula to represent a curve.
    *   Again, modifying distanceFunction would be necessary.   
    *
-   * @param {Segment} destination_point If provided, this should be either a Segment class or an object
+   * @param {RulerSegment} destination_point If provided, this should be either a RulerSegment class or an object
    *     with the properties ray containing a Ray object. 
    * @return {Object} An object that contains {origin, destination}. 
    *   It may contain other properties related to the physical path to be handled by specific modules.
@@ -238,7 +238,7 @@ export class Segment {
       //log("Returning []")
       return [];
     }
-    if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
+    if(!(segment instanceof RulerSegment)) console.error("libRuler|traversePriorSegments limited to RulerSegment class objects.");
 
     let results = [];
   
@@ -267,7 +267,7 @@ export class Segment {
   /* 
    * Helper function that allows other labels to be set by modules.
    * Is called when the segment is first constructed.
-   * Properties are best added using the Segment Class flag methods.
+   * Properties are best added using the RulerSegment Class flag methods.
    *   e.g. this.setFlag("module_id"", "key", value)
    * Or add distance modifiers using the addDistanceModifier helper function.
    */
@@ -325,12 +325,12 @@ export class Segment {
    * This version allows modules to override highlightPosition,
    *   used for things like changing the color of the ruler highlight.
    * If somehow a module calls the original version, this function provides
-   *   for a compatible version. The original is called from Ruler class, not Segment class.
+   *   for a compatible version. The original is called from Ruler class, not RulerSegment class.
    * @param {Ray} Optional Ray. Kept for compatibility with original function.
    * 
    */
   highlightMeasurement(ray = this.ray) {
-    const is_ruler_class = !(this instanceof Segment);
+    const is_ruler_class = !(this instanceof RulerSegment);
     
     if(is_ruler_class) {
       console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
@@ -404,7 +404,7 @@ export class Segment {
 }
  
 // Pull in flag functions. See ruler-flags.js 
-Segment.prototype.getFlag = libRulerGetFlag;
-Segment.prototype.setFlag = libRulerSetFlag;
-Segment.prototype.unsetFlag = libRulerUnsetFlag;
+RulerSegment.prototype.getFlag = libRulerGetFlag;
+RulerSegment.prototype.setFlag = libRulerSetFlag;
+RulerSegment.prototype.unsetFlag = libRulerUnsetFlag;
 
