@@ -464,16 +464,22 @@ export class RulerSegment {
 
  /*
   * Calculate the distance between two points in {x,y} dimensions.
+  * Avoids calculating the hypotenuse (sqrt) unless necessary, to avoid floating point errors.
+  * Treats points very near one another as equal.
   * @param {PIXI.Point} A   Point in {x, y} format.
   * @param {PIXI.Point} B   Point in {x, y} format.
   * @return The distance between the two points.
   */
-  calculateDistance(A, B) {
-    const dx = B.x - A.x;
-    const dy = B.y - A.y;
+  calculateDistance(A, B, EPSILON = 1e-6) {
+    const dx = Math.abs(B.x - A.x);
+    const dy = Math.abs(B.y - A.y);
+    if(dy < EPSILON && dx < EPSILON) { return 0; }
+    if(dy < EPSILON) { return dx; }
+    if(dx < EPSILON) { return dy; }
+
     return Math.hypot(dy, dx);
   }
-   
+
 }
  
 // Pull in flag functions. See ruler-flags.js 
