@@ -1,5 +1,8 @@
 ## 0.1.0
-Switch to using RulerSegment as the class name, to avoid collisions with other Segment classes. 
+Switch to using RulerSegment as the class name, to avoid collisions with other Segment classes. Change the physical path method to create an array of points in two or three dimensions. Break the measurement function into two parts: one to project the physical path onto the 2-D canvas, and a second to do the actual measurement of path line segments. Added physical_path as an argument to modifyDistanceResult.
+Breaking changes:
+- Renamed `Segment` class to `RulerSegment`
+- Renamed `distanceFunction` to `measurePhysicalPath`. Broke out `distanceFunction` as a function called by `measurePhysicalPath`.    
 
 ## 0.0.9
 Update Module ID in code to match that of the module.json. 
