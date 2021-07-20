@@ -54,6 +54,11 @@ static function pointsAlmostEqual(p1, p2, EPSILON = 1e-6) {
  /*
   * Test if two numbers are almost equal, given a small error window.
   * From https://www.toptal.com/python/computational-geometry-in-python-from-theory-to-implementation
+  * @param {Number} x         First number
+  * @param {Number} y         Second number for comparison
+  * @param {Number} EPSILON   Small number representing error within which the numbers 
+  *                           will be considered equal
+  * @return {Boolean} True if x and y are within the error of each other.
   */
 static function almostEqual(x, y, EPSILON = 1e-6) {
   return Math.abs(x - y) < EPSILON;
@@ -63,6 +68,11 @@ static function almostEqual(x, y, EPSILON = 1e-6) {
 // Wrapper to fix a FoundryVTT bug that causes the return values of canvas.grid.grid.getPixelsFromGridPosition to be ordered inconsistently
 
 // https://gitlab.com/foundrynet/foundryvtt/-/issues/4705
+ /*
+  * @param {Number} xGrid   Grid x position
+  * @param {Number} yGrid   Grid y position
+  * @return {[Number, Number]} Array with x and y position (pixel location).
+  */
 static function getPixelsFromGridPosition(xGrid, yGrid) {
 	if (canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS) {
 		return canvas.grid.grid.getPixelsFromGridPosition(yGrid, xGrid)
@@ -72,11 +82,28 @@ static function getPixelsFromGridPosition(xGrid, yGrid) {
 
 // Wrapper to fix a FoundryVTT bug that causes the return values of canvas.grid.grid.getPixelsFromGridPosition to be ordered inconsistently
 // https://gitlab.com/foundrynet/foundryvtt/-/issues/4705
+/*
+ * @param {Number} xPixel   Pixel position up/down
+ * @param {Number} yPixel   Pixel position left/right
+ * @return {[Number, Number]} Array with x and y position (grid location).
+ */
 static function getGridPositionFromPixels(xPixel, yPixel) {
 	const [x, y] = canvas.grid.grid.getGridPositionFromPixels(xPixel, yPixel)
 	if (canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS)
 		return [y, x]
 	return [x, y]
+}
+
+/*
+ * Generator to iterate over pairs of array objects, in order.
+ * If arr = [0,1,2], this returns [0,1], then [1,2]. 
+ * @param {Array} arr   Array or other object that can be sequenced using []
+ * @return Iterator, which in turn would return Array containing two elements from arr, in sequence. 
+ */
+function* iteratePairs(arr) {
+	for (let i = 0;i < arr.length - 1;i++) {
+		yield [arr[i], arr[i + 1]];
+	}
 }
 
 

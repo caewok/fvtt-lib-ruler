@@ -187,10 +187,8 @@ export class RulerSegment {
      
     const distance_segments = [];
     // iterate along the physical path to get the individual segments
-    for(let i = 0; i < physical_path.length - 1; i++) {
-      let origin = physical_path[i];
-      let destination = physical_path[i+1]
-      
+    const pairs_iter = RulerUtilities.iteratePairs(physical_path);
+    for(let [origin, destination] of pairs_iter) {
       if("z" in origin || "z" in destination) {
         if(!("z" in origin)) origin.z = 0;
         if(!("z" in destination)) destination.z = 0;
@@ -217,7 +215,9 @@ export class RulerSegment {
         
       }
       distance_segments.push({ray: new Ray(origin, destination)})
+    
     }
+    
     log(`${distance_segments.length} distance segments`, distance_segments);
 
     return this.distanceFunction(distance_segments);
