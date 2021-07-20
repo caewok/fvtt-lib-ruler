@@ -190,6 +190,10 @@ export class RulerSegment {
         if(!("z" in origin)) origin.z = 0;
         if(!("z" in destination)) destination.z = 0;
         
+        // Project the 3-D path to 2-D canvas
+        log(`Projecting physical_path from origin ${origin.x}, ${origin.y}, ${origin.z} to dest ${destination.x}, ${destination.y}, ${destination.z}`);
+  
+        
         destination = RulerSegment.ProjectElevatedPoint(origin, destination);
         
         // if we are using grid spaces, the destination needs to be re-centered to the grid.
@@ -201,6 +205,12 @@ export class RulerSegment {
           log(`Snapping ${destination.x}, ${destination.y} to ${snapped[0]}, ${snapped[1]}`);
           destination = { x: snapped[0], y: snapped[1] };
         }
+        
+        
+        log(`Projected physical_path from origin ${origin.x}, ${origin.y} 
+                                     to dest ${destination.x}, ${destination.y}`);
+  
+        
       }
       distance_segments.push(new Ray(origin, destination))
     }
