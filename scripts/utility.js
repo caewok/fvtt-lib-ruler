@@ -15,9 +15,9 @@ export class RulerUtilities {
   * @param {{x: number, y: number}} A
   * @param {{x: number, y: number}} B
   */
-static function projectElevatedPoint(A, B) {
+static projectElevatedPoint(A, B) {
   const height = B.z - A.z;
-  const distance = this.calculateDistance(A, B);
+  const distance = RulerUtilities.calculateDistance(A, B);
   const projected_x = B.x + ((height / distance) * (A.y - B.y));
   const projected_y = B.y - ((height / distance) * (A.x - B.x));
 
@@ -30,7 +30,7 @@ static function projectElevatedPoint(A, B) {
   * @param {PIXI.Point} B   Point in {x, y} format.
   * @return The distance between the two points.
   */
-static function calculateDistance(A, B, EPSILON = 1e-6) {
+static calculateDistance(A, B, EPSILON = 1e-6) {
   // could use pointsAlmostEqual function but this avoids double-calculating
   const dx = Math.abs(B.x - A.x); 
   const dy = Math.abs(B.y - A.y);
@@ -47,15 +47,15 @@ static function calculateDistance(A, B, EPSILON = 1e-6) {
   * @param {PIXI.Point} p2  Point in {x, y} format.
   * @return {Boolean} True if the points are within the error of each other 
   */
-static function pointsAlmostEqual(p1, p2, EPSILON = 1e-6) {
-  return this.almostEqual(p1.x, p2.x, EPSILON) && this.almostEqual(p1.y, p2.y, EPSILON);
+static pointsAlmostEqual(p1, p2, EPSILON = 1e-6) {
+  return RulerUtilities.almostEqual(p1.x, p2.x, EPSILON) && RulerUtilities.almostEqual(p1.y, p2.y, EPSILON);
 }
 	
  /*
   * Test if two numbers are almost equal, given a small error window.
   * From https://www.toptal.com/python/computational-geometry-in-python-from-theory-to-implementation
   */
-static function almostEqual(x, y, EPSILON = 1e-6) {
+static almostEqual(x, y, EPSILON = 1e-6) {
   return Math.abs(x - y) < EPSILON;
 }
 
@@ -63,7 +63,7 @@ static function almostEqual(x, y, EPSILON = 1e-6) {
 // Wrapper to fix a FoundryVTT bug that causes the return values of canvas.grid.grid.getPixelsFromGridPosition to be ordered inconsistently
 
 // https://gitlab.com/foundrynet/foundryvtt/-/issues/4705
-static function getPixelsFromGridPosition(xGrid, yGrid) {
+static getPixelsFromGridPosition(xGrid, yGrid) {
 	if (canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS) {
 		return canvas.grid.grid.getPixelsFromGridPosition(yGrid, xGrid)
 	}
@@ -72,7 +72,7 @@ static function getPixelsFromGridPosition(xGrid, yGrid) {
 
 // Wrapper to fix a FoundryVTT bug that causes the return values of canvas.grid.grid.getPixelsFromGridPosition to be ordered inconsistently
 // https://gitlab.com/foundrynet/foundryvtt/-/issues/4705
-static function getGridPositionFromPixels(xPixel, yPixel) {
+static getGridPositionFromPixels(xPixel, yPixel) {
 	const [x, y] = canvas.grid.grid.getGridPositionFromPixels(xPixel, yPixel)
 	if (canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS)
 		return [y, x]
