@@ -190,7 +190,7 @@ export class RulerSegment {
         if(!("z" in origin)) origin.z = 0;
         if(!("z" in destination)) destination.z = 0;
         
-        destination = Segment.ProjectElevatedPoint(origin, destination);
+        destination = RulerSegment.ProjectElevatedPoint(origin, destination);
         
         // if we are using grid spaces, the destination needs to be re-centered to the grid.
         // otherwise, when a token moves in 2-D diagonally, the 3-D measure will be inconsistent
