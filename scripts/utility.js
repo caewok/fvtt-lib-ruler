@@ -100,7 +100,7 @@ static getGridPositionFromPixels(xPixel, yPixel) {
  * @param {Array} arr   Array or other object that can be sequenced using []
  * @return Iterator, which in turn would return Array containing two elements from arr, in sequence. 
  */
-function* iteratePairs(arr) {
+static * iteratePairs(arr) {
 	for (let i = 0;i < arr.length - 1;i++) {
 		yield [arr[i], arr[i + 1]];
 	}
