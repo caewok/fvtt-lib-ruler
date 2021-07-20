@@ -126,13 +126,17 @@ export class RulerSegment {
     // 1. Construct a physical path.    
     log(`Constructing physical path.`);
     const physical_path = this.constructPhysicalPath(destination_point);
+    log(`Physical path consists of ${physical_path.length} points.`, physical_path);
     
     // 2. Use specified measurement function.
     const measured_distance = this.measurePhysicalPath(physical_path);
     log(`Distance to point ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
         
     // 3. Apply modifiers 
-    return this.modifyDistanceResult(measured_distance, physical_path);
+    const modified_distance = this.modifyDistanceResult(measured_distance, physical_path);
+    log(`Modified distance is ${modified_distance}`);
+
+    return modified_distance;
   }
   
  /*
@@ -176,13 +180,12 @@ export class RulerSegment {
    * @return {Number} Total distance for the path
    */
   measurePhysicalPath(physical_path) {
-    log("physical_path", physical_path);
     if(physical_path.length < 1 || !physical_path[0]) console.error(`${MODULE_ID}|physical path has no origin.`);
     if(physical_path.length < 2 || !physical_path[1]) console.error(`${MODULE_ID}|physical path has no destination.`);
-  
+     
     const distance_segments = [];
     // iterate along the physical path to get the individual segments
-    for(let i = 0; i < physical_path - 1; i++) {
+    for(let i = 0; i < physical_path.length - 1; i++) {
       let origin = physical_path[i];
       let destination = physical_path[i+1]
       
@@ -194,7 +197,7 @@ export class RulerSegment {
         log(`Projecting physical_path from origin ${origin.x}, ${origin.y}, ${origin.z} to dest ${destination.x}, ${destination.y}, ${destination.z}`);
   
         
-        destination = RulerSegment.ProjectElevatedPoint(origin, destination);
+        destination = this.projectElevatedPoint(origin, destination);
         
         // if we are using grid spaces, the destination needs to be re-centered to the grid.
         // otherwise, when a token moves in 2-D diagonally, the 3-D measure will be inconsistent
@@ -207,13 +210,14 @@ export class RulerSegment {
         }
         
         
-        log(`Projected physical_path from origin ${origin.x}, ${origin.y} 
-                                     to dest ${destination.x}, ${destination.y}`);
+        log(`Projected physical_path from origin ${origin.x}, ${origin.y} to dest ${destination.x}, ${destination.y}`);
   
         
       }
-      distance_segments.push(new Ray(origin, destination))
+      distance_segments.push({ray: new Ray(origin, destination)})
     }
+    log(`${distance_segments.length} distance segments`, distance_segments);
+
     return this.distanceFunction(distance_segments);
   }
   
@@ -222,7 +226,8 @@ export class RulerSegment {
    * For example, if you didn't like 5e's Euclidean measure, you could implement your own here.
    * Note that the default here relies on canvas.grid.measureDistances, which 5e overrides with 
    *   three different measurement functions, depending on user-setting. 
-   * @param {Ray[]} segments     An Array of measured movement segments
+   * @param {[{ray: Ray}]} segments     An Array of measured movement segments. 
+   *                                    Each should be an object with the property "ray" containing a Ray. 
    * @return {Number} The distance of the segment.
    */
   distanceFunction(distance_segments) {
@@ -448,9 +453,9 @@ export class RulerSegment {
   * @param {{x: number, y: number}} A
   * @param {{x: number, y: number}} B
   */
-  static ProjectElevatedPoint(A, B) {
+  projectElevatedPoint(A, B) {
     const height = B.z - A.z;
-    const distance = RulerSegment.CalculateDistance(A, B);
+    const distance = this.calculateDistance(A, B);
     const projected_x = B.x + ((height / distance) * (A.y - B.y));
     const projected_y = B.y - ((height / distance) * (A.x - B.x));
 
@@ -463,7 +468,7 @@ export class RulerSegment {
   * @param {PIXI.Point} B   Point in {x, y} format.
   * @return The distance between the two points.
   */
-  static CalculateDistance(A, B) {
+  calculateDistance(A, B) {
     const dx = B.x - A.x;
     const dy = B.y - A.y;
     return Math.hypot(dy, dx);
