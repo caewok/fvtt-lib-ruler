@@ -1,5 +1,6 @@
 import { registerLibRuler } from "./patching.js";
 import { RulerSegment } from "./segment.js";
+import { RulerUtilities } from "./utility.js";
 
 export const MODULE_ID = 'libruler';
 const FORCE_DEBUG = false; // used for logging before dev mode is set up
@@ -31,7 +32,8 @@ Hooks.once('init', async function() {
   
   registerLibRuler();    
   
-  window['libRuler'] = { RulerSegment: RulerSegment };
+  window['libRuler'] = { RulerSegment: RulerSegment,
+                         RulerUtilities: RulerUtilities };  
       
   // tell modules that the libRuler library is set up
   Hooks.callAll('libRulerReady');

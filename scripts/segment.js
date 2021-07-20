@@ -4,6 +4,8 @@ import { libRulerGetFlag,
          libRulerUnsetFlag 
        } from "./ruler-flags.js";
        
+import { RulerUtilities } from "./utility.js";
+       
 // Define a RulerSegment class used by Ruler.measure
 // The segment represents the path between two 
 // waypoints (incl. origin or destination) in a ruler.
@@ -197,7 +199,7 @@ export class RulerSegment {
         log(`Projecting physical_path from origin ${origin.x}, ${origin.y}, ${origin.z} to dest ${destination.x}, ${destination.y}, ${destination.z}`);
   
         
-        destination = this.projectElevatedPoint(origin, destination);
+        destination = RulerUtilities.projectElevatedPoint(origin, destination);
         
         // if we are using grid spaces, the destination needs to be re-centered to the grid.
         // otherwise, when a token moves in 2-D diagonally, the 3-D measure will be inconsistent
@@ -440,45 +442,6 @@ export class RulerSegment {
     return this.color;
   }
   
-  
- /**
-  * Calculate a new point by projecting the elevated point back onto the 2-D surface
-  * If the movement on the plane is represented by moving from point A to point B,
-  *   and you also move 'height' distance orthogonal to the plane, the distance is the
-  *   hypotenuse of the triangle formed by A, B, and C, where C is orthogonal to B.
-  *   Project by rotating the vertical triangle 90º, then calculate the new point C. 
-  *
-  * Cx = { height * (By - Ay) / dist(A to B) } + Bx
-  * Cy = { height * (Bx - Ax) / dist(A to B) } + By
-  * @param {{x: number, y: number}} A
-  * @param {{x: number, y: number}} B
-  */
-  projectElevatedPoint(A, B) {
-    const height = B.z - A.z;
-    const distance = this.calculateDistance(A, B);
-    const projected_x = B.x + ((height / distance) * (A.y - B.y));
-    const projected_y = B.y - ((height / distance) * (A.x - B.x));
-
-    return new PIXI.Point(projected_x, projected_y);
-  }
-
- /*
-  * Calculate the distance between two points in {x,y} dimensions.
-  * Avoids calculating the hypotenuse (sqrt) unless necessary, to avoid floating point errors.
-  * Treats points very near one another as equal.
-  * @param {PIXI.Point} A   Point in {x, y} format.
-  * @param {PIXI.Point} B   Point in {x, y} format.
-  * @return The distance between the two points.
-  */
-  calculateDistance(A, B, EPSILON = 1e-6) {
-    const dx = Math.abs(B.x - A.x);
-    const dy = Math.abs(B.y - A.y);
-    if(dy < EPSILON && dx < EPSILON) { return 0; }
-    if(dy < EPSILON) { return dx; }
-    if(dx < EPSILON) { return dy; }
-
-    return Math.hypot(dy, dx);
-  }
 
 }
  
