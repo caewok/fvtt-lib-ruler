@@ -1,3 +1,6 @@
+## 0.1.0
+Switch to using RulerSegment as the class name, to avoid collisions with other Segment classes. 
+
 ## 0.0.9
 Update Module ID in code to match that of the module.json. 
 

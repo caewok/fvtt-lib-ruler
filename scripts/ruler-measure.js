@@ -1,5 +1,5 @@
 import { log } from "./module.js";
-import { Segment } from "./segment.js";
+import { RulerSegment } from "./segment.js";
 
 
 /* -------------------------------------------- */
@@ -62,13 +62,13 @@ ruler object (via this) and can access the original waypoints array and any modu
     const origin = waypoints[segment_num];
     const label = this.labels.children[segment_num];
     
-    log(`Segment ${segment_num}: ${origin.x}, ${origin.y} ⇿ ${dest.x}, ${dest.y}`);
+    log(`RulerSegment ${segment_num}: ${origin.x}, ${origin.y} ⇿ ${dest.x}, ${dest.y}`);
 
     // ----- Construct the ray representing the segment on the canvas ---- //
-    const s = new Segment(origin, dest, this, prior_segment, segment_num, { gridSpaces: gridSpaces });
+    const s = new RulerSegment(origin, dest, this, prior_segment, segment_num, { gridSpaces: gridSpaces });
     s.last = segment_num === (waypoints.length - 2);
     
-    log(`Segment ${segment_num}:`, s);
+    log(`RulerSegment ${segment_num}:`, s);
         
     // skip if not actually distant
     // Note: In the original code, label.visible also set to false but unclear why.
@@ -78,7 +78,7 @@ ruler object (via this) and can access the original waypoints array and any modu
     //       Using ray.distance as in original for now.
     //       If using s.distance, need to multiply by canvas.scene.data.grid. Also, rounding may cause problems. 
     // const original_ray = new Ray(origin, dest);
-    //  log(`Ray distance: ${s.ray.distance}; Segment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
+    //  log(`Ray distance: ${s.ray.distance}; RulerSegment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
     if ( s.ray.distance < 10 ) {
       if ( label ) label.visible = false;
       s.drawEndpoints(); // draw the first waypoint regardless
@@ -88,7 +88,7 @@ ruler object (via this) and can access the original waypoints array and any modu
     // add to array only if s.distance is greater or equal to 10    
     prior_segment = s;     
     
-    log(`Segment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`);
+    log(`RulerSegment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`);
         
     
     // ----- Draw the Ruler Segment ---- //
@@ -125,7 +125,7 @@ export function libRulerSetDestination(destination) {
 
 /* 
  * Override _highlightMeasurement to catch modules that are
- * inadvertently overriding rather than using Segment.highlightMeasurement.
+ * inadvertently overriding rather than using RulerSegment.highlightMeasurement.
  */
 export function libRulerHighlightMeasurement(wrapped, ...args) {
   if(game.user.isGM) {
