@@ -440,13 +440,19 @@ export class RulerSegment {
   */
   static ProjectElevatedPoint(A, B) {
     const height = B.z - A.z;
-    const distance = Segment.CalculateDistance(A, B);
+    const distance = RulerSegment.CalculateDistance(A, B);
     const projected_x = B.x + ((height / distance) * (A.y - B.y));
     const projected_y = B.y - ((height / distance) * (A.x - B.x));
 
     return new PIXI.Point(projected_x, projected_y);
   }
 
+ /*
+  * Calculate the distance between two points in {x,y} dimensions.
+  * @param {PIXI.Point} A   Point in {x, y} format.
+  * @param {PIXI.Point} B   Point in {x, y} format.
+  * @return The distance between the two points.
+  */
   static CalculateDistance(A, B) {
     const dx = B.x - A.x;
     const dy = B.y - A.y;
