@@ -44,7 +44,7 @@ Apply modifiers in sequence for (3) after measuring the distance.
 
 export class RulerSegment {
  
-  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, distance_function_options = {gridSpaces: true}) {
+  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
@@ -61,10 +61,25 @@ export class RulerSegment {
     this.ray = new Ray(origin, destination);
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
-    this.distance_function_options = distance_function_options;
-    this.physical_path = this.ray;
+    this.options = foundry.utils.mergeObject(this.constructor.defaultOptions, options, {
+      insertKeys: true,
+      insertValues: true,
+      overwrite: true,
+      inplace: false
+    });
     
     this.addProperties();
+  }
+  
+ /**
+  * Assign the default options configuration which is used by this Segment class. The options and values defined
+  * in this object are merged with any provided option values which are passed to the constructor upon initialization.
+  * Subclasses may include additional options which are specific to their usage.
+  */
+	static get defaultOptions() {
+    return {
+      gridSpaces: true
+    };
   }
   
   get totalPriorDistance() {
@@ -204,7 +219,7 @@ export class RulerSegment {
    * @return {Number} The distance of the segment.
    */
   distanceFunction(distance_segments) {
-    const distances = canvas.grid.measureDistances(distance_segments, this.distance_function_options);
+    const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
     return distances.reduce((acc, d) => acc + d, 0);
   }   
   
