@@ -145,20 +145,22 @@ export class RulerSegment {
    * Construct a physical path for the segment that represents how the measured item 
    *   actually would move within the segment.
    * 
-   * The constructed path is an array of points. By convention, each point should have
-   *   at least x and y. If 3d, it should have z. 
-   * There should be at least two points, representing an origin and destination.
-   * If more than 3 dimensions, let me know what you need.
+   * The constructed path is an object with an origin and destination. 
+   *   By convention, each point should have at least x and y. If 3d, it should have z. 
+   * The physical path object may have other properties, but these may be ignored by 
+   *   other modules.
    *
    * If you intend to create deviations from a line, you may want to include 
-   *   additional properties in the segment to represent those deviations. For example, a property 
-   *   for a formula to represent a curve.
-   *   Again, modifying distanceFunction would be necessary.   
+   *   additional properties in the segment or in the path to represent those deviations. 
+   *   For example, a property for a formula to represent a curve.
+   *   In such a case, modifying measurePhysicalPath distanceFunction methods may be necessary.   
    *
    * @param {Segment} destination_point If provided, this should be either a Segment class or an object
    *     with the properties ray containing a Ray object. 
    * @return {Object} An object that contains {origin, destination}. 
    *   It may contain other properties related to the physical path to be handled by specific modules.
+   *   Default origin and destination will contain {x, y}. By convention, elevation should
+   *   be represented by a {z} property.
    */
    constructPhysicalPath(destination_point = this.ray.B) {
      log("Physical path from origin to destination", this.ray.A, destination_point);
@@ -166,60 +168,29 @@ export class RulerSegment {
      // Changed from array to allow simpler returns in the base case.
      // Module may add intermediate points or other representations by adding properties.
    
-     return [ this.ray.A, destination_point ];
+     return { origin: this.ray.A, destination: destination_point };
    }   
   
   
   /*
-   * Measure the distance along a physical path of two or more points, in 2 or 3 dimensions.
+   * Measure the distance along a physical path in 2 dimensions.
    * Additional dimensions, if any, are projected back to the 2-D canvas and measured
    *   using the distanceFunction method. 
    * Projection is accomplished by imagining a right triangle with the hypotenuse between p0 and p1,
    *   where p0 is the origin in 3d
    *         p1 is the destination in 3d
    *   and the two sides of the triangle are orthogonal in 3d space. 
-   * @param {[{x,y,z}]} physical_path  Array of points in {x,y,z} format representing 2+ dimensions. z is optional.
+   * @param {Object} physical_path  An object that contains {origin, destination}. 
+   *                                Each has {x, y}.
    * @return {Number} Total distance for the path
    */
   measurePhysicalPath(physical_path) {
-    if(physical_path.length < 1 || !physical_path[0]) console.error(`${MODULE_ID}|physical path has no origin.`);
-    if(physical_path.length < 2 || !physical_path[1]) console.error(`${MODULE_ID}|physical path has no destination.`);
-     
-    const distance_segments = [];
-    // iterate along the physical path to get the individual segments
-    const pairs_iter = RulerUtilities.iteratePairs(physical_path);
-    for(let [origin, destination] of pairs_iter) {
-      if("z" in origin || "z" in destination) {
-        if(!("z" in origin)) origin.z = 0;
-        if(!("z" in destination)) destination.z = 0;
+    if(physical_path.origin === undefined) console.error(`${MODULE_ID}|physical path has no origin.`);
+    if(physical_path.destination === undefined ) console.error(`${MODULE_ID}|physical path has no destination.`);
+         
+    const distance_segments = [{ray: new Ray(physical_path.origin, physical_path.destination)}];    
         
-        // Project the 3-D path to 2-D canvas
-        log(`Projecting physical_path from origin ${origin.x}, ${origin.y}, ${origin.z} to dest ${destination.x}, ${destination.y}, ${destination.z}`);
-  
-        
-        destination = RulerUtilities.projectElevatedPoint(origin, destination);
-        
-        // if we are using grid spaces, the destination needs to be re-centered to the grid.
-        // otherwise, when a token moves in 2-D diagonally, the 3-D measure will be inconsistent
-        // depending on cardinality of the move, as rounding will increase/decrease to the nearest gridspace
-        if(this.distance_function_options?.gridSpaces) {
-          // canvas.grid.getCenter returns an array [x, y];
-          const snapped = canvas.grid.getCenter(destination.x, destination.y);
-          log(`Snapping ${destination.x}, ${destination.y} to ${snapped[0]}, ${snapped[1]}`);
-          destination = { x: snapped[0], y: snapped[1] };
-        }
-        
-        
-        log(`Projected physical_path from origin ${origin.x}, ${origin.y} to dest ${destination.x}, ${destination.y}`);
-  
-        
-      }
-      distance_segments.push({ray: new Ray(origin, destination)})
-    
-    }
-    
     log(`${distance_segments.length} distance segments`, distance_segments);
-
     return this.distanceFunction(distance_segments);
   }
   
@@ -228,7 +199,7 @@ export class RulerSegment {
    * For example, if you didn't like 5e's Euclidean measure, you could implement your own here.
    * Note that the default here relies on canvas.grid.measureDistances, which 5e overrides with 
    *   three different measurement functions, depending on user-setting. 
-   * @param {[{ray: Ray}]} segments     An Array of measured movement segments. 
+   * @param {[{ray: Ray}]} segments     An Array of measured movement segments. (1 in default implementation)
    *                                    Each should be an object with the property "ray" containing a Ray. 
    * @return {Number} The distance of the segment.
    */
@@ -252,7 +223,8 @@ export class RulerSegment {
    * For more complicated distance measurements, you can wrap measureDistance.
    *
    * @param {Number} measured_distance The distance measured for the physical path.
-   * @param {[{x,y,z}]} physical_path  Array of points in {x,y,z} format representing 2+ dimensions. z is optional.
+   * @param {Object} physical_path  An object that contains {origin, destination}. 
+   *                                Each has {x, y}.
    * @return {Number} The distance as modified.
    */
    modifyDistanceResult(measured_distance, physical_path) {
