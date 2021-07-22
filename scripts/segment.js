@@ -362,51 +362,17 @@ export class RulerSegment {
     if(is_ruler_class) {
       console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
     }
-      
-    const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
-    const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
-    const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
     
-    // Track prior position
-    let prior = null;
-  
-    // Iterate over ray portions
-    for ( let [i, t] of tMax.entries() ) {
-      log(`iterating over ray portion ${i}.`);
-      let {x, y} = ray.project(t);
-    
-      // Get grid position
-      let [x0, y0] = (i === 0) ? [null, null] : prior;
-      let [x1, y1] = canvas.grid.grid.getGridPositionFromPixels(x, y);
-      if ( x0 === x1 && y0 === y1 ) continue;
-    
+    const gridIter = RulerUtilities.iterateGridUnderLine(ray);
+    for(const [row, col] of gridIter) {
       // Highlight the grid position
-      let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
+      let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(row, col);
       if(is_ruler_class) {
         canvas.grid.highlightPosition(this.name, {x: xg, y: yg, color: this.color});
       } else {
         this.highlightPosition({x: xg, y: yg});
-      }
-        
-      // Skip the first one
-      prior = [x1, y1];
-      if ( i === 0 ) continue;
-    
-      // If the positions are not neighbors, also highlight their halfway point
-      if ( !canvas.grid.isNeighbor(x0, y0, x1, y1) ) {
-        let th = tMax[i - 1] + (0.5 / nMax);
-        let {x, y} = ray.project(th);
-        let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
-        let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
-        if(is_ruler_class) {
-          canvas.grid.highlightPosition(this.name, {x: xgh, y: ygh, color: this.color});
-        } else {
-          this.highlightPosition({x: xgh, y: ygh})
-        }
-        
-      }
+      } 
     }
-  
   }
   
 /*

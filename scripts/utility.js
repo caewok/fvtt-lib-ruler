@@ -44,40 +44,12 @@ static almostEqual(x, y, EPSILON = 1e-6) {
 }
 
 // From Terrain Ruler -----------------------
-// Wrapper to fix a FoundryVTT bug that causes the return values of canvas.grid.grid.getPixelsFromGridPosition to be ordered inconsistently
-
-// https://gitlab.com/foundrynet/foundryvtt/-/issues/4705
- /*
-  * @param {Number} xGrid   Grid x position
-  * @param {Number} yGrid   Grid y position
-  * @return {[Number, Number]} Array with x and y position (pixel location).
-  */
-static getPixelsFromGridPosition(xGrid, yGrid) {
-	if (canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS) {
-		return canvas.grid.grid.getPixelsFromGridPosition(yGrid, xGrid)
-	}
-	return canvas.grid.grid.getPixelsFromGridPosition(xGrid, yGrid)
-}
-
-// Wrapper to fix a FoundryVTT bug that causes the return values of canvas.grid.grid.getPixelsFromGridPosition to be ordered inconsistently
-// https://gitlab.com/foundrynet/foundryvtt/-/issues/4705
-/*
- * @param {Number} xPixel   Pixel position up/down
- * @param {Number} yPixel   Pixel position left/right
- * @return {[Number, Number]} Array with x and y position (grid location).
- */
-static getGridPositionFromPixels(xPixel, yPixel) {
-	const [x, y] = canvas.grid.grid.getGridPositionFromPixels(xPixel, yPixel)
-	if (canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS)
-		return [y, x]
-	return [x, y]
-}
-
 /*
  * Generator to iterate over pairs of array objects, in order.
  * If arr = [0,1,2], this returns [0,1], then [1,2]. 
  * @param {Array} arr   Array or other object that can be sequenced using []
- * @return Iterator, which in turn would return Array containing two elements from arr, in sequence. 
+ * @return Iterator, which in turn 
+ *   returns [Element n, Element n+1] Array containing two elements from arr, in sequence. 
  */
 static * iteratePairs(arr) {
 	for (let i = 0;i < arr.length - 1;i++) {
@@ -85,7 +57,41 @@ static * iteratePairs(arr) {
 	}
 }
 
-
+/*
+ * Generator to iterate grid points under a line.
+ * @param {Ray} ray Line under which to find grid points.
+ * @return Iterator, which in turn 
+ *   returns [row, col] Array for each grid point under the line.
+ */
+static * iterateGridUnderLine(ray) {
+  const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
+  const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
+  const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
+  
+  // Track prior position
+  let prior = null;
+  
+  for ( let [i, t] of tMax.entries() ) {
+    let {x, y} = ray.project(t);
+    
+    // Get grid position
+    let [row0, col0] = (i === 0) ? [null, null] : prior;
+    let [row1, col1] = canvas.grid.grid.getGridPositionFromPixels(x, y);
+    if ( row0 === row0 && col0 === col0 ) continue;
+    
+    // Skip the first one
+    prior = [row1, col1];
+    if ( i === 0 ) continue;
+    
+    // If the positions are not neighbors, also highlight their halfway point
+    if ( !canvas.grid.isNeighbor(row0, col0, row1, col1) ) {
+      let th = tMax[i - 1] + (0.5 / nMax);
+      let {x, y} = ray.project(th);
+      let [row01h, col01h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
+      yield [row01h, col01h];
+    }
+    
+    yield [row1, col1];
+  }
 }
-
   
