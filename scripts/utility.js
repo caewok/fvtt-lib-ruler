@@ -27,7 +27,7 @@ static calculateDistance(A, B, EPSILON = 1e-6) {
   * @return {Boolean} True if the points are within the error of each other 
   */
 static pointsAlmostEqual(p1, p2, EPSILON = 1e-6) {
-  return RulerUtilities.almostEqual(p1.x, p2.x, EPSILON) && RulerUtilities.almostEqual(p1.y, p2.y, EPSILON);
+  return this.constructor.almostEqual(p1.x, p2.x, EPSILON) && RulerUtilities.almostEqual(p1.y, p2.y, EPSILON);
 }
 	
  /*
