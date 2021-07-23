@@ -77,7 +77,7 @@ static * iterateGridUnderLine(ray) {
     // Get grid position
     let [row0, col0] = (i === 0) ? [null, null] : prior;
     let [row1, col1] = canvas.grid.grid.getGridPositionFromPixels(x, y);
-    if ( row0 === row0 && col0 === col0 ) continue;
+    if ( row0 === row1 && col0 === col1 ) continue;
     
     // Skip the first one
     prior = [row1, col1];
@@ -93,5 +93,7 @@ static * iterateGridUnderLine(ray) {
     
     yield [row1, col1];
   }
+}
+
 }
   
