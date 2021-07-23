@@ -43,27 +43,15 @@ static almostEqual(x, y, EPSILON = 1e-6) {
   return Math.abs(x - y) < EPSILON;
 }
 
-// From Terrain Ruler -----------------------
-/*
- * Generator to iterate over pairs of array objects, in order.
- * If arr = [0,1,2], this returns [0,1], then [1,2]. 
- * @param {Array} arr   Array or other object that can be sequenced using []
- * @return Iterator, which in turn 
- *   returns [Element n, Element n+1] Array containing two elements from arr, in sequence. 
- */
-static * iteratePairs(arr) {
-	for (let i = 0;i < arr.length - 1;i++) {
-		yield [arr[i], arr[i + 1]];
-	}
-}
-
 /*
  * Generator to iterate grid points under a line.
- * @param {Ray} ray Line under which to find grid points.
+ * @param {x: Number, y: Number} origin Origination point
+ * @param {x: Number, y: Number} destination Destination point
  * @return Iterator, which in turn 
  *   returns [row, col] Array for each grid point under the line.
  */
-static * iterateGridUnderLine(ray) {
+static * iterateGridUnderLine(origin, destination) {
+  const ray = new Ray(origin, destination);
   const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
   const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
   const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
@@ -93,6 +81,7 @@ static * iterateGridUnderLine(ray) {
     
     yield [row1, col1];
   }
+  
 }
 
 }
