@@ -1,6 +1,7 @@
 import { registerLibRuler } from "./patching.js";
 import { RulerSegment } from "./segment.js";
 import { RulerUtilities } from "./utility.js";
+import { libRulerToolBar } from "./libruler-controls-class.js";
 
 export const MODULE_ID = 'libruler';
 const FORCE_DEBUG = false; // used for logging before dev mode is set up
@@ -49,3 +50,33 @@ Hooks.once('ready', async function() {
     if(!game.modules.get('lib-wrapper')?.active) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
   }
 });
+
+// Set up the Ruler toolbar for modules to use
+
+Hooks.on('renderSceneControls', (controls) => {
+  log(controls);
+
+  if(canvas != null) {
+    if(controls.activeControl === "token") {
+      if(controls.activeTool === "ruler") {
+        canvas.controls.toolbar = new libRulerToolBar();
+        canvas.controls.toolbar.render(true);
+      } else {
+        if(!canvas.controls.toolbar) return;
+        canvas.controls.toolbar.close();
+      }
+    }
+  }
+  
+});
+
+// Hooks.on('renderlibRulerToolBar', () => {
+// 	const tools = $(canvas.controls.toolbar.form).parent();
+// 	if (!tools)
+// 		return;
+// 	const controltools = $('li[data-control="terrain"] ol.control-tools');
+// 	const offset = controltools.offset();
+// 	tools.css({ top: `${offset.top}px`, left: `${offset.left + controltools.width() + 6}px` });
+
+
+
