@@ -30,9 +30,7 @@ export class libRulerToolBar extends FormApplication {
     }
 
     getData(options) {
-        return {
-            multiple: 5;
-        };
+        return { multiple: 5 };
     }
 
     _onHandleClick(event) {
