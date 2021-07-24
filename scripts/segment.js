@@ -364,7 +364,7 @@ export class RulerSegment {
       console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
     }
     
-    const gridIter = RulerUtilities.iterateGridUnderLine(ray);
+    const gridIter = RulerUtilities.iterateGridUnderLine(ray.A, ray.B);
     for(const [row, col] of gridIter) {
       // Highlight the grid position
       let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(row, col);
