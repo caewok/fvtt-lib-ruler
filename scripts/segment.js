@@ -84,6 +84,7 @@ export class RulerSegment {
   
   get totalPriorDistance() {
     // if no prior segments, should be 0.
+    if(this.segment_num === 0) return 0;
     if(!this.prior_segment || Object.keys(this.prior_segment).length === 0) return 0;
     
     // first method: just get the prior segment total distance.
@@ -118,7 +119,7 @@ export class RulerSegment {
   get text() {
     const total_distance = this.totalDistance;
     const total_current_distance = this.distance;
-    log(`Total distance ${total_distance} + current distance ${total_current_distance}`);
+    log(`Total distance ${total_distance}; current distance ${total_current_distance}`);
   
     return this.ruler._getSegmentLabel(total_current_distance, total_distance, this.last);
   }
@@ -132,7 +133,7 @@ export class RulerSegment {
   * @param {PIXI.Point} destination_point Object with x, y coordinates for the specified point to measure.
   * @return {number} Distance value.
   */
-  measureDistance(destination_point = this.ray.B) {
+  measureDistance(destination_point = {x: this.ray.B.x, y: this.ray.B.y} ) {
     // Three parts:
     // 1. Construct a physical path to measure based on the segment.
     //    This path does not modify the ruler display but rather symbolizes how
@@ -141,16 +142,17 @@ export class RulerSegment {
     // 3. Modify the resulting distance number.
     
     // 1. Construct a physical path.    
-    log(`Constructing physical path.`);
+    log(`Segment ${this.segment_num}: Constructing physical path.`);
     const physical_path = this.constructPhysicalPath(destination_point);
+    log(`Segment ${this.segment_num}: Physical path (${physical_path.origin.x}, ${physical_path.origin.y}, ${physical_path.origin?.z})⇿(${physical_path.destination.x}, ${physical_path.destination.y}, ${physical_path.destination?.z})`);
     
     // 2. Use specified measurement function.
     const measured_distance = this.measurePhysicalPath(physical_path);
-    log(`Distance to destination ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
+    log(`Segment ${this.segment_num}: Distance to destination ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
         
     // 3. Apply modifiers 
     const modified_distance = this.modifyDistanceResult(measured_distance, physical_path);
-    log(`Modified distance is ${modified_distance}`);
+    log(`Segment ${this.segment_num}: Modified distance is ${modified_distance}`);
 
     return modified_distance;
   }
@@ -176,13 +178,13 @@ export class RulerSegment {
    *   Default origin and destination will contain {x, y}. By convention, elevation should
    *   be represented by a {z} property.
    */
-   constructPhysicalPath(destination_point = this.ray.B) {
-     log("Physical path (${this.ray.A.x}, ${this.ray.A.y})⇿(${destination_point.x}, ${destination_point.y})", this.ray.A, destination_point);
+   constructPhysicalPath(destination_point = {x: this.ray.B.x, y: this.ray.B.y} ) {
+     log(`Physical path (${this.ray.A.x}, ${this.ray.A.y})⇿(${destination_point.x}, ${destination_point.y})`, this.ray.A, destination_point);
      
      // Changed from array to allow simpler returns in the base case.
      // Module may add intermediate points or other representations by adding properties.
    
-     return { origin: this.ray.A, destination: destination_point };
+     return { origin: { x: this.ray.A.x, y: this.ray.A.y }, destination: destination_point };
    }   
   
   
@@ -201,7 +203,7 @@ export class RulerSegment {
   measurePhysicalPath(physical_path) {
     if(physical_path.origin === undefined) console.error(`${MODULE_ID}|physical path has no origin.`);
     if(physical_path.destination === undefined ) console.error(`${MODULE_ID}|physical path has no destination.`);
-    log(`Measuring (${physical_path.origin.x}, ${physical_path.origin.y})⇿(${physical_path.destination.x}, ${physical_path.destination.y})`)
+    log(`Measuring (${physical_path.origin.x}, ${physical_path.origin.y}, ${physical_path.origin?.z})⇿(${physical_path.destination.x}, ${physical_path.destination.y}, ${physical_path.destination?.z})`)
          
     const distance_segments = [{ray: new Ray(physical_path.origin, physical_path.destination)}];    
         
@@ -243,7 +245,7 @@ export class RulerSegment {
    * @return {Number} The distance as modified.
    */
    modifyDistanceResult(measured_distance, physical_path) {
-     log(`Physical path with measured distance ${measured_distance}`, physical_path);
+     log(`Physical path (${physical_path.origin.x}, ${physical_path.origin.y}, ${physical_path.origin?.z})⇿(${physical_path.destination.x}, ${physical_path.destination.y}, ${physical_path.destination?.z} with measured distance ${measured_distance}`, physical_path);
      return measured_distance;
    }
 
