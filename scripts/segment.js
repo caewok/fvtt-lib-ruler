@@ -143,11 +143,10 @@ export class RulerSegment {
     // 1. Construct a physical path.    
     log(`Constructing physical path.`);
     const physical_path = this.constructPhysicalPath(destination_point);
-    log(`Physical path consists of ${physical_path.length} points.`, physical_path);
     
     // 2. Use specified measurement function.
     const measured_distance = this.measurePhysicalPath(physical_path);
-    log(`Distance to point ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
+    log(`Distance to destination ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
         
     // 3. Apply modifiers 
     const modified_distance = this.modifyDistanceResult(measured_distance, physical_path);
@@ -178,7 +177,7 @@ export class RulerSegment {
    *   be represented by a {z} property.
    */
    constructPhysicalPath(destination_point = this.ray.B) {
-     log("Physical path from origin to destination", this.ray.A, destination_point);
+     log("Physical path (${this.ray.A.x}, ${this.ray.A.y})⇿(${destination_point.x}, ${destination_point.y})", this.ray.A, destination_point);
      
      // Changed from array to allow simpler returns in the base case.
      // Module may add intermediate points or other representations by adding properties.
@@ -202,6 +201,7 @@ export class RulerSegment {
   measurePhysicalPath(physical_path) {
     if(physical_path.origin === undefined) console.error(`${MODULE_ID}|physical path has no origin.`);
     if(physical_path.destination === undefined ) console.error(`${MODULE_ID}|physical path has no destination.`);
+    log(`Measuring (${physical_path.origin.x}, ${physical_path.origin.y})⇿(${physical_path.destination.x}, ${physical_path.destination.y})`)
          
     const distance_segments = [{ray: new Ray(physical_path.origin, physical_path.destination)}];    
         
@@ -243,6 +243,7 @@ export class RulerSegment {
    * @return {Number} The distance as modified.
    */
    modifyDistanceResult(measured_distance, physical_path) {
+     log(`Physical path with measured distance ${measured_distance}`, physical_path);
      return measured_distance;
    }
 
