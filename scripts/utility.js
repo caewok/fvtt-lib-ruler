@@ -27,7 +27,7 @@ static calculateDistance(A, B, EPSILON = 1e-6) {
   * @return {Boolean} True if the points are within the error of each other 
   */
 static pointsAlmostEqual(p1, p2, EPSILON = 1e-6) {
-  return this.constructor.almostEqual(p1.x, p2.x, EPSILON) && RulerUtilities.almostEqual(p1.y, p2.y, EPSILON);
+  return RulerUtilities.almostEqual(p1.x, p2.x, EPSILON) && RulerUtilities.almostEqual(p1.y, p2.y, EPSILON);
 }
 	
  /*
@@ -69,7 +69,7 @@ static * iterateGridUnderLine(origin, destination) {
     
     // Skip the first one
     prior = [row1, col1];
-    if ( i === 0 ) continue;
+    if ( i === 0 ) { continue; }
     
     // If the positions are not neighbors, also highlight their halfway point
     if ( !canvas.grid.isNeighbor(row0, col0, row1, col1) ) {
