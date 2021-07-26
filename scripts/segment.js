@@ -4,10 +4,12 @@ import { libRulerGetFlag,
          libRulerUnsetFlag 
        } from "./ruler-flags.js";
        
-// Define a Segment class used by Ruler.measure
+import { RulerUtilities } from "./utility.js";
+       
+// Define a RulerSegment class used by Ruler.measure
 // The segment represents the path between two 
 // waypoints (incl. origin or destination) in a ruler.
-// Segments are chained: each Segment contains a previous_segments Array 
+// RulerSegments are chained: each RulerSegment contains a previous_segments Array 
 // that should include each of the earlier segments in the Ruler path
 
 /*
@@ -40,9 +42,9 @@ Apply modifiers in sequence for (3) after measuring the distance.
 */
 
 
-export class Segment {
+export class RulerSegment {
  
-  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, measure_distance_options = {gridSpaces: true}) {
+  constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
     //  throw new TypeError("Previous Segments Array not all Segment Class");
     //}
@@ -53,20 +55,36 @@ export class Segment {
     this.distanceValue = null; // private fields (#distanceValue) not currently supported.
     this.distanceModifiers = [];
 
-    this.prior_segment = prior_segment; // chained prior Segments
+    this.prior_segment = prior_segment; // chained prior RulerSegment
     this.segment_num = segment_num; // Index of the segment
     this.ruler = ruler;
-    this.ray = this.constructRay(origin, destination);
+    this.ray = new Ray(origin, destination);
     this.label = ruler.labels.children[segment_num];
     this.color = ruler.color;    
-    this.measure_distance_options = measure_distance_options;
-    this.physical_path = this.ray;
+    this.options = foundry.utils.mergeObject(this.constructor.defaultOptions, options, {
+      insertKeys: true,
+      insertValues: true,
+      overwrite: true,
+      inplace: false
+    });
     
     this.addProperties();
   }
   
+ /**
+  * Assign the default options configuration which is used by this Segment class. The options and values defined
+  * in this object are merged with any provided option values which are passed to the constructor upon initialization.
+  * Subclasses may include additional options which are specific to their usage.
+  */
+	static get defaultOptions() {
+    return {
+      gridSpaces: true
+    };
+  }
+  
   get totalPriorDistance() {
     // if no prior segments, should be 0.
+    if(this.segment_num === 0) return 0;
     if(!this.prior_segment || Object.keys(this.prior_segment).length === 0) return 0;
     
     // first method: just get the prior segment total distance.
@@ -76,7 +94,7 @@ export class Segment {
     //const total_prior_dist_arr = this.traversePriorSegments(this.prior_segment, "distance"); 
     //const total_prior_dist_m2 = total_prior_dist_arr.reduce((acc, curr) => acc + curr, 0) || 0;
     
-    //log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
+    //log(`RulerSegment ${this.segment_num}: Prior distance ${total_prior_distance} vs method 2 ${total_prior_dist_m2}`, total_prior_dist_arr);
      
     return total_prior_distance;
   }
@@ -84,7 +102,7 @@ export class Segment {
   get totalDistance() {
     const total_prior_distance = this.totalPriorDistance;
     const total_current_distance = this.distance;
-    log(`Segment ${this.segment_num}: Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
+    log(`RulerSegment ${this.segment_num}: Prior distance ${total_prior_distance} + current distance ${total_current_distance}`);
   
     return total_prior_distance + total_current_distance;
   }
@@ -95,58 +113,19 @@ export class Segment {
     return this.distanceValue;
   }
   
-  /*
-   * Function to measure the distance of a segment.
-   * For example, if you didn't like 5e's Euclidean measure, you could implement your own here.
-   * Note that the default here relies on canvas.grid.measureDistances, which 5e overrides with 
-   *   three different measurement functions, depending on user-setting. 
-   * @param {Object} See constructPhysicalPath function description.
-   * @return {Number} The distance of the segment.
-   */
-  distanceFunction(physical_path) {
-    log("physical_path", physical_path);
-    if(!physical_path.origin) console.error(`${MODULE_ID}|physical path has no origin.`, physical_path);
-    if(!physical_path.destination) console.error(`${MODULE_ID}|physical path has no destination.`, physical_path);
-        
-    //  canvas.grid.measureDistances takes an array of segments
-    let distance_segments = [{ ray: this.constructRay(physical_path.origin, physical_path.destination) }];
-    const distances = canvas.grid.measureDistances(distance_segments, this.measure_distance_options);
-    
-    // In the default, should only be one distance...
-    return distances.reduce((acc, d) => acc + d, 0);
+  /* 
+   * Get the text label for the segment.
+   */  
+  get text() {
+    const total_distance = this.totalDistance;
+    const total_current_distance = this.distance;
+    log(`Total distance ${total_distance}; current distance ${total_current_distance}`);
+  
+    return this.ruler._getSegmentLabel(total_current_distance, total_distance, this.last);
   }
 
   
-  /*
-   * Construct a physical path for the segment that represents how the measured item 
-   *   actually would move.
-   *  
-   * The default is an Object {origin: {x0,y0}, destination: {x1, y1}}, representing
-   *   a physical line along the 2-D canvas.
-   * If operating in 3 (or more) dimensions, you should modify this accordingly
-   *   so that other modules can account for physical movement if they want.
-   *   You would also need to modify the distanceFunction to handle a 3-D (or more) measurement.
-   * For multiple dimensions, each point should be: {x, y, z, ...} where z is orthogonal to 
-   *   the x,y plane and each dimension after z is orthogonal to the object prior.
-   *
-   * If you intend to create deviations from a line, you may want to include 
-   *   additional properties to represent those deviations. For example, a property 
-   *   for a formula to represent a curve.
-   *   Again, modifying distanceFunction would be necessary.   
-   *
-   * @param {Segment} destination_point If provided, this should be either a Segment class or an object
-   *     with the properties ray containing a Ray object. 
-   * @return {Object} An object that contains {origin, destination}. 
-   *   It may contain other properties related to the physical path to be handled by specific modules.
-   */
-   constructPhysicalPath(destination_point = this.ray.B) {
-     log("Physical path from origin to destination", this.ray.A, destination_point);
-     
-     // Changed from array to allow simpler returns in the base case.
-     // Module may add intermediate points or other representations by adding properties.
-   
-     return { origin: this.ray.A, destination: destination_point };
-   }   
+
   
  /* 
   * Return the distance measured for the segment or alternative destination point. 
@@ -154,7 +133,7 @@ export class Segment {
   * @param {PIXI.Point} destination_point Object with x, y coordinates for the specified point to measure.
   * @return {number} Distance value.
   */
-  measureDistance(destination_point = this.ray.B) {
+  measureDistance(destination_point = {x: this.ray.B.x, y: this.ray.B.y} ) {
     // Three parts:
     // 1. Construct a physical path to measure based on the segment.
     //    This path does not modify the ruler display but rather symbolizes how
@@ -163,28 +142,90 @@ export class Segment {
     // 3. Modify the resulting distance number.
     
     // 1. Construct a physical path.    
-    log(`Constructing physical path.`);
+    log(`Segment ${this.segment_num}: Constructing physical path.`);
     const physical_path = this.constructPhysicalPath(destination_point);
+    log(`Segment ${this.segment_num}: Physical path (${physical_path.origin.x}, ${physical_path.origin.y}, ${physical_path.origin?.z})⇿(${physical_path.destination.x}, ${physical_path.destination.y}, ${physical_path.destination?.z})`);
     
     // 2. Use specified measurement function.
-    const measured_distance = this.distanceFunction(physical_path);
-    log(`Distance to point ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
+    const measured_distance = this.measurePhysicalPath(physical_path);
+    log(`Segment ${this.segment_num}: Distance to destination ${destination_point.x}, ${destination_point.y}: ${measured_distance}`);
         
     // 3. Apply modifiers 
-    return this.modifyDistanceResult(measured_distance);
+    const modified_distance = this.modifyDistanceResult(measured_distance, physical_path);
+    log(`Segment ${this.segment_num}: Modified distance is ${modified_distance}`);
+
+    return modified_distance;
   }
   
+ /*
+   * Construct a physical path for the segment that represents how the measured item 
+   *   actually would move within the segment.
+   * 
+   * The constructed path is an object with an origin and destination. 
+   *   By convention, each point should have at least x and y. If 3d, it should have z. 
+   * The physical path object may have other properties, but these may be ignored by 
+   *   other modules.
+   *
+   * If you intend to create deviations from a line, you may want to include 
+   *   additional properties in the segment or in the path to represent those deviations. 
+   *   For example, a property for a formula to represent a curve.
+   *   In such a case, modifying measurePhysicalPath distanceFunction methods may be necessary.   
+   *
+   * @param {Segment} destination_point If provided, this should be either a Segment class or an object
+   *     with the properties ray containing a Ray object. 
+   * @return {Object} An object that contains {origin, destination}. 
+   *   It may contain other properties related to the physical path to be handled by specific modules.
+   *   Default origin and destination will contain {x, y}. By convention, elevation should
+   *   be represented by a {z} property.
+   */
+   constructPhysicalPath(destination_point = {x: this.ray.B.x, y: this.ray.B.y} ) {
+     log(`Physical path (${this.ray.A.x}, ${this.ray.A.y})⇿(${destination_point.x}, ${destination_point.y})`, this.ray.A, destination_point);
+     
+     // Changed from array to allow simpler returns in the base case.
+     // Module may add intermediate points or other representations by adding properties.
+   
+     return { origin: { x: this.ray.A.x, y: this.ray.A.y }, destination: destination_point };
+   }   
   
-  /* 
-   * Get the text label for the segment.
-   */  
-  get text() {
-    const total_distance = this.totalDistance;
-    const total_current_distance = this.distance;
-    log(`Total distance ${total_distance} + current distance ${total_current_distance}`);
   
-    return this.ruler._getSegmentLabel(total_current_distance, total_distance, this.last);
+  /*
+   * Measure the distance along a physical path in 2 dimensions.
+   * Additional dimensions, if any, are projected back to the 2-D canvas and measured
+   *   using the distanceFunction method. 
+   * Projection is accomplished by imagining a right triangle with the hypotenuse between p0 and p1,
+   *   where p0 is the origin in 3d
+   *         p1 is the destination in 3d
+   *   and the two sides of the triangle are orthogonal in 3d space. 
+   * @param {Object} physical_path  An object that contains {origin, destination}. 
+   *                                Each has {x, y}.
+   * @return {Number} Total distance for the path
+   */
+  measurePhysicalPath(physical_path) {
+    if(physical_path.origin === undefined) console.error(`${MODULE_ID}|physical path has no origin.`);
+    if(physical_path.destination === undefined ) console.error(`${MODULE_ID}|physical path has no destination.`);
+    log(`Measuring (${physical_path.origin.x}, ${physical_path.origin.y}, ${physical_path.origin?.z})⇿(${physical_path.destination.x}, ${physical_path.destination.y}, ${physical_path.destination?.z})`)
+         
+    const distance_segments = [{ray: new Ray(physical_path.origin, physical_path.destination)}];    
+        
+    log(`${distance_segments.length} distance segments`, distance_segments);
+    return this.distanceFunction(distance_segments);
   }
+  
+  /*
+   * Function to measure the distance between two points on the 2D canvas.
+   * For example, if you didn't like 5e's Euclidean measure, you could implement your own here.
+   * Note that the default here relies on canvas.grid.measureDistances, which 5e overrides with 
+   *   three different measurement functions, depending on user-setting. 
+   * @param {[{ray: Ray}]} segments     An Array of measured movement segments. (1 in default implementation)
+   *                                    Each should be an object with the property "ray" containing a Ray. 
+   * @return {Number} The distance of the segment.
+   */
+  distanceFunction(distance_segments) {
+    const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
+    return distances.reduce((acc, d) => acc + d, 0);
+  }   
+  
+
   
   /*
    * Each segment permits modifications to the measured ray distance.
@@ -199,12 +240,15 @@ export class Segment {
    * For more complicated distance measurements, you can wrap measureDistance.
    *
    * @param {Number} measured_distance The distance measured for the physical path.
+   * @param {Object} physical_path  An object that contains {origin, destination}. 
+   *                                Each has {x, y}.
    * @return {Number} The distance as modified.
    */
-   modifyDistanceResult(measured_distance) {
+   modifyDistanceResult(measured_distance, physical_path) {
+     log(`Physical path (${physical_path.origin.x}, ${physical_path.origin.y}, ${physical_path.origin?.z})⇿(${physical_path.destination.x}, ${physical_path.destination.y}, ${physical_path.destination?.z} with measured distance ${measured_distance}`, physical_path);
      return measured_distance;
    }
-   
+
   
    /*
    * Force a distance recalculation.
@@ -212,21 +256,7 @@ export class Segment {
    recalculateDistance() {
      this.distanceValue = this.measureDistance();
    }
-  
-  /*
-   * Ray used to represent the highlighted, or apparent, path traveled 
-   *   between origin and destination.
-   * Default: straight line between the origin and destination.
-   *
-   * Note: distance represented by the segment is calculated elsewhere
-   *
-   * @param {PIXI.Point} origin Where the segment starts on the canvas.
-   * @param {PIXI.Point} destination PIXI.Point Where the segment ends on the canvas
-   */
-   constructRay(origin, destination) {
-     return new Ray(origin, destination);
-   }
-   
+     
   /*
    * Helper function: traverse the prior segments.
    * pull a property or execute a method with supplied arguments for each prior segment.
@@ -238,7 +268,7 @@ export class Segment {
       //log("Returning []")
       return [];
     }
-    if(!(segment instanceof Segment)) console.error("libRuler|traversePriorSegments limited to Segment class objects.");
+    if(!(segment instanceof RulerSegment)) console.error("libRuler|traversePriorSegments limited to RulerSegment class objects.");
 
     let results = [];
   
@@ -267,7 +297,7 @@ export class Segment {
   /* 
    * Helper function that allows other labels to be set by modules.
    * Is called when the segment is first constructed.
-   * Properties are best added using the Segment Class flag methods.
+   * Properties are best added using the RulerSegment Class flag methods.
    *   e.g. this.setFlag("module_id"", "key", value)
    * Or add distance modifiers using the addDistanceModifier helper function.
    */
@@ -325,61 +355,27 @@ export class Segment {
    * This version allows modules to override highlightPosition,
    *   used for things like changing the color of the ruler highlight.
    * If somehow a module calls the original version, this function provides
-   *   for a compatible version. The original is called from Ruler class, not Segment class.
+   *   for a compatible version. The original is called from Ruler class, not RulerSegment class.
    * @param {Ray} Optional Ray. Kept for compatibility with original function.
    * 
    */
   highlightMeasurement(ray = this.ray) {
-    const is_ruler_class = !(this instanceof Segment);
+    const is_ruler_class = !(this instanceof RulerSegment);
     
     if(is_ruler_class) {
       console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
     }
-      
-    const spacer = canvas.scene.data.gridType === CONST.GRID_TYPES.SQUARE ? 1.41 : 1;
-    const nMax = Math.max(Math.floor(ray.distance / (spacer * Math.min(canvas.grid.w, canvas.grid.h))), 1);
-    const tMax = Array.fromRange(nMax+1).map(t => t / nMax);
     
-    // Track prior position
-    let prior = null;
-  
-    // Iterate over ray portions
-    for ( let [i, t] of tMax.entries() ) {
-      log(`iterating over ray portion ${i}.`);
-      let {x, y} = ray.project(t);
-    
-      // Get grid position
-      let [x0, y0] = (i === 0) ? [null, null] : prior;
-      let [x1, y1] = canvas.grid.grid.getGridPositionFromPixels(x, y);
-      if ( x0 === x1 && y0 === y1 ) continue;
-    
+    const gridIter = RulerUtilities.iterateGridUnderLine(ray.A, ray.B);
+    for(const [row, col] of gridIter) {
       // Highlight the grid position
-      let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(x1, y1);
+      let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(row, col);
       if(is_ruler_class) {
         canvas.grid.highlightPosition(this.name, {x: xg, y: yg, color: this.color});
       } else {
         this.highlightPosition({x: xg, y: yg});
-      }
-        
-      // Skip the first one
-      prior = [x1, y1];
-      if ( i === 0 ) continue;
-    
-      // If the positions are not neighbors, also highlight their halfway point
-      if ( !canvas.grid.isNeighbor(x0, y0, x1, y1) ) {
-        let th = tMax[i - 1] + (0.5 / nMax);
-        let {x, y} = ray.project(th);
-        let [x1h, y1h] = canvas.grid.grid.getGridPositionFromPixels(x, y);
-        let [xgh, ygh] = canvas.grid.grid.getPixelsFromGridPosition(x1h, y1h);
-        if(is_ruler_class) {
-          canvas.grid.highlightPosition(this.name, {x: xgh, y: ygh, color: this.color});
-        } else {
-          this.highlightPosition({x: xgh, y: ygh})
-        }
-        
-      }
+      } 
     }
-  
   }
   
 /*
@@ -401,10 +397,12 @@ export class Segment {
   colorForPosition(position) {
     return this.color;
   }
+  
+
 }
  
 // Pull in flag functions. See ruler-flags.js 
-Segment.prototype.getFlag = libRulerGetFlag;
-Segment.prototype.setFlag = libRulerSetFlag;
-Segment.prototype.unsetFlag = libRulerUnsetFlag;
+RulerSegment.prototype.getFlag = libRulerGetFlag;
+RulerSegment.prototype.setFlag = libRulerSetFlag;
+RulerSegment.prototype.unsetFlag = libRulerUnsetFlag;
 
