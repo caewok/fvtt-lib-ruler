@@ -1,8 +1,17 @@
 ## 0.1.0
-Switch to using RulerSegment as the class name, to avoid collisions with other Segment classes. Change the physical path method to create an array of points in two or three dimensions. Break the measurement function into two parts: one to project the physical path onto the 2-D canvas, and a second to do the actual measurement of path line segments. Added physical_path as an argument to modifyDistanceResult.
+Switch to using RulerSegment as the class name, to avoid collisions with other Segment classes. Change the physical path method to create an array of points in two or three dimensions. Break the measurement function into two parts: one to project the physical path onto the 2-D canvas, and a second to do the actual measurement of path line segments. Added physical_path as an argument to modifyDistanceResult. 
+
+Add a RulerUtilities class with static methods that can be accessed at `window.libRuler.RulerUtilities`:
+- `almostEqual` for testing near equality.
+- `pointsAlmostEqual`.
+- `calculateDistance` method for measuring points distance, allowing for near equality.
+- `iterateGridUnderLine` generator to walk along the grid underneath a line segment.
+
 Breaking changes:
 - Renamed `Segment` class to `RulerSegment`
 - Renamed `distanceFunction` to `measurePhysicalPath`. Broke out `distanceFunction` as a function called by `measurePhysicalPath`.    
+- Use a more generic `options` parameter for the `RulerSegment` class.
+
 
 ## 0.0.9
 Update Module ID in code to match that of the module.json. 
