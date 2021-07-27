@@ -1,3 +1,6 @@
+## 0.1.1
+Improvements to Ruler.moveToken and Ruler.animateToken to more closely correspond with Foundry changes in the 0.8 series. Unlikely to be a breaking change, but Ruler.animateToken now returns the prior destination for Ruler.moveToken to track to deal with edge cases where the token has been moved by other means.
+
 ## 0.1.0
 Switch to using RulerSegment as the class name, to avoid collisions with other Segment classes. Change the physical path method to create an array of points in two or three dimensions. Break the measurement function into two parts: one to project the physical path onto the 2-D canvas, and a second to do the actual measurement of path line segments. Added physical_path as an argument to modifyDistanceResult. 
 

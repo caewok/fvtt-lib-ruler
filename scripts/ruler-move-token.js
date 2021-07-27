@@ -23,11 +23,18 @@ export async function libRulerMoveToken() {
     if ( !token ) return false;
     log("token", token);
     
+    // Determine offset relative to the Token top-left.
+    // This is important so we can position the token relative to the ruler origin for non-1x1 tokens.
+    const origin = canvas.grid.getTopLeft(this.waypoints[0].x, this.waypoints[0].y);
+    const s2 = canvas.dimensions.size / 2;
+    const dx = Math.round((token.data.x - origin[0]) / s2) * s2;
+    const dy = Math.round((token.data.y - origin[1]) / s2) * s2;
+
+    
     // Get the movement rays and check collision along each Ray
     // These rays are center-to-center for the purposes of collision checking
     const rays = this._getRaysFromWaypoints(this.waypoints, this.destination);
-    const hasCollision = this.testForCollision(rays);
-    
+    const hasCollision = this.testForCollision(rays);    
     if ( hasCollision ) {
       ui.notifications.error("ERROR.TokenCollide", {localize: true});
       return false;
@@ -35,21 +42,18 @@ export async function libRulerMoveToken() {
     // Execute the movement path.
     // Transform each center-to-center ray into a top-left to top-left ray using the prior token offsets.
     this._state = Ruler.STATES.MOVING;
-    token._noAnimate = true;
-    log("rays", rays);
-    
-    // Determine offset relative to the Token top-left.
-    // This is important so we can position the token relative to the ruler origin for non-1x1 tokens.
-    const origin = canvas.grid.getTopLeft(this.waypoints[0].x, this.waypoints[0].y);
-    const s2 = canvas.dimensions.size / 2;
-    const dx = Math.round((token.data.x - origin[0]) / s2) * s2;
-    const dy = Math.round((token.data.y - origin[1]) / s2) * s2;
+    let priorDest = undefined;
     
     for ( let [i, r] of rays.entries() ) {
+    
+      // Break the movement if the game is paused
       if ( !wasPaused && game.paused ) break;
-      await this.animateToken(token, r, dx, dy, i + 1); // increment by 1 b/c first segment is 1.
-    }
-    token._noAnimate = false;
+      
+      // Break the movement if Token is no longer located at the prior destination (some other change override this)
+      if ( priorDest && ((token.data.x !== priorDest.x) || (token.data.y !== priorDest.y)) ) break;
+
+      priorDest = await this.animateToken(token, r, dx, dy, i + 1); // increment by 1 b/c first segment is 1.
+    }   
     // Once all animations are complete we can clear the ruler
     this._endMeasurement();
 }
@@ -83,16 +87,23 @@ export function libRulerTestForCollision(rays) {
  *    in the array this.waypoints.concat([this.destination]). Keep in mind that 
  *    the first waypoint in this.waypoints is actually the origin 
  *    and segment_num will never be 0.
+ * @return {x: Number, y: Number} Return the prior destination (path.B) 
  */
 export async function libRulerAnimateToken(token, ray, dx, dy, segment_num) {
   log(`Animating token for segment_num ${segment_num}`);
+  
+  // Adjust the ray based on token size
   const dest = canvas.grid.getTopLeft(ray.B.x, ray.B.y);
   const path = new Ray({x: token.data.x, y: token.data.y}, {x: dest[0] + dx, y: dest[1] + dy});
-  // Commit the movement
+  
+  // Commit the movement and update the final resolved destination coordinates
   await token.document.update(path.B);
-
-  // Update the path which may have changed during the update, and animate it
   path.B.x = token.data.x;
   path.B.y = token.data.y;
+  
+  // Update the path which may have changed during the update, and animate it
+  const priorDest = path.B;
   await token.animateMovement(path);
+  
+  return priorDest;
 }
