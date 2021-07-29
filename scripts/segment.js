@@ -208,7 +208,7 @@ export class RulerSegment {
     const distance_segments = [{ray: new Ray(physical_path.origin, physical_path.destination)}];    
         
     log(`${distance_segments.length} distance segments`, distance_segments);
-    return this.distanceFunction(distance_segments);
+    return RulerSegment.distanceFunction(distance_segments, { gridSpaces: this.options.gridSpaces });
   }
   
   /*
@@ -220,8 +220,8 @@ export class RulerSegment {
    *                                    Each should be an object with the property "ray" containing a Ray. 
    * @return {Number} The distance of the segment.
    */
-  distanceFunction(distance_segments) {
-    const distances = canvas.grid.measureDistances(distance_segments, { gridSpaces: this.options.gridSpaces });
+  static distanceFunction(distance_segments, options={}) {
+    const distances = canvas.grid.measureDistances(distance_segments, options);
     return distances.reduce((acc, d) => acc + d, 0);
   }   
   
