@@ -1,3 +1,7 @@
+## 0.1.2
+Possibly breaking: Switch to a static RulerSegment.distanceFunction so that modules can easily call the function outside of a RulerSegment object. 
+Update devMode call to avoid repeated warnings. 
+
 ## 0.1.1
 Improvements to Ruler.moveToken and Ruler.animateToken to more closely correspond with Foundry changes in the 0.8 series. Unlikely to be a breaking change, but Ruler.animateToken now returns the prior destination for Ruler.moveToken to track to deal with edge cases where the token has been moved by other means.
 
