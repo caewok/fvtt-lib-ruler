@@ -97,12 +97,12 @@ export async function libRulerAnimateToken(token, ray, dx, dy, segment_num) {
   const path = new Ray({x: token.data.x, y: token.data.y}, {x: dest[0] + dx, y: dest[1] + dy});
   
   // Commit the movement and update the final resolved destination coordinates
+  const priorDest = duplicate(path.B); // resolve issue #3; get prior dest before update.
   await token.document.update(path.B);
   path.B.x = token.data.x;
   path.B.y = token.data.y;
   
   // Update the path which may have changed during the update, and animate it
-  const priorDest = path.B;
   await token.animateMovement(path);
   
   return priorDest;
