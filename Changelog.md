@@ -1,3 +1,6 @@
+## 0.1.3
+Resolve issue #3 (Set prior destination before updating the token movement).
+
 ## 0.1.2
 Possibly breaking: Switch to a static RulerSegment.distanceFunction so that modules can easily call the function outside of a RulerSegment object. 
 Update devMode call to avoid repeated warnings. 
