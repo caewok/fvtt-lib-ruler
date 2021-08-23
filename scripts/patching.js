@@ -2,7 +2,8 @@ import { MODULE_ID, log } from "./module.js";
 
 import { libRulerMeasure,  
          
-         libRulerSetDestination       
+         libRulerSetDestination,
+         libRulerAddWaypoint
        } from "./ruler-measure.js";
        
 import { libRulerToJSON,
@@ -25,9 +26,11 @@ export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');  
   libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', RulerSegment.prototype.highlightMeasurement, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype._addWaypoint', libRulerAddWaypoint, 'OVERRIDE');
   
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
+  libWrapper.register(MODULE_ID, )
 
   log("registerRuler finished!");
 }

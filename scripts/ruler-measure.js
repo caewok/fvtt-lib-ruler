@@ -129,9 +129,26 @@ export function libRulerSetDestination(destination) {
  */
 export function libRulerHighlightMeasurement(wrapped, ...args) {
   if(game.user.isGM) {
-    ui.notifications.warn("A module or other code is calling Ruler._highlightMeasurement, which has been deprecated by libRuler. This may cause unanticipated results.");
+    ui.notifications.warn("A module or other code is calling Ruler._highlightMeasurement, which has been deprecated by libRuler. This may cause unanticipated results. Modules should use RulerSegment.highlightMeasurement instead");
   }
   
   return wrapped(...args);
+}
+
+
+
+
+/*
+ * Override _addWaypoint so that points to be added can be adjusted by other modules.
+ * Drag Ruler, for example.
+ * @param {PIXI.Point} point
+ */
+export function libRulerAddWaypoint(point, center = true) {
+  let waypoint = [point.x, point.y];
+  if(recenter) {
+    waypoint = canvas.grid.getCenter(point.x, point.y);
+  }
+  this.waypoints.push(new PIXI.Point(waypoint[0], waypoint[1]));
+  this.labels.addChild(new PreciseText("", CONFIG.canvasTextStyle));
 }
 

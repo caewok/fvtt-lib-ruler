@@ -39,8 +39,7 @@ export async function libRulerMoveToken() {
       ui.notifications.error("ERROR.TokenCollide", {localize: true});
       return false;
     }
-    // Execute the movement path.
-    // Transform each center-to-center ray into a top-left to top-left ray using the prior token offsets.
+    // Execute the movement path defined by each ray.
     this._state = Ruler.STATES.MOVING;
     let priorDest = undefined;
     
