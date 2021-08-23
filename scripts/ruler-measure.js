@@ -145,7 +145,7 @@ export function libRulerHighlightMeasurement(wrapped, ...args) {
  */
 export function libRulerAddWaypoint(point, center = true) {
   let waypoint = [point.x, point.y];
-  if(recenter) {
+  if(center) {
     waypoint = canvas.grid.getCenter(point.x, point.y);
   }
   this.waypoints.push(new PIXI.Point(waypoint[0], waypoint[1]));

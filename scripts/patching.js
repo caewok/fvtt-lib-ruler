@@ -30,7 +30,6 @@ export function registerLibRuler() {
   
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
-  libWrapper.register(MODULE_ID, )
 
   log("registerRuler finished!");
 }
