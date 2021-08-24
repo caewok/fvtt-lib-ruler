@@ -42,7 +42,7 @@ export function libRulerSetFlag(scope, key, value) {
 }
 /* -------------------------------------------- */
 /**
- * Remove a flag assigned to the Entity.
+ * Sets a flag assigned to the Entity to undefined.
  *
  * Performs less checks than the Foundry version.
  * 
@@ -52,8 +52,7 @@ export function libRulerSetFlag(scope, key, value) {
  */
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
 export function libRulerUnsetFlag(scope, key) {
-  key = `flags.${scope}.-=${key}`;
-  return setProperty(this, key, null);
+  return setProperty(this, key, undefined);
 }
 
 /* 
