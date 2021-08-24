@@ -52,6 +52,7 @@ export function libRulerSetFlag(scope, key, value) {
  */
 // Not async b/c we don't need to use this.update for Ruler class. (the Ruler is local to the client)
 export function libRulerUnsetFlag(scope, key) {
+  key = `flags.${scope}.${key}`;
   return setProperty(this, key, undefined);
 }
 
