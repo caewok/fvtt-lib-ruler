@@ -60,7 +60,8 @@ export class RulerSegment {
     this.ruler = ruler;
     this.ray = new Ray(origin, destination);
     this.label = ruler.labels.children[segment_num];
-    this.color = ruler.color;    
+    this.color = ruler.color;
+    this.opacityMultipliers = { line: 1, endpoint: 1, highlight: 1 };
     this.options = foundry.utils.mergeObject(this.constructor.defaultOptions, options, {
       insertKeys: true,
       insertValues: true,
@@ -312,8 +313,8 @@ export class RulerSegment {
   drawLine() {
     const ray = this.ray;
 
-    this.ruler.ruler.lineStyle(6, 0x000000, 0.5).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
-     .lineStyle(4, this.color, 0.25).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
+    this.ruler.ruler.lineStyle(6, 0x000000, 0.5 * this.opacityMultipliers.line).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y)
+     .lineStyle(4, this.color, 0.25 * this.opacityMultipliers.line).moveTo(ray.A.x, ray.A.y).lineTo(ray.B.x, ray.B.y);
   }
   
   /*
@@ -343,10 +344,10 @@ export class RulerSegment {
    * 
    */
   drawEndpoints() {
-    this.ruler.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(this.ray.A.x, this.ray.A.y, 8);
+    this.ruler.ruler.lineStyle(2, 0x000000, 0.5 * this.opacityMultipliers.endpoint).beginFill(this.color, 0.25 * this.opacityMultipliers.endpoint).drawCircle(this.ray.A.x, this.ray.A.y, 8);
     
     if(this.last) {
-      this.ruler.ruler.lineStyle(2, 0x000000, 0.5).beginFill(this.color, 0.25).drawCircle(this.ray.B.x, this.ray.B.y, 8);
+      this.ruler.ruler.lineStyle(2, 0x000000, 0.5 * this.opacityMultipliers.endpoint).beginFill(this.color, 0.25 * this.opacityMultipliers.endpoint).drawCircle(this.ray.B.x, this.ray.B.y, 8);
     }  
   }
   
@@ -384,7 +385,16 @@ export class RulerSegment {
  * @param {Object} position Object with x, y, and color indicating the pixels at the grid position and the color.
  */
   highlightPosition(position) {
+    /* options passed through canvas.grid.highlightPosition:
+     * @param {number} x            The x-coordinate of the highlighted position
+     * @param {number} y            The y-coordinate of the highlighted position
+     * @param {number} color        The hex fill color of the highlight Default color=0x33BBFF
+     * @param {number} border       The hex border color of the highlight Default null
+     * @param {number} alpha        The opacity of the highlight Default alpha=0.25
+     */
     position.color = this.colorForPosition(position);
+    position.alpha = 0.25 * this.opacityMultipliers.highlight;
+    
     canvas.grid.highlightPosition(this.ruler.name, position);
   }
   
@@ -397,7 +407,6 @@ export class RulerSegment {
   colorForPosition(position) {
     return this.color;
   }
-  
 
 }
  
