@@ -129,9 +129,76 @@ export function libRulerSetDestination(destination) {
  */
 export function libRulerHighlightMeasurement(wrapped, ...args) {
   if(game.user.isGM) {
-    ui.notifications.warn("A module or other code is calling Ruler._highlightMeasurement, which has been deprecated by libRuler. This may cause unanticipated results.");
+    ui.notifications.warn("A module or other code is calling Ruler._highlightMeasurement, which has been deprecated by libRuler. This may cause unanticipated results. Modules should use RulerSegment.highlightMeasurement instead");
   }
   
   return wrapped(...args);
+}
+
+
+
+
+/*
+ * Override _addWaypoint so that points to be added can be adjusted by other modules.
+ * Drag Ruler, for example.
+ * @param {PIXI.Point} point
+ */
+export function libRulerAddWaypoint(point, center = true) {
+  let waypoint = [point.x, point.y];
+  if(center) {
+    waypoint = canvas.grid.getCenter(point.x, point.y);
+  }
+  this.waypoints.push(new PIXI.Point(waypoint[0], waypoint[1]));
+  this.labels.addChild(new PreciseText("", CONFIG.canvasTextStyle));
+}
+
+/*
+ * Override _onMouseMove to add scheduled measurements and deferred measurements.
+ * Used by drag ruler
+ * Continue a Ruler measurement workflow for left-mouse movements on the Canvas.
+ */
+export function libRulerOnMouseMove(event) {
+  if ( this._state === Ruler.STATES.MOVING ) return;
+
+  // Extract event data
+  const mt = event._measureTime || 0;
+  const {origin, destination, originalEvent} = event.data;
+
+  // Do not begin measuring unless we have moved at least 1/4 of a grid space
+  const dx = destination.x - origin.x;
+  const dy = destination.y - origin.y;
+  const distance = Math.hypot(dy, dx);
+  if ( !this.waypoints.length && (distance < (canvas.dimensions.size / 4))) return;
+
+  // Hide any existing Token HUD
+  canvas.hud.token.clear();
+  delete event.data.hudState;
+  
+  this.scheduleMeasurement(destination, event);
+}
+
+export function libRulerScheduleMeasurement(destination, event, measurementInterval = 50) {
+  const mt = event._measureTime || 0;
+	const originalEvent = event.data.originalEvent;
+	if (Date.now() - mt > measurementInterval) {
+		this.measure(destination, {snap: !originalEvent.shiftKey});
+		event._measureTime = Date.now();
+		this._state = Ruler.STATES.MEASURING;
+		this.cancelScheduledMeasurement();
+	} else {
+	  this.deferMeasurement(destination, event);
+	}
+}
+
+export function libRulerDeferMeasurement(destination, event) {
+  
+}
+
+export function libRulerCancelScheduledMeasurement() {
+ 
+}
+
+export async function libRulerDoDeferredMeasurements() {
+  return Promise.resolve(true);
 }
 
