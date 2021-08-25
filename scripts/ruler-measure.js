@@ -198,3 +198,7 @@ export function libRulerCancelScheduledMeasurement() {
  
 }
 
+export async function libRulerDoDeferredMeasurements() {
+  return Promise.resolve(true);
+}
+

@@ -8,7 +8,8 @@ import { libRulerMeasure,
          libRulerOnMouseMove,
          libRulerScheduleMeasurement,
          libRulerDeferMeasurement,
-         libRulerCancelScheduledMeasurement
+         libRulerCancelScheduledMeasurement,
+         libRulerDoDeferredMeasurements
        } from "./ruler-measure.js";
        
 import { libRulerToJSON,
@@ -131,3 +132,12 @@ Object.defineProperty(Ruler.prototype, "cancelScheduledMeasurement", {
   configurable: true
 });
 
+/*
+ * Add method doDeferredMeasurements for Ruler._onMouseMove
+ * Used by Ruler.moveToken to check for any deferred activities before moving.
+ */
+Object.defineProperty(Ruler.prototype, "doDeferredMeasurements", {
+  value: libRulerDoDeferredMeasurements,
+  writable: true,
+  configurable: true
+});

@@ -23,6 +23,9 @@ export async function libRulerMoveToken() {
     if ( !token ) return false;
     log("token", token);
     
+    // Wait until all scheduled measurements or other activities are done (non in default)
+    await this.doDeferredMeasurements;
+    
     // Determine offset relative to the Token top-left.
     // This is important so we can position the token relative to the ruler origin for non-1x1 tokens.
     const origin = canvas.grid.getTopLeft(this.waypoints[0].x, this.waypoints[0].y);
