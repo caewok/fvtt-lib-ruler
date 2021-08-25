@@ -1,3 +1,16 @@
+## 0.1.4
+Override `Ruler.prototype._onMouseMove` in order to add the ability for modules to schedule and defer measurements. (See Drag Ruler module for an example of this.) Adds related methods:
+- `Ruler.prototype.scheduleMeasurement`
+- `Ruler.prototype.deferMeasurement`
+- `Ruler.prototype.cancelScheduledMeasurement`
+- `Ruler.doDeferredMeasurements` (called within `Ruler.moveToken`)
+
+Fix `Ruler.prototype.unsetFlag` method, which was not correctly removing properties. Instead, `unsetFlag` will now set the flag property to undefined.
+
+Override `Ruler.prototype._addWaypoint` so that points to be added can be adjusted by other modules (such as Drag Ruler).
+
+Add a property `opacityMultipliers` to `RulerSegment` class. This permits modules to easily modify the opacity of ruler lines, endpoints, and highlighting. 
+
 ## 0.1.3
 Resolve issue #3 (Set prior destination before updating the token movement).
 
