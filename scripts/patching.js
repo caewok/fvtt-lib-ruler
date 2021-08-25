@@ -5,6 +5,7 @@ import { libRulerMeasure,
          libRulerSetDestination,
          libRulerAddWaypoint,
          
+         libRulerOnMouseMove,
          libRulerScheduleMeasurement,
          libRulerDeferMeasurement,
          libRulerCancelScheduledMeasurement
