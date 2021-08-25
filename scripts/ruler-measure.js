@@ -152,3 +152,49 @@ export function libRulerAddWaypoint(point, center = true) {
   this.labels.addChild(new PreciseText("", CONFIG.canvasTextStyle));
 }
 
+/*
+ * Override _onMouseMove to add scheduled measurements and deferred measurements.
+ * Used by drag ruler
+ * Continue a Ruler measurement workflow for left-mouse movements on the Canvas.
+ */
+export function libRulerOnMouseMove(event) {
+  if ( this._state === Ruler.STATES.MOVING ) return;
+
+  // Extract event data
+  const mt = event._measureTime || 0;
+  const {origin, destination, originalEvent} = event.data;
+
+  // Do not begin measuring unless we have moved at least 1/4 of a grid space
+  const dx = destination.x - origin.x;
+  const dy = destination.y - origin.y;
+  const distance = Math.hypot(dy, dx);
+  if ( !this.waypoints.length && (distance < (canvas.dimensions.size / 4))) return;
+
+  // Hide any existing Token HUD
+  canvas.hud.token.clear();
+  delete event.data.hudState;
+  
+  this.scheduleMeasurement(destination, event);
+}
+
+export function libRulerScheduleMeasurement(destination, event, measurementInterval = 50) {
+  const mt = event._measureTime || 0;
+	const originalEvent = event.data.originalEvent;
+	if (Date.now() - mt > measurementInterval) {
+		this.measure(destination, {snap: !originalEvent.shiftKey});
+		event._measureTime = Date.now();
+		this._state = Ruler.STATES.MEASURING;
+		this.cancelScheduledMeasurement();
+	} else {
+	  this.deferMeasurement(destination, event);
+	}
+}
+
+export function libRulerDeferMeasurement(destination, event) {
+  
+}
+
+export function libRulerCancelScheduledMeasurement() {
+ 
+}
+
