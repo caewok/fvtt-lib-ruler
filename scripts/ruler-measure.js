@@ -153,6 +153,18 @@ export function libRulerAddWaypoint(point, center = true) {
 }
 
 /*
+ * Override _removeWaypoint to allow modules to avoid re-measuring after removing a waypoint.
+ * This may be useful if a module is setting waypoints automatically (e.g., pathfinding)
+ * In such cases, the module would be responsible for ensuring measurement still happens eventually
+ */
+export function libRulerRemoveWaypoint(point, {snap=true, remeasure=true}={}) {
+  this.waypoints.pop();
+  this.labels.removeChild(this.labels.children.pop());
+  
+  if(remeasure) this.measure(point, {gridSpaces: snap});
+}
+
+/*
  * Override _onMouseMove to add scheduled measurements and deferred measurements.
  * Used by drag ruler
  * Continue a Ruler measurement workflow for left-mouse movements on the Canvas.

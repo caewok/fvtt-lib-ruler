@@ -4,6 +4,7 @@ import { libRulerMeasure,
          
          libRulerSetDestination,
          libRulerAddWaypoint,
+         libRulerRemoveWaypoint,
          
          libRulerOnMouseMove,
          libRulerScheduleMeasurement,
@@ -33,6 +34,7 @@ export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');  
   libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', RulerSegment.prototype.highlightMeasurement, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype._addWaypoint', libRulerAddWaypoint, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, 'Ruler.prototype._removeWaypoint', libRulerRemoveWaypoint, 'OVERRIDE');
   
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
