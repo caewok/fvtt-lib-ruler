@@ -1,3 +1,6 @@
+## 0.1.5
+Override `Ruler.prototype._removeWaypoint` to add an option to skip the re-measurement after the waypoint is removed. Helpful for modules like [Pathfinding Ruler](https://github.com/mothringer/foundry-vtt-pathfinding-ruler) that do automatic waypoint creation and deletion.
+
 ## 0.1.4
 Override `Ruler.prototype._onMouseMove` in order to add the ability for modules to schedule and defer measurements. (See Drag Ruler module for an example of this.) Adds related methods:
 - `Ruler.prototype.scheduleMeasurement`
