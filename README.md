@@ -46,7 +46,7 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
     or 
 
 
-4.  Require your users to install this library. One simple example that achieves this is provided below. Reference the more complex example in the provided [shim](#134-compatibility-shim) if you prefer a dialog (including an option to dismiss it permanently) instead of a simple notification.
+4.  Require your users to install this library. One simple example that achieves this is provided below. Reference the more complex example in the libWrapper [shim](https://github.com/ruipin/fvtt-lib-wrapper#135-compatibility-shim) if you prefer a dialog (including an option to dismiss it permanently) instead of a simple notification.
 
     ```javascript
     Hooks.once('ready', () => {
@@ -66,6 +66,10 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
     ```
 
 # Usage
+
+libRuler overrides methods of and adds methods to the base Foundry Ruler Class. 
+
+
 
 The libRuler module overrides two functions of the Ruler Class: `Ruler.prototype.measure` and `Ruler.prototype.moveToken.` In doing so, the libRuler module deprecates `Ruler.prototype._highlightMeasurement` in favor of a nearly identical version of that function in a new `RulerSegment` class. In order to track changed Ruler properties across users, libRuler wraps `Ruler.prototype.toJSON` and `Ruler.prototype.update`. All of these changes are implemented using the [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) module.
 
