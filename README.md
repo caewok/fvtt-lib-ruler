@@ -6,9 +6,11 @@ Library for [Foundry VTT](https://foundryvtt.com) which provides module develope
 [![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibleCoreVersion&colorB=blueviolet)](https://github.com/caewok/fvtt-lib-ruler/releases/latest)
 [![License](https://img.shields.io/github/license/caewok/fvtt-lib-ruler)](LICENSE)
 
-# Installation
+# User Installation
 
 Add this [Manifest URL](https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json) in Foundry to install.
+
+Enable the Module in your World's Module Settings. That's it! As a module library, there are no user-facing settings.
 
 ## Dependencies
 
@@ -17,12 +19,15 @@ Add this [Manifest URL](https://github.com/caewok/fvtt-lib-ruler/releases/latest
 # Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
 * [FVTT libRuler](#fvtt-libruler)
-* [Installation](#installation)
+* [User Installation](#user-installation)
    * [Dependencies](#dependencies)
 * [Table of Contents](#table-of-contents)
-   * [As a Module](#as-a-module)
-   * [As a Library](#as-a-library)
-* [Usage](#usage)
+* [Developer Module Usage](#developer-module-usage)
+   * [Use a compatibility shim](#use-a-compatibility-shim)
+   * [Write your own custom shim](#write-your-own-custom-shim)
+   * [Add switches based on whether libRuler is available](#add-switches-based-on-whether-libruler-is-available)
+   * [Require libRuler as a dependency](#require-libruler-as-a-dependency)
+* [Developer Usage](#developer-usage)
    * [How to use libRuler](#how-to-use-libruler)
    * [Changes to Ruler.prototype.measure](#changes-to-rulerprototypemeasure)
    * [RulerSegment class and measuring distance](#rulersegment-class-and-measuring-distance)
@@ -30,20 +35,19 @@ Add this [Manifest URL](https://github.com/caewok/fvtt-lib-ruler/releases/latest
    * [Changes to Ruler.prototype.moveToken](#changes-to-rulerprototypemovetoken)
    * [Other changes to Ruler class](#other-changes-to-ruler-class)
 
-## As a Module
-1.  Copy this link and use it in Foundry's Module Manager to install the Module.
 
-    > https://github.com/caewok/fvtt-lib-ruler/releases/latest/download/module.json
+# Developer Module Usage
 
-2.  Enable the Module in your World's Module Settings.
-
-## As a Library
 Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper#122-as-a-library). Those options are shamelessly copied and adapted here:
+
+## Use a compatibility shim
 1. Adapt the shim provided by libWrapper [shim](#134-compatibility-shim).
 <!--- May eventually want to provide our own --->
 
+## Write your own custom shim
 2. Write your own. **Please do not make your custom shim available in the global scope.**
 
+## Add switches based on whether libRuler is available
 3.  Trigger a different code path depending on whether libRuler is installed and active or not. For example:
 
     ```javascript
@@ -61,7 +65,7 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
 
     or 
 
-
+## Require libRuler as a dependency
 4.  Require your users to install this library. One simple example that achieves this is provided below. Reference the more complex example in the libWrapper [shim](https://github.com/ruipin/fvtt-lib-wrapper#135-compatibility-shim) if you prefer a dialog (including an option to dismiss it permanently) instead of a simple notification.
 
     ```javascript
@@ -81,7 +85,7 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
     ]
     ```
 
-# Usage
+# Developer Usage
 
 libRuler overrides methods of and adds methods to the base Foundry Ruler class. Use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap functions needed by your module. Additional documentation describes the functions available:
 
