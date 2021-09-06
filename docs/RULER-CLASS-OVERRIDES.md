@@ -1,4 +1,4 @@
-# libRuler Overrides
+# libRuler Ruler Class Overrides
 
 libRuler overrides certain methods of the Foundry Ruler class, described below. The methods are listed alphabetically (ignoring any underscore).
 
@@ -10,6 +10,7 @@ For underlying code, see
 - [ruler-move-token.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-move-token.js)
 - [patching.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/patching.js)
 
+# Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
 
 * [libRuler Overrides](#libruler-overrides)
