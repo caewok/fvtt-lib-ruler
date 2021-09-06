@@ -13,6 +13,40 @@ For underlying code, see
 
 # Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
+* [libRuler Ruler Class Additions](#libruler-ruler-class-additions)
+* [Table of Contents](#table-of-contents)
+* [Overview](#overview)
+   * [1. Ruler.prototype.animateToken](#1-rulerprototypeanimatetoken)
+      * [1.1. Recommended Use Case](#11-recommended-use-case)
+      * [1.2. Examples](#12-examples)
+   * [2. Ruler.prototype.cancelScheduledMeasurement](#2-rulerprototypecancelscheduledmeasurement)
+      * [2.1. Recommended Use Case](#21-recommended-use-case)
+      * [2.2. Examples](#22-examples)
+   * [3. Ruler.prototype.deferMeasurement](#3-rulerprototypedefermeasurement)
+      * [3.1. Recommended Use Case](#31-recommended-use-case)
+      * [3.2. Examples](#32-examples)
+   * [4. Ruler.prototype.doDeferredMeasurement](#4-rulerprototypedodeferredmeasurement)
+      * [4.1. Recommended Use Case](#41-recommended-use-case)
+      * [4.2. Examples](#42-examples)
+   * [5. Ruler.prototype.getFlag](#5-rulerprototypegetflag)
+      * [5.1. Recommended Use Case](#51-recommended-use-case)
+      * [5.2. Examples](#52-examples)
+   * [6. Ruler.prototype.scheduleMeasurement](#6-rulerprototypeschedulemeasurement)
+      * [6.1. Recommended Use Case](#61-recommended-use-case)
+      * [6.2. Examples](#62-examples)
+   * [7. Ruler.prototype.setDestination](#7-rulerprototypesetdestination)
+      * [7.1. Recommended Use Case](#71-recommended-use-case)
+      * [7.2. Examples](#72-examples)
+   * [8. Ruler.prototype.setFlag](#8-rulerprototypesetflag)
+      * [8.1 Recommended Use Case](#81-recommended-use-case)
+      * [8.2 Examples](#82-examples)
+   * [9. Ruler.prototype.testForCollision](#9-rulerprototypetestforcollision)
+      * [9.1. Recommended Use Case](#91-recommended-use-case)
+      * [9.2. Examples](#92-examples)
+   * [10. Ruler.prototype.unsetFlag](#10-rulerprototypeunsetflag)
+      * [10.1 Recommended Use Case](#101-recommended-use-case)
+      * [10.2 Examples](#102-examples)
+
 
 # Overview
 

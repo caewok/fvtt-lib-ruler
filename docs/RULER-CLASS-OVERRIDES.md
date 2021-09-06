@@ -11,11 +11,12 @@ For underlying code, see
 # Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
 
-* [libRuler Overrides](#libruler-overrides)
+* [libRuler Ruler Class Overrides](#libruler-ruler-class-overrides)
+* [Table of Contents](#table-of-contents)
    * [1. Ruler.prototype._addWaypoint (OVERRIDE)](#1-rulerprototype_addwaypoint-override)
       * [1.1. Recommended Use Case](#11-recommended-use-case)
       * [1.2. Examples](#12-examples)
-   * [2. Ruler.prototype._highlightMeasurement (See RulerSegment.prototype.highlightMeasurement) (OVERRIDE)](#2-rulerprototype_highlightmeasurement-see-rulersegmentprototypehighlightmeasurement-override)
+   * [2. Ruler.prototype._highlightMeasurement (OVERRIDE)](#2-rulerprototype_highlightmeasurement-override)
       * [2.1. Recommended Use Case](#21-recommended-use-case)
       * [2.2. Examples](#22-examples)
    * [3. Ruler.prototype.measure (OVERRIDE)](#3-rulerprototypemeasure-override)

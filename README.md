@@ -16,6 +16,19 @@ Add this [Manifest URL](https://github.com/caewok/fvtt-lib-ruler/releases/latest
 
 # Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
+* [FVTT libRuler](#fvtt-libruler)
+* [Installation](#installation)
+   * [Dependencies](#dependencies)
+* [Table of Contents](#table-of-contents)
+   * [As a Module](#as-a-module)
+   * [As a Library](#as-a-library)
+* [Usage](#usage)
+   * [How to use libRuler](#how-to-use-libruler)
+   * [Changes to Ruler.prototype.measure](#changes-to-rulerprototypemeasure)
+   * [RulerSegment class and measuring distance](#rulersegment-class-and-measuring-distance)
+   * [Flow diagram of Ruler.prototype.measure](#flow-diagram-of-rulerprototypemeasure)
+   * [Changes to Ruler.prototype.moveToken](#changes-to-rulerprototypemovetoken)
+   * [Other changes to Ruler class](#other-changes-to-ruler-class)
 
 ## As a Module
 1.  Copy this link and use it in Foundry's Module Manager to install the Module.

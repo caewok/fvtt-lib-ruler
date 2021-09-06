@@ -3,6 +3,13 @@ libRuler defines a set of static helper methods under the RulerUtilities class. 
 
 # Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
+* [libRuler RulerUtilities Class](#libruler-rulerutilities-class)
+* [Table of Contents](#table-of-contents)
+* [RulerUtilities static methods](#rulerutilities-static-methods)
+   * [RulerUtilities.almostEqual](#rulerutilitiesalmostequal)
+   * [RulerUtilities.calculateDistance](#rulerutilitiescalculatedistance)
+   * [RulerUtilities.iterateGridUnderLine (generator)](#rulerutilitiesiterategridunderline-generator)
+   * [RulerUtilities.pointsAlmostEqual](#rulerutilitiespointsalmostequal)
 
 # `RulerUtilities` static methods
 

@@ -14,6 +14,62 @@ One big change from the Foundry core is how libRuler permits modules to build up
 
 # Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
+* [libRuler RulerSegment Class](#libruler-rulersegment-class)
+* [Table of Contents](#table-of-contents)
+* [RulerSegment Class constructor](#rulersegment-class-constructor)
+* [Select RulerSegment class properties](#select-rulersegment-class-properties)
+* [RulerSegment class getters](#rulersegment-class-getters)
+   * [RulerSegment.prototype.defaultOptions](#rulersegmentprototypedefaultoptions)
+   * [RulerSegment.prototype.distance](#rulersegmentprototypedistance)
+   * [RulerSegment.prototype.text](#rulersegmentprototypetext)
+   * [RulerSegment.prototype.totalDistance](#rulersegmentprototypetotaldistance)
+   * [RulerSegment.prototype.totalPriorDistance](#rulersegmentprototypetotalpriordistance)
+* [RulerSegment Class methods](#rulersegment-class-methods)
+   * [RulerSegment.prototype.addProperties](#rulersegmentprototypeaddproperties)
+      * [Recommended Use Case](#recommended-use-case)
+      * [Examples](#examples)
+   * [RulerSegment.prototype.colorForPosition](#rulersegmentprototypecolorforposition)
+      * [Recommended Use Case](#recommended-use-case-1)
+      * [Examples](#examples-1)
+   * [RulerSegment.prototype.constructPhysicalPath](#rulersegmentprototypeconstructphysicalpath)
+      * [Recommended Use Case](#recommended-use-case-2)
+      * [Examples](#examples-2)
+   * [RulerSegment.distanceFunction (Static method)](#rulersegmentdistancefunction-static-method)
+      * [Recommended Use Case](#recommended-use-case-3)
+      * [Examples](#examples-3)
+   * [RulerSegment.prototype.drawDistanceLabel](#rulersegmentprototypedrawdistancelabel)
+      * [Recommended Use Case](#recommended-use-case-4)
+      * [Examples](#examples-4)
+   * [RulerSegment.prototype.drawEndpoints](#rulersegmentprototypedrawendpoints)
+      * [Recommended Use Case](#recommended-use-case-5)
+      * [Examples](#examples-5)
+   * [RulerSegment.prototype.drawLine](#rulersegmentprototypedrawline)
+      * [Recommended Use Case](#recommended-use-case-6)
+      * [Examples](#examples-6)
+   * [RulerSegment.prototype.getFlag](#rulersegmentprototypegetflag)
+   * [RulerSegment.prototype.highlightMeasurement](#rulersegmentprototypehighlightmeasurement)
+      * [Recommended Use Case](#recommended-use-case-7)
+      * [Examples](#examples-7)
+   * [RulerSegment.prototype.highlightPosition](#rulersegmentprototypehighlightposition)
+      * [Recommended Use Case](#recommended-use-case-8)
+      * [Examples](#examples-8)
+   * [RulerSegment.prototype.measureDistance](#rulersegmentprototypemeasuredistance)
+      * [Recommended Use Case](#recommended-use-case-9)
+      * [Examples](#examples-9)
+   * [RulerSegment.prototype.measurePhysicalPath](#rulersegmentprototypemeasurephysicalpath)
+      * [Recommended Use Case](#recommended-use-case-10)
+      * [Examples](#examples-10)
+   * [RulerSegment.prototype.modifyDistanceResult](#rulersegmentprototypemodifydistanceresult)
+      * [Recommended Use Case](#recommended-use-case-11)
+      * [Examples](#examples-11)
+   * [RulerSegment.prototype.recalculateDistance](#rulersegmentprototyperecalculatedistance)
+      * [Recommended Use Case](#recommended-use-case-12)
+      * [Examples](#examples-12)
+   * [RulerSegment.prototype.setFlag](#rulersegmentprototypesetflag)
+   * [RulerSegment.prototype.traversePriorSegments](#rulersegmentprototypetraversepriorsegments)
+      * [Recommended Use Case](#recommended-use-case-13)
+      * [Examples](#examples-13)
+   * [RulerSegment.prototype.unsetFlag](#rulersegmentprototypeunsetflag)
 
 # `RulerSegment` Class constructor
 
@@ -77,10 +133,10 @@ Returns: None
 
 Called by the constructor when a new `RulerSegment` is created. Meant to be used by modules to easily set parameters for every new segment.
 
-## Recommended Use Case
+### Recommended Use Case
 Wrap to set properties, best added using the `RulerSegment` flag methods.
 
-## Examples
+### Examples
 - [Elevation Ruler](https://github.com/caewok/fvtt-elevation-ruler/blob/master/scripts/segments.js) sets various elevation-related properties for the segment, pulling in properties it previously set using flag on the parent ruler. 
 
 ## `RulerSegment.prototype.colorForPosition`
@@ -91,10 +147,10 @@ Returns: {Hex number} Hex color for the ruler at that position.
 
 Default method simply returns `this.color`, which by default is equivalent to the parent ruler color property. Called by `RulerSegment.prototype.highlightPosition` to set the color at the position.
 
-## Recommended Use Case
+### Recommended Use Case
 Change the highlight color of the ruler---for example, to signify range category or movement amount used.
 
-## Examples
+### Examples
 -  [Speed Ruler](https://github.com/caewok/fvtt-speed-ruler/blob/master/scripts/segment.js) sets the ruler highlight color based on the amount of movement (walk, dash, beyond) the token has available.
 
 ## `RulerSegment.prototype.constructPhysicalPath`
@@ -109,10 +165,10 @@ Construct a physical path for the segment that represents how the measured item 
 
 By convention, each point should have at least x and y. If 3d, it should have z. The returned physical path object may have other properties, but these may be ignored by other modules.
 
-## Recommended Use Case
+### Recommended Use Case
 A module wishes to change how a ruler path represents actual movement in space. The ruler might display movement in 3-D (or other dimensions, like a Shadow or Ethereal dimension). Or it might display a parabolic arrow flight. 
 
-## Examples
+### Examples
 - [Elevation Ruler](https://github.com/caewok/fvtt-elevation-ruler/blob/master/scripts/segments.js) adds a `z` dimension representing the height at the origin and destination. 
 
 
@@ -124,10 +180,10 @@ Returns: {number} Distance measured
 
 Measure the distance of an array of segments, where each segment is a ray. 
 
-## Recommended Use Case
+### Recommended Use Case
 Defining a different measurement method. For example, if you didn't like 5e's Euclidean measure, you could implement your own here.
 
-## Examples
+### Examples
 - [Manhattan Ruler](https://github.com/caewok/fvtt-manhattan-ruler/blob/main/scripts/segment.js) Overrides the distance measurement to use Manhattan distance (city blocks) instead.
 
 
@@ -137,10 +193,10 @@ Return: {PreciseText} Text element that labels the measured path.
 
 Mostly code from the portion of the base `Ruler.prototype.measure` that constructs the ruler label. Pulls the segment properties label, text, ray, and last and constructs a label object. Called from overridden `Ruler.prototype.measure` for each segment.
 
-## Recommended Use Case
+### Recommended Use Case
 Creating a different or more complex label to display.
 
-## Examples
+### Examples
 None.
 
 ## `RulerSegment.prototype.drawEndpoints`
@@ -149,10 +205,10 @@ Returns: None
 
 Draws the end point indicators for the segment. Applies the opacityMultipliers.endpoint to adjust opacity. Only draws the origin point unless this is the last segment, in which case it draws the destination point. Called from overridden `Ruler.prototype.measure` for each segment.
 
-## Recommended Use Case
+### Recommended Use Case
 Creating a different or more complex endpoint.
 
-## Examples 
+### Examples 
 None.
 
 ## `RulerSegment.prototype.drawLine`
@@ -161,10 +217,10 @@ Returns: None
 
 Code from the portion of the base `Ruler.prototype.measure` that draws the highlighted measure line on the canvas. Called from overridden `Ruler.prototype.measure` for each segment.
 
-## Recommended Use Case
+### Recommended Use Case
 Creating a different or more complex line.
 
-## Examples
+### Examples
 None.
 
 ## `RulerSegment.prototype.getFlag`
@@ -180,10 +236,10 @@ Modified version of `Ruler.prototype._highlightMeasurement` applied to a single 
 
 Note that this method uses the `RulerUtilities.iterateGridUnderLine` static generator to identify every grid position under the ruler, to pass to `highlightPosition`.
 
-## Recommended Use Case
+### Recommended Use Case
 None. Most modules will likely wrap `highlightPosition` instead, or set color properties elsewhere.
 
-## Examples
+### Examples
 None.
 
 
@@ -195,10 +251,10 @@ Returns: None
 
 Adds color (`RulerSegment.prototype.colorForPosition`) and alpha (`this.opacityMultipliers.highlight` property) to the position object before passing it to `canvas.grid.highlightPosition`.
 
-## Recommended Use Case
+### Recommended Use Case
 Modifying highlighting of the ruler.
 
-## Examples
+### Examples
 None.
 
 
@@ -215,10 +271,10 @@ Measuring distance is done in three stages:
 
 3. `RulerSegment.modifyDistanceResult`. Modify the resulting distance number.
 
-## Recommended Use Case
+### Recommended Use Case
 It is expected that most methods will not override this method but instead will wrap one or more of its sub-functions. 
 
-## Examples
+### Examples
 None.
 
 
@@ -230,10 +286,10 @@ Called from `RulerSegment.prototype.measureDistance`. Default parameters are the
 
 Conceptually, `measurePhysicalPath` does just that: it determines the distance of the physical path passed to it. The default version just measures from origin to destination using `RulerSegment.prototype.distanceFunction`. 
 
-## Recommended Use Case
+### Recommended Use Case
 Modules defining alternative physical paths will probably need to wrap this to deal with their unique physical path definitions. Where possible, shrinking back to a 2-D origin/destination line is recommended for compatibility with other modules.
 
-## Examples
+### Examples
 - [Elevation Ruler](https://github.com/caewok/fvtt-elevation-ruler/blob/develop/scripts/segment.js), for example, wraps `RulerSegment.constructPhysicalPath` (1) to create a 3-D physical path by adding the z-dimension to each point. Elevation Ruler then wraps `RulerSegment.distanceFunction` (2) in order to project the 3-D path back onto the 2-D canvas, where the underlying distance measurement function takes over. 
 
 
@@ -246,10 +302,10 @@ Returns: {Number} The distance as modified.
 
 The default version just returns the distance unmodified. Called from `RulerSegment.prototype.measureDistance` after the physical path is constructed and after the basic distance of that path is measured. 
 
-## Recommended Use Case
+### Recommended Use Case
 Modify the calculated distance based on something other than actual measured distance. If you are just measuring the physical path, you probably want to modify `RulerSegment.prototype.measureDistance` or `RulerSegment.prototype.measurePhysicalPath`. 
 
-## Examples
+### Examples
 - [Terrain Ruler](https://github.com/caewok/foundryvtt-terrain-ruler/blob/libruler-basic/src/libruler_methods.js) wraps this to add multipliers for movement through difficult terrain.
 
 
@@ -259,10 +315,10 @@ Returns: None
 
 Sets the segment distanceValue property by executing `RulerSegment.prototype.measureDistance`.
 
-## Recommended Use Case
+### Recommended Use Case
 Making related calculations every time distance is measured for a segment.
 
-## Examples
+### Examples
 None.
 
 ## `RulerSegment.prototype.setFlag`
@@ -276,10 +332,10 @@ Parameters:
 
 Modules may use this method to traverse the links of prior segments. Note that in many cases, it is sufficient to set a flag and then update or read that flag from the immediate prior segment, negating the need for a full traversal. See `RulerSegment.prototype.addProperties`.
 
-## Recommended Use Case
+### Recommended Use Case
 Applying a specialized function or retrieving a property for all prior segments
 
-## Examples
+### Examples
 None
 
 ## `RulerSegment.prototype.unsetFlag`
