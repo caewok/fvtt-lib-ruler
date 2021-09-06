@@ -67,15 +67,18 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
 
 # Usage
 
-libRuler overrides methods of and adds methods to the base Foundry Ruler Class. 
+libRuler overrides methods of and adds methods to the base Foundry Ruler class. Use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap functions needed by your module. Additional documentation describes the functions available:
 
-
-
-The libRuler module overrides two functions of the Ruler Class: `Ruler.prototype.measure` and `Ruler.prototype.moveToken.` In doing so, the libRuler module deprecates `Ruler.prototype._highlightMeasurement` in favor of a nearly identical version of that function in a new `RulerSegment` class. In order to track changed Ruler properties across users, libRuler wraps `Ruler.prototype.toJSON` and `Ruler.prototype.update`. All of these changes are implemented using the [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) module.
+- [Ruler class overrides](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md). Ruler methods overriden by libRuler.
+- [Ruler class additions](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md). Ruler methods added by libRuler.
+- [RulerSegment class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md). New class added by libRuler, representing the segment between two waypoints (including origin and destination as waypoints). Accessible at `window.libRuler.RulerSegment`.
+- [Ruler Utilities (https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERUTILITIES-CLASS.md). Ruler utility methods added by libRuler. Accessible at `window.libRuler.RulerUtilities`.
 
 ## How to use libRuler
 
-The expectation is that modules will use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap one or more functions in the `RulerSegment` Class. The `RulerSegment` Class is exposed at `window.libRuler.RulerSegment` and can be wrapped similarly to wrapping core Foundry methods, for example:
+The expectation is that modules will use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap one or more functions in the new `RulerSegment` class, the new methods added to the `Ruler` class, or (rarely) the underlying `Ruler` class methods. 
+
+The `RulerSegment` Class is exposed at `window.libRuler.RulerSegment` and can be wrapped similarly to wrapping core Foundry methods, for example:
 
 ```javascript
 libWrapper.register(MODULE_ID, 'window.libRuler.RulerSegment.prototype.addProperties', [COOL FUNCTION HERE], 'WRAPPER');
@@ -85,73 +88,74 @@ libWrapper.register(MODULE_ID, 'window.libRuler.RulerSegment.prototype.addProper
 
 ## Changes to `Ruler.prototype.measure`
 
-libRuler's version of `Ruler.prototype.measure`, at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a `RulerSegment` representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the `RulerSegment` Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. The now-extensible parts, in the order encountered during measuring:
-1. `Ruler.setDestination` is a new function that simply identifies and sets the `PIXI.Point` destination for the ruler.
+libRuler's version of `Ruler.prototype.measure`, at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a `RulerSegment` representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the `RulerSegment` Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. 
+
+## `RulerSegment` class and measuring distance
+
+The [`RulerSegment` class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md) class functions to represent segments of the ruler when measuring. The key function of `RulerSegment` is to break down measurement into three subparts: 
+1. `RulerSegment.prototype.constructPhysicalPath`. 
+2. `RulerSegment.prototype.measurePhysicalPath`. 
+3. `RulerSegment.prototype.modifyDistanceResult`.
+
+## Flow diagram of `Ruler.prototype.measure`
+The full flow of `Ruler.prototype.measure` is as follows:
+
+1. `Ruler.prototype.setDestination` allows modules to modify the destination point.
 
 For each segment in turn, from the origin outward:
 
-2. A new `RulerSegment` is created. See `RulerSegment` Class below for more details.
-3. `RulerSegment.drawLine` draws the ruler line on the canvas.
-4. `RulerSegment.drawDistanceLabel` draws the text label indicating the ruler distance.
-5. `RulerSegment.highlightMeasurement` highlights grid spaces on the canvas.
-6. `RulerSegment.drawEndpoints` handles drawing the origin, destination, and waypoint indicators. 
+2. A new `RulerSegment` is created. 
+3. `RulerSegment.prototype.drawLine` draws the ruler line on the canvas.
+4. `RulerSegment.prototype.drawDistanceLabel` draws the text label indicating the ruler distance.
+   
+Distance label gets the current text, with the following:
+  4.1. `RulerSegment.prototype.text` (getter)
+      4.1.1. `RulerSegment.prototype.totalDistance` (getter)
+        4.1.1.1 `RulerSegment.prototype.totalPriorDistance` (getter)
+        4.1.1.2 `RulerSegment.prototype.distance` (getter)
+      4.1.2. `RulerSegment.prototype.distance` (getter)
 
-## `RulerSegment` Class
+`RulerSegment.prototype.distance` is cached, but when calculated for the first time, it calls `RulerSegment.prototype.recalculateDistance`, which calls `RulerSegment.prototype.measureDistance`, which in turn calls:
+- `RulerSegment.prototype.constructPhysicalPath`
+- `RulerSegment.prototype.measurePhysicalPath`
+  - `RulerSegment.prototype.distanceFunction` --> `canvas.grid.measureDistances`
+- `RulerSegment.prototype.modifyDistanceResult`
+      
+5. `RulerSegment.prototype.highlightMeasurement` highlights grid spaces on the canvas.
+  5.1 `RulerSegment.prototype.colorForPosition`
+  5.2. `canvas.grid.highlightPosition`
+6. `RulerSegment.prototype.drawEndpoints` handles drawing the origin, destination, and waypoint 
 
-Most modules will want to wrap functions for the [new `RulerSegment` Class](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/segment.js). A RulerSegment contains a link to the Ruler Class, a link to the prior segment in the chain, if any. Properties include:
-- `prior_segment`: The previous `RulerSegment` or {} where this is the first segment originating from the measured start point.
-- `segment_num`: Number of the segment, where 0 is the first segment originating from the measured start point.
-- `ruler`: Ruler for this segment.
-- `ray`: Ray representing the segment line.
-- `label`: Ruler label corresponding to the segment.
-- `color`: Color associated with the segment.
-- `options`: Options currently limited to whether to use gridSpaces when measuring distance.
-
-### `RulerSegment.constructRay` method
-
-Method to create a Ray used to represent the ruler line on the canvas. 
-
-### `RulerSegment.measureDistance` and how distance calculation works
-
-One big change from the Foundry core is how libRuler permits modules to build upon one another for calculating distance. This is accomplished in the `RulerSegment.measureDistance` method. It is expected that most methods will not override this method but instead will wrap one or more of its sub-functions. 
-
-Measuring distance is done in three stages. 
-1. `RulerSegment.constructPhysicalPath`. A physical path is constructed, building up an array of points representing the path along the segment. By default, this physical path is comprised of two 2-D points: origin and destination of the segment. 
-2. `RulerSegment.distanceFunction`. A distance calculator method is called to convert the physical path into a numeric value. If a module wraps (1), it likely will need to wrap (2) as well. 
-3. `RulerSegment.getDistanceModifiers`. A set of modifier strings are applied to the numeric distance value. This typically should look like "+5" or "*2". An arbitrary number of modifiers can be applied, in the order they appear in the Array that stores them.
-
-[Elevation Ruler](https://github.com/caewok/fvtt-elevation-ruler/blob/develop/scripts/segment.js), for example, wraps `RulerSegment.constructPhysicalPath` (1) to create a 3-D physical path by adding the z-dimension to each point. Elevation Ruler then wraps `RulerSegment.distanceFunction` (2) in order to project the 3-D path back onto the 2-D canvas, where the underlying distance measurement function takes over. 
-
-### `RulerSegment.distance` getter and `RulerSegment.recalculateDistance` method
-
-Probably need not be modified by modules; this retrieves the calculated distance of a segment, forcing a re-calculation if no value is yet present. Some modules may want to force a call to `recalculateDistance`.
-
-### `RulerSegment.totalPriorDistance` and `RulerSegment.totalDistance` getters
-
-`RulerSegment.totalPriorDistance` returns the calculated distance of the preceding RulerSegment; `Segment.totalDistance` adds in the distance of the current segment
-
-### `RulerSegment.text` getter
-
-Modules looking to modify the text label of a ruler should wrap this getter. 
-
-### `RulerSegment.traversePriorSegments` helper method
-
-Modules may use this method to traverse the links of prior segments. Note that in many cases, it is sufficient to set a flag and then update or read that flag from the immediate prior segment, negating the need for a full traversal. 
-
-### `RulerSegment.addProperties` method and Segment Flags
-
-The `RulerSegment` class adds the same `getFlag`, `setFlag`, `unsetFlag` used elsewhere in Foundry. This allows modules to add arbitrary properties to each segment without naming conflicts. When creating a new RulerSegment, the `constructor` method calls `RulerSegment.addProperties`, which gives modules a chance to add flags or do other tasks prior to distance calculation or drawing of the segment. 
-
-### `RulerSegment.highlightMeasurement` and subfunctions `RulerSegment.highlightPosition` and `RulerSegment.colorForPosition`
-
-libRuler moves `Ruler._highlightMeasurement` to the RulerSegment class. The underlying code is nearly the same. The primary change is that `RulerSegment.highlightPosition` is called, giving modules an opportunity to change how a give RulerSegment or sub-segment is highlighted on the canvas. This sub-function, in turn, calls `RulerSegment.colorForPosition`. Modules interested in changing highlighting or highlighted color should look here. 
 
 ## Changes to `Ruler.prototype.moveToken`
+`Ruler.prototype.moveToken` is broken up into parts, namely:
+1. collision test to permit the movement
+2. animating the token movement 
 
-The code for moving a token using the ruler remains nearly the same as in core. Ruler Class gains a `testForCollision` method to confirm whether a collision has in fact occurred, and an `animateToken` method to actually do the token movement.
+The full flow of `moveToken`:
+1. Return if certain conditions met, such as the token is not available.
+2. `Ruler.prototype.doDeferredMeasurements`
+3. `Ruler.prototype.testForCollision`
+4. For each ray (segment) of the ruler:
+  - `Ruler.prototype.animateToken` --> calls `token.animateMovement`
+5. `Ruler.prototype.endMeasurement`
 
-This allows [Elevation Ruler](https://github.com/caewok/fvtt-elevation-ruler/blob/develop/scripts/ruler.js), for example, to add elevation to the token as it is moved along the ruler path.
 
-## Ruler Flags
+## Other changes to `Ruler` class
 
-libRuler adds the same `getFlag`, `setFlag`, `unsetFlag` used elsewhere in Foundry to the Ruler Class. This allows modules to add arbitrary properties to each Ruler without naming conflicts.
+'Ruler.prototype._highlightMeasurement' is deprecated, because its functionality is now part of `RulerSegment.prototype.highlightMeasurement`.
+
+`Ruler.prototype._addWaypoint` and `Ruler.prototype._removeWaypoint` are overriden. `_addWaypoint` now takes an optional center parameter; if true it will apply `canvas.grid.getCenter` to the point. `_removeWaypoint` adds a `remeasure` option to trigger measurement when removing a waypoint (defaults to true).
+
+'Ruler.prototype.toJSON' and 'Ruler.prototype.update' are wrapped to accommodate Ruler flags. 
+
+Flags, which let modules store properties to the instantiated object, are added to `Ruler` and `RulerSegment` classes:
+- `getFlag`
+- `setFlag`
+- `unsetFlag`
+
+`Ruler.prototype._onMouseMove` gains several sub-methods to permit modules more control over when ruler measurements occur:
+- `Ruler.prototype.scheduleMeasurement`
+- `Ruler.prototype.deferMeasurement`
+- `Ruler.prototype.cancelScheduledMeasurement`
+- `Ruler.prototype.doDeferredMeasurements` (called from the overriden `Ruler.prototype.moveToken`)
