@@ -2,8 +2,6 @@
 
 libRuler overrides certain methods of the Foundry Ruler class, described below. The methods are listed alphabetically (ignoring any underscore).
 
-- Examples from [Drag Ruler](https://github.com/manuelVo/foundryvtt-drag-ruler) are currently from the [forked version](https://github.com/caewok/foundryvtt-drag-ruler/tree/caewok-libruler). 
-- Examples from [Pathfinding Ruler](https://github.com/mothringer/foundry-vtt-pathfinding-ruler) are currently from the [forked version](https://github.com/caewok/foundry-vtt-pathfinding-ruler/tree/libruler)
 
 For underlying code, see 
 - [ruler-measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js)
@@ -56,13 +54,13 @@ Wrap this to know when waypoints are added to the ruler or to modify points that
 - [Drag Ruler](https://github.com/caewok/foundryvtt-drag-ruler/blob/caewok-libruler/src/libruler.js) uses this to snap the ruler to the center of the dragged token.
 
 
-## 2. `Ruler.prototype._highlightMeasurement` (See `RulerSegment.prototype.highlightMeasurement`) (OVERRIDE)
+## 2. `Ruler.prototype._highlightMeasurement` (OVERRIDE)
 Parameters: 
 - {Ray} ray
 
 Returns: None
 
-libRuler deprecates `Ruler.prototype._highlightMeasurement` because highlighting the canvas now happens at each RulerSegment (segment between waypoints). See [`RulerSegment.prototype.highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/docs/RULERSEGMENT-CLASS.md).
+libRuler deprecates `Ruler.prototype._highlightMeasurement` because highlighting the canvas now happens at each RulerSegment (segment between waypoints). See [`RulerSegment.prototype.highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/docs/RULERSEGMENT-CLASS.md). 
 
 Calls to `Ruler.prototype._highlightMeasurement` will trigger a warning before being passed through to the Foundry version, with possibly unexpected outcomes.
 
@@ -127,7 +125,7 @@ Takes the actual measurement portion of the original `_onMouseMove` and moves it
 If sufficient time has passed, `scheduleMeasurement` will do the measurement, and then call `Ruler.prototype.cancelScheduledMeasurement` to let modules know that the measurement has been done. If sufficient time has not passed, `scheduleMeasurement` will call `Ruler.prototype.deferMeasurement`, in case modules want to override this determination or do something else with the destination information. Ultimately, any deferred measurements are resolved by the libRuler version of `Ruler.prototype.moveToken`, which calls `Ruler.prototype.doDeferredMeasurements` before attempting to move a token.
 
 ### 5.1. Recommended Use Case 
-Wrap _onMouseMove if you need to do something special when the user is moving the mouse to change the ruler measurement. Wrap the schedule measurement methods if you need more fine control over when ruler measurements occur.
+Wrap `_onMouseMove` if you need to do something special when the user is moving the mouse to change the ruler measurement. Wrap the schedule measurement methods if you need more fine control over when ruler measurements occur.
 
 ### 5.2. Examples
 - [Drag Ruler](https://github.com/caewok/foundryvtt-drag-ruler/blob/caewok-libruler/src/libruler.js) wraps all of these to handle special conditions when dragging tokens.

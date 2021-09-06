@@ -14,6 +14,9 @@ Add this [Manifest URL](https://github.com/caewok/fvtt-lib-ruler/releases/latest
 
 - [libWrapper Module](https://github.com/ruipin/fvtt-lib-wrapper)
 
+# Table of Contents
+<!--- TOC created using ./Scripts/gh-md-toc -->
+
 ## As a Module
 1.  Copy this link and use it in Foundry's Module Manager to install the Module.
 
@@ -72,7 +75,12 @@ libRuler overrides methods of and adds methods to the base Foundry Ruler class. 
 - [Ruler class overrides](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md). Ruler methods overriden by libRuler.
 - [Ruler class additions](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md). Ruler methods added by libRuler.
 - [RulerSegment class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md). New class added by libRuler, representing the segment between two waypoints (including origin and destination as waypoints). Accessible at `window.libRuler.RulerSegment`.
-- [Ruler Utilities (https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERUTILITIES-CLASS.md). Ruler utility methods added by libRuler. Accessible at `window.libRuler.RulerUtilities`.
+- [Ruler Utilities] (https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERUTILITIES-CLASS.md). Ruler utility methods added by libRuler. Accessible at `window.libRuler.RulerUtilities`.
+
+Examples in the additional documentation sometimes point to branches of other modules. Specifically:
+- Examples from [Drag Ruler](https://github.com/manuelVo/foundryvtt-drag-ruler) are currently from the [forked version](https://github.com/caewok/foundryvtt-drag-ruler/tree/caewok-libruler). 
+- Examples from [Pathfinding Ruler](https://github.com/mothringer/foundry-vtt-pathfinding-ruler) are currently from the [forked version](https://github.com/caewok/foundry-vtt-pathfinding-ruler/tree/libruler)
+
 
 ## How to use libRuler
 
