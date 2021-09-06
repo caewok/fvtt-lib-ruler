@@ -10,7 +10,33 @@ For underlying code, see
 - [ruler-move-token.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-move-token.js)
 - [patching.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/patching.js)
 
-[toc]
+<!--- TOC created using ./Scripts/gh-md-toc -->
+
+* [libRuler Overrides](#libruler-overrides)
+   * [1. Ruler.prototype._addWaypoint (OVERRIDE)](#1-rulerprototype_addwaypoint-override)
+      * [1.1. Recommended Use Case](#11-recommended-use-case)
+      * [1.2. Examples](#12-examples)
+   * [2. Ruler.prototype._highlightMeasurement (See RulerSegment.prototype.highlightMeasurement) (OVERRIDE)](#2-rulerprototype_highlightmeasurement-see-rulersegmentprototypehighlightmeasurement-override)
+      * [2.1. Recommended Use Case](#21-recommended-use-case)
+      * [2.2. Examples](#22-examples)
+   * [3. Ruler.prototype.measure (OVERRIDE)](#3-rulerprototypemeasure-override)
+      * [3.1. Recommended Use Case](#31-recommended-use-case)
+      * [3.2. Examples](#32-examples)
+   * [4. Ruler.prototype.moveToken (OVERRIDE)](#4-rulerprototypemovetoken-override)
+      * [4.1. Recommended Use Case](#41-recommended-use-case)
+      * [4.2. Examples](#42-examples)
+   * [5. Ruler.prototype._onMouseMove (OVERRIDE)](#5-rulerprototype_onmousemove-override)
+      * [5.1. Recommended Use Case](#51-recommended-use-case)
+      * [5.2. Examples](#52-examples)
+   * [6. Ruler.prototype._removeWaypoint (OVERRIDE)](#6-rulerprototype_removewaypoint-override)
+      * [6.1. Recommended Use Case](#61-recommended-use-case)
+      * [6.2. Examples](#62-examples)
+   * [7. Ruler.prototype.toJSON (WRAPPER)](#7-rulerprototypetojson-wrapper)
+      * [7.1. Recommended Use Case](#71-recommended-use-case)
+      * [7.2. Examples](#72-examples)
+   * [8. Ruler.prototype.update (WRAPPER)](#8-rulerprototypeupdate-wrapper)
+      * [8.1. Recommended Use Case](#81-recommended-use-case)
+      * [8.2. Examples](#82-examples)
 
 ## 1. `Ruler.prototype._addWaypoint` (OVERRIDE)
 Parameters: 
