@@ -28,6 +28,7 @@ Enable the Module in your World's Module Settings. That's it! As a module librar
    * [Add switches based on whether libRuler is available](#add-switches-based-on-whether-libruler-is-available)
    * [Require libRuler as a dependency](#require-libruler-as-a-dependency)
 * [Developer Usage](#developer-usage)
+   * [Additional Documentation](#additional-documentation)
    * [How to use libRuler](#how-to-use-libruler)
    * [Changes to Ruler.prototype.measure](#changes-to-rulerprototypemeasure)
    * [RulerSegment class and measuring distance](#rulersegment-class-and-measuring-distance)
@@ -89,6 +90,7 @@ Your options parallel that of [libWrapper](https://github.com/ruipin/fvtt-lib-wr
 
 libRuler overrides methods of and adds methods to the base Foundry Ruler class. Use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap functions needed by your module. Additional documentation describes the functions available:
 
+## Additional Documentation
 - [Ruler class overrides](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md). Ruler methods overriden by libRuler.
 - [Ruler class additions](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md). Ruler methods added by libRuler.
 - [RulerSegment class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md). New class added by libRuler, representing the segment between two waypoints (including origin and destination as waypoints). Accessible at `window.libRuler.RulerSegment`.
