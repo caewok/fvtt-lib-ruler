@@ -3,14 +3,14 @@ libRuler defines a new `RulerSegment` Class](https://github.com/caewok/fvtt-lib-
 
 Modules (and macros) can access the `RulerSegment` class from window: `window.libRuler.RulerSegment`. 
 
-libRuler overrides `Ruler.prototype.measure` so that its `for` loop through the waypoints now creates a new `RulerSegment` for each loop. Then `Ruler.prototype.measure` calls the relevant `RulerSegment` method to draw the various parts of the ruler: line, distance label, highlighted grid squares, and endpoints for the waypoints at either end of the segment.
+libRuler overrides [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) so that its `for` loop through the waypoints now creates a new `RulerSegment` for each loop. Then [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) calls the relevant `RulerSegment` method to draw the various parts of the ruler: line, distance label, highlighted grid squares, and endpoints for the waypoints at either end of the segment.
 
-One big change from the Foundry core is how libRuler permits modules to build upon one another for calculating distance. This is accomplished in the `RulerSegment.prototype.measureDistance` method. Measuring distance is done in three stages:
-1. `RulerSegment.prototype.constructPhysicalPath`. 
-2. `RulerSegment.prototype.measurePhysicalPath`. 
-  - Calls `RulerSegment.prototype.distanceFunction`
+One big change from the Foundry core is how libRuler permits modules to build upon one another for calculating distance. This is accomplished in the [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance)  method. Measuring distance is done in three stages:
+1. [`RulerSegment.prototype.constructPhysicalPath`](#rulersegmentprototypeconstructphysicalpath) . 
+2. [`RulerSegment.prototype.measurePhysicalPath`](#rulersegmentprototypemeasurephysicalpath) . 
+  - Calls [`RulerSegment.distanceFunction`](#rulersegmentdistancefunction-static-method)
     - Calls `canvas.grid.measureDistances`
-3. `RulerSegment.prototype.modifyDistanceResult`.
+3. [`RulerSegment.prototype.modifyDistanceResult`](#rulersegmentprototypemodifydistanceresult) .
 
 # Table of Contents
 <!--- TOC created using ./Scripts/gh-md-toc -->
@@ -54,7 +54,7 @@ One big change from the Foundry core is how libRuler permits modules to build up
 
 Note that RulerSegment contains a link to the Ruler Class (this.ruler) and a link to the prior segment in the chain (this.prior_segment), if any. These can be useful for accessing ruler-wide properties or chaining segment properties, respectively.
 
-The constructor calls `RulerSegment.prototype.addProperties`, described below.
+The constructor calls [`RulerSegment.prototype.addProperties`](#rulersegmentprototypeaddproperties) , described below.
 
 # Select `RulerSegment` class properties
 
@@ -91,7 +91,7 @@ Calls `Ruler.prototype._getSegmentLabel` to get the label text, providing the cu
 ## `RulerSegment.prototype.totalDistance`
 Returns: {number} Distance of all prior segments plus this one.
 
-Simply adds `RulerSegment.prototype.totalPriorDistance` + `RulerSegment.prototype.distance`.
+Simply adds [`RulerSegment.prototype.totalPriorDistance`](#rulersegmentprototypetotalpriordistance)  + [`RulerSegment.prototype.distance`](#rulersegmentprototypedistance) .
 
 ## `RulerSegment.prototype.totalPriorDistance`
 Returns: {number} Distance of all prior segments before this one.
@@ -131,7 +131,7 @@ Parameters:
 
 Returns: { origin: { x: this.ray.A.x, y: this.ray.A.y }, destination: destination_point }
 
-Called from `RulerSegment.prototype.measureDistance`. 
+Called from [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance) . 
 
 Construct a physical path for the segment that represents how the measured item actually would move within the segment. The constructed path is an object with an origin and destination. 
 
@@ -163,7 +163,7 @@ Defining a different measurement method. For example, if you didn't like 5e's Eu
 Parameters: None
 Return: {PreciseText} Text element that labels the measured path.
 
-Mostly code from the portion of the base `Ruler.prototype.measure` that constructs the ruler label. Pulls the segment properties label, text, ray, and last and constructs a label object. Called from overridden `Ruler.prototype.measure` for each segment.
+Mostly code from the portion of the base [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) that constructs the ruler label. Pulls the segment properties label, text, ray, and last and constructs a label object. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 ### Recommended Use Case
 Creating a different or more complex label to display.
@@ -175,7 +175,7 @@ None.
 Parameters: None
 Returns: None
 
-Draws the end point indicators for the segment. Applies the opacityMultipliers.endpoint to adjust opacity. Only draws the origin point unless this is the last segment, in which case it draws the destination point. Called from overridden `Ruler.prototype.measure` for each segment.
+Draws the end point indicators for the segment. Applies the opacityMultipliers.endpoint to adjust opacity. Only draws the origin point unless this is the last segment, in which case it draws the destination point. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 ### Recommended Use Case
 Creating a different or more complex endpoint.
@@ -187,7 +187,7 @@ None.
 Parameters: None
 Returns: None
 
-Code from the portion of the base `Ruler.prototype.measure` that draws the highlighted measure line on the canvas. Called from overridden `Ruler.prototype.measure` for each segment.
+Code from the portion of the base [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) that draws the highlighted measure line on the canvas. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 ### Recommended Use Case
 Creating a different or more complex line.
@@ -196,7 +196,7 @@ Creating a different or more complex line.
 None.
 
 ## `RulerSegment.prototype.getFlag`
-Same as `RulerSegment.prototype.getFlag` but flags are stored to the specific RulerSegment instantiation. 
+Same as [`Ruler.prototype.getFlag`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypegetflag) but flags are stored to the specific RulerSegment instantiation. 
 
 ## `RulerSegment.prototype.highlightMeasurement`
 Parameters: 
@@ -204,7 +204,7 @@ Parameters:
 
 Returns: None
 
-Modified version of `Ruler.prototype._highlightMeasurement` applied to a single segment. This version calls `RulerSegment.highlightPosition`, allowing modules to wrap that method to change how highlighting works. Called from overridden `Ruler.prototype.measure` for each segment.
+Modified version of [`Ruler.prototype._highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_highlightmeasurement-override)  applied to a single segment. This version calls `RulerSegment.highlightPosition`, allowing modules to wrap that method to change how highlighting works. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 Note that this method uses the `RulerUtilities.iterateGridUnderLine` static generator to identify every grid position under the ruler, to pass to `highlightPosition`.
 
@@ -221,7 +221,7 @@ Parameters:
 
 Returns: None
 
-Adds color (`RulerSegment.prototype.colorForPosition`) and alpha (`this.opacityMultipliers.highlight` property) to the position object before passing it to `canvas.grid.highlightPosition`.
+Adds color ([`RulerSegment.prototype.colorForPosition`](#rulersegmentprototypecolorforposition) ) and alpha (`this.opacityMultipliers.highlight` property) to the position object before passing it to `canvas.grid.highlightPosition`.
 
 ### Recommended Use Case
 Modifying highlighting of the ruler.
@@ -254,15 +254,15 @@ None.
 Parameters: 
 - {object} physical_path An object that contains {origin, destination}, each with at least {x, y}. 
 
-Called from `RulerSegment.prototype.measureDistance`. Default parameters are the returned object from `RulerSegment.constructPhysicalPath`.
+Called from [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance) . Default parameters are the returned object from `RulerSegment.constructPhysicalPath`.
 
-Conceptually, `measurePhysicalPath` does just that: it determines the distance of the physical path passed to it. The default version just measures from origin to destination using `RulerSegment.prototype.distanceFunction`. 
+Conceptually, `measurePhysicalPath` does just that: it determines the distance of the physical path passed to it. The default version just measures from origin to destination using [`RulerSegment.distanceFunction`](#rulersegmentdistancefunction-static-method). 
 
 ### Recommended Use Case
 Modules defining alternative physical paths will probably need to wrap this to deal with their unique physical path definitions. Where possible, shrinking back to a 2-D origin/destination line is recommended for compatibility with other modules.
 
 ### Examples
-- [Elevation Ruler](https://github.com/caewok/fvtt-elevation-ruler/blob/develop/scripts/segment.js), for example, wraps `RulerSegment.constructPhysicalPath` (1) to create a 3-D physical path by adding the z-dimension to each point. Elevation Ruler then wraps `RulerSegment.distanceFunction` (2) in order to project the 3-D path back onto the 2-D canvas, where the underlying distance measurement function takes over. 
+- [Elevation Ruler](https://github.com/caewok/fvtt-elevation-ruler/blob/develop/scripts/segment.js), for example, wraps `RulerSegment.constructPhysicalPath` (1) to create a 3-D physical path by adding the z-dimension to each point. Elevation Ruler then wraps [`RulerSegment.distanceFunction`](#rulersegmentdistancefunction-static-method)  (2) in order to project the 3-D path back onto the 2-D canvas, where the underlying distance measurement function takes over. 
 
 
 ## `RulerSegment.prototype.modifyDistanceResult`
@@ -272,10 +272,10 @@ Parameters:
 
 Returns: {Number} The distance as modified.
 
-The default version just returns the distance unmodified. Called from `RulerSegment.prototype.measureDistance` after the physical path is constructed and after the basic distance of that path is measured. 
+The default version just returns the distance unmodified. Called from [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance)  after the physical path is constructed and after the basic distance of that path is measured. 
 
 ### Recommended Use Case
-Modify the calculated distance based on something other than actual measured distance. If you are just measuring the physical path, you probably want to modify `RulerSegment.prototype.measureDistance` or `RulerSegment.prototype.measurePhysicalPath`. 
+Modify the calculated distance based on something other than actual measured distance. If you are just measuring the physical path, you probably want to modify [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance)  or [`RulerSegment.prototype.measurePhysicalPath`](#rulersegmentprototypemeasurephysicalpath) . 
 
 ### Examples
 - [Terrain Ruler](https://github.com/caewok/foundryvtt-terrain-ruler/blob/libruler-basic/src/libruler_methods.js) wraps this to add multipliers for movement through difficult terrain.
@@ -285,7 +285,7 @@ Modify the calculated distance based on something other than actual measured dis
 Parameters: None
 Returns: None
 
-Sets the segment distanceValue property by executing `RulerSegment.prototype.measureDistance`.
+Sets the segment distanceValue property by executing [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance) .
 
 ### Recommended Use Case
 Making related calculations every time distance is measured for a segment.
@@ -294,7 +294,7 @@ Making related calculations every time distance is measured for a segment.
 None.
 
 ## `RulerSegment.prototype.setFlag`
-Same as `RulerSegment.prototype.setFlag` but flags are stored to the specific RulerSegment instantiation. 
+Same as [`Ruler.prototype.setFlag`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypesetflag)  but flags are stored to the specific RulerSegment instantiation. 
 
 ## `RulerSegment.prototype.traversePriorSegments`
 Parameters: 
@@ -302,7 +302,7 @@ Parameters:
 - {string} prop Property or function to apply at each prior segment
 - ...args Other arguments to pass to the function
 
-Modules may use this method to traverse the links of prior segments. Note that in many cases, it is sufficient to set a flag and then update or read that flag from the immediate prior segment, negating the need for a full traversal. See `RulerSegment.prototype.addProperties`.
+Modules may use this method to traverse the links of prior segments. Note that in many cases, it is sufficient to set a flag and then update or read that flag from the immediate prior segment, negating the need for a full traversal. See [`RulerSegment.prototype.addProperties`](#rulersegmentprototypeaddproperties) .
 
 ### Recommended Use Case
 Applying a specialized function or retrieving a property for all prior segments
@@ -311,7 +311,7 @@ Applying a specialized function or retrieving a property for all prior segments
 None
 
 ## `RulerSegment.prototype.unsetFlag`
-Same as `RulerSegment.prototype.unsetFlag` but flags are stored to the specific RulerSegment instantiation. 
+Same as [`Ruler.prototype.unsetFlag`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypeunsetflag)  but flags are stored to the specific RulerSegment instantiation. 
 
 
 

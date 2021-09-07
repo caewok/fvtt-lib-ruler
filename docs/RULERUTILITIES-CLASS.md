@@ -45,4 +45,4 @@ Parameters:
 
 Returns: {Boolean} True if the points are within the error of each other. 
 
-Uses `RulerUtilities.almostEqual` to compare x and y of the points.  
+Uses [`RulerUtilities.almostEqual`](#rulerutilitiesalmostequal) to compare x and y of the points.  
