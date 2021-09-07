@@ -103,9 +103,9 @@ Examples in the additional documentation sometimes point to branches of other mo
 
 ## How to use libRuler
 
-The expectation is that modules will use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap one or more functions in the new [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) class, the new methods added to the `Ruler` class, or (rarely) the underlying `Ruler` class methods. 
+The expectation is that modules will use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap one or more functions in the new [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegment-class-constructor) class, the new methods added to the `Ruler` class, or (rarely) the underlying `Ruler` class methods. 
 
-The [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) Class is exposed at `window.libRuler.RulerSegment` and can be wrapped similarly to wrapping core Foundry methods, for example:
+The [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegment-class-constructor) Class is exposed at `window.libRuler.RulerSegment` and can be wrapped similarly to wrapping core Foundry methods, for example:
 
 ```javascript
 libWrapper.register(MODULE_ID, 'window.libRuler.RulerSegment.prototype.addProperties', myCoolFunction, 'WRAPPER');
@@ -115,11 +115,11 @@ libWrapper.register(MODULE_ID, 'window.libRuler.RulerSegment.prototype.addProper
 
 ## Changes to `Ruler.prototype.measure`
 
-libRuler's version of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override), at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. 
+libRuler's version of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override), at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegment-class-constructor) representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegment-class-constructor) Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. 
 
 ## `RulerSegment` class and measuring distance
 
-The [`RulerSegment` class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md) class functions to represent segments of the ruler when measuring. The key function of [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) is to break down measurement into three subparts: 
+The [`RulerSegment` class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md) class functions to represent segments of the ruler when measuring. The key function of [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegment-class-constructor) is to break down measurement into three subparts: 
 1. [`RulerSegment.prototype.constructPhysicalPath`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypeconstructphysicalpath) . 
 2. [`RulerSegment.prototype.measurePhysicalPath`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypemeasurephysicalpath) . 
 3. [`RulerSegment.prototype.modifyDistanceResult`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypemodifydistanceresult) .
@@ -131,7 +131,7 @@ The full flow of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-
 
 For each segment in turn, from the origin outward:
 
-2. A new [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) is created. 
+2. A new [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegment-class-constructor) is created. 
 3. [`RulerSegment.prototype.drawLine`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawline)  draws the ruler line on the canvas.
 4. [`RulerSegment.prototype.drawDistanceLabel`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawdistancelabel)  draws the text label indicating the ruler distance.
    
@@ -176,7 +176,7 @@ The full flow of `moveToken`:
 
 'Ruler.prototype.toJSON' and 'Ruler.prototype.update' are wrapped to accommodate Ruler flags. 
 
-Flags, which let modules store properties to the instantiated object, are added to `Ruler` and [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) classes:
+Flags, which let modules store properties to the instantiated object, are added to `Ruler` and [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegment-class-constructor) classes:
 - `getFlag`
 - `setFlag`
 - `unsetFlag`
