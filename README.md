@@ -103,9 +103,9 @@ Examples in the additional documentation sometimes point to branches of other mo
 
 ## How to use libRuler
 
-The expectation is that modules will use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap one or more functions in the new `RulerSegment` class, the new methods added to the `Ruler` class, or (rarely) the underlying `Ruler` class methods. 
+The expectation is that modules will use [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper) to wrap one or more functions in the new [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) class, the new methods added to the `Ruler` class, or (rarely) the underlying `Ruler` class methods. 
 
-The `RulerSegment` Class is exposed at `window.libRuler.RulerSegment` and can be wrapped similarly to wrapping core Foundry methods, for example:
+The [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) Class is exposed at `window.libRuler.RulerSegment` and can be wrapped similarly to wrapping core Foundry methods, for example:
 
 ```javascript
 libWrapper.register(MODULE_ID, 'window.libRuler.RulerSegment.prototype.addProperties', myCoolFunction, 'WRAPPER');
@@ -115,11 +115,11 @@ libWrapper.register(MODULE_ID, 'window.libRuler.RulerSegment.prototype.addProper
 
 ## Changes to `Ruler.prototype.measure`
 
-libRuler's version of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override), at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a `RulerSegment` representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the `RulerSegment` Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. 
+libRuler's version of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override), at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. 
 
 ## `RulerSegment` class and measuring distance
 
-The [`RulerSegment` class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md) class functions to represent segments of the ruler when measuring. The key function of `RulerSegment` is to break down measurement into three subparts: 
+The [`RulerSegment` class](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md) class functions to represent segments of the ruler when measuring. The key function of [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) is to break down measurement into three subparts: 
 1. [`RulerSegment.prototype.constructPhysicalPath`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypeconstructphysicalpath) . 
 2. [`RulerSegment.prototype.measurePhysicalPath`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypemeasurephysicalpath) . 
 3. [`RulerSegment.prototype.modifyDistanceResult`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypemodifydistanceresult) .
@@ -131,7 +131,7 @@ The full flow of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-
 
 For each segment in turn, from the origin outward:
 
-2. A new `RulerSegment` is created. 
+2. A new [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) is created. 
 3. [`RulerSegment.prototype.drawLine`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawline)  draws the ruler line on the canvas.
 4. [`RulerSegment.prototype.drawDistanceLabel`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawdistancelabel)  draws the text label indicating the ruler distance.
    
@@ -145,7 +145,7 @@ Distance label gets the current text, with the following:
 [`RulerSegment.prototype.distance`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedistance)  is cached, but when calculated for the first time, it calls [`RulerSegment.prototype.recalculateDistance`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototyperecalculatedistance) , which calls [`RulerSegment.prototype.measureDistance`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypemeasuredistance) , which in turn calls:
 - [`RulerSegment.prototype.constructPhysicalPath`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypeconstructphysicalpath) 
 - [`RulerSegment.prototype.measurePhysicalPath`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypemeasurephysicalpath) 
-  - `RulerSegment.prototype.distanceFunction` --> `canvas.grid.measureDistances`
+  - [`RulerSegment.distanceFunction`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentdistancefunction-static-method) --> `canvas.grid.measureDistances`
 - [`RulerSegment.prototype.modifyDistanceResult`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypemodifydistanceresult) 
       
 5. [`RulerSegment.prototype.highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypehighlightmeasurement)  highlights grid spaces on the canvas.
@@ -161,7 +161,7 @@ Distance label gets the current text, with the following:
 
 The full flow of `moveToken`:
 1. Return if certain conditions met, such as the token is not available.
-2. `Ruler.prototype.doDeferredMeasurements`
+2. [`Ruler.prototype.doDeferredMeasurements`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypedodeferredmeasurements)
 3. [`Ruler.prototype.testForCollision`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypetestforcollision) 
 4. For each ray (segment) of the ruler:
   - [`Ruler.prototype.animateToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypeanimatetoken)  --> calls `token.animateMovement`
@@ -170,19 +170,19 @@ The full flow of `moveToken`:
 
 ## Other changes to `Ruler` class
 
-'Ruler.prototype._highlightMeasurement' is deprecated, because its functionality is now part of [`RulerSegment.prototype.highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypehighlightmeasurement) .
+`Ruler.prototype._highlightMeasurement` is deprecated, because its functionality is now part of [`RulerSegment.prototype.highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypehighlightmeasurement) .
 
 [`Ruler.prototype._addWaypoint`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_addwaypoint-override) and [`Ruler.prototype._removeWaypoint`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_removewaypoint-override)  are overriden. `_addWaypoint` now takes an optional center parameter; if true it will apply `canvas.grid.getCenter` to the point. `_removeWaypoint` adds a `remeasure` option to trigger measurement when removing a waypoint (defaults to true).
 
 'Ruler.prototype.toJSON' and 'Ruler.prototype.update' are wrapped to accommodate Ruler flags. 
 
-Flags, which let modules store properties to the instantiated object, are added to `Ruler` and `RulerSegment` classes:
+Flags, which let modules store properties to the instantiated object, are added to `Ruler` and [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulersegment-class-constructor) classes:
 - `getFlag`
 - `setFlag`
 - `unsetFlag`
 
 `Ruler.prototype._onMouseMove` gains several sub-methods to permit modules more control over when ruler measurements occur:
 - [`Ruler.prototype.scheduleMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypeschedulemeasurement) 
-- `Ruler.prototype.deferMeasurement`
+- [`Ruler.prototype.deferMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypedefermeasurement) 
 - [`Ruler.prototype.cancelScheduledMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypecancelscheduledmeasurement) 
-- `Ruler.prototype.doDeferredMeasurements` (called from the overriden [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override) )
+- [`Ruler.prototype.doDeferredMeasurements`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypedodeferredmeasurements) (called from the overriden [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override) )

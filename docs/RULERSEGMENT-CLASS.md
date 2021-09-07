@@ -8,7 +8,7 @@ libRuler overrides [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-li
 One big change from the Foundry core is how libRuler permits modules to build upon one another for calculating distance. This is accomplished in the [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance)  method. Measuring distance is done in three stages:
 1. [`RulerSegment.prototype.constructPhysicalPath`](#rulersegmentprototypeconstructphysicalpath) . 
 2. [`RulerSegment.prototype.measurePhysicalPath`](#rulersegmentprototypemeasurephysicalpath) . 
-  - Calls `RulerSegment.prototype.distanceFunction`
+  - Calls [`RulerSegment.distanceFunction`](#rulersegmentdistancefunction-static-method)
     - Calls `canvas.grid.measureDistances`
 3. [`RulerSegment.prototype.modifyDistanceResult`](#rulersegmentprototypemodifydistanceresult) .
 
@@ -256,7 +256,7 @@ Parameters:
 
 Called from [`RulerSegment.prototype.measureDistance`](#rulersegmentprototypemeasuredistance) . Default parameters are the returned object from `RulerSegment.constructPhysicalPath`.
 
-Conceptually, `measurePhysicalPath` does just that: it determines the distance of the physical path passed to it. The default version just measures from origin to destination using `RulerSegment.prototype.distanceFunction`. 
+Conceptually, `measurePhysicalPath` does just that: it determines the distance of the physical path passed to it. The default version just measures from origin to destination using [`RulerSegment.distanceFunction`](#rulersegmentdistancefunction-static-method). 
 
 ### Recommended Use Case
 Modules defining alternative physical paths will probably need to wrap this to deal with their unique physical path definitions. Where possible, shrinking back to a 2-D origin/destination line is recommended for compatibility with other modules.

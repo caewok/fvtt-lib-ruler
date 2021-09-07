@@ -19,7 +19,7 @@ For underlying code, see
    * [Ruler.prototype.animateToken](#rulerprototypeanimatetoken)
    * [Ruler.prototype.cancelScheduledMeasurement](#rulerprototypecancelscheduledmeasurement)
    * [Ruler.prototype.deferMeasurement](#rulerprototypedefermeasurement)
-   * [Ruler.prototype.doDeferredMeasurement](#rulerprototypedodeferredmeasurement)
+   * [Ruler.prototype.doDeferredMeasurements](#rulerprototypedodeferredmeasurements)
    * [Ruler.prototype.getFlag](#rulerprototypegetflag)
    * [Ruler.prototype.scheduleMeasurement](#rulerprototypeschedulemeasurement)
    * [Ruler.prototype.setDestination](#rulerprototypesetdestination)
@@ -36,7 +36,7 @@ The overriden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-rul
 
 The overriden [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override)  method calls [`Ruler.prototype.testForCollision`](#rulerprototypetestforcollision)  prior to moving the token. `moveToken` then calls [`Ruler.prototype.animateToken`](#rulerprototypeanimatetoken)  for each segment (waypoint to waypoint) of movement.
 
-The overriden [`Ruler.prototype._onMouseMove`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_onmousemove-override)  method calls [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) . That method, in turn, either does a measurement and then calls [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) , or calls [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) . Whenever [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override)  is called, it first calls `Ruler.prototype.doDeferredMeasurement` before doing a measurement. 
+The overriden [`Ruler.prototype._onMouseMove`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_onmousemove-override)  method calls [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) . That method, in turn, either does a measurement and then calls [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) , or calls [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) . Whenever [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override)  is called, it first calls [`Ruler.prototype.doDeferredMeasurements`](#rulerprototypedodeferredmeasurements)   before doing a measurement. 
 
 
 ## `Ruler.prototype.animateToken`
@@ -67,7 +67,7 @@ Empty function meant for modules to wrap if they need to do something when a mou
 
 See also:
 - [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) 
-- `Ruler.prototype.doDeferredMeasurement`
+- [`Ruler.prototype.doDeferredMeasurements`](#rulerprototypedodeferredmeasurements)  
 - [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) 
 
 ### Recommended Use Case
@@ -88,7 +88,7 @@ Empty function meant for modules to wrap if they need to do something when a mou
 
 See also:
 - [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) 
-- `Ruler.prototype.doDeferredMeasurement`
+- [`Ruler.prototype.doDeferredMeasurements`](#rulerprototypedodeferredmeasurements)  
 - [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) 
 
 ### Recommended Use Case
@@ -97,7 +97,7 @@ Use if your module needs fine-grained tracking of when a measurement occurs vers
 ### Examples
 - [Drag Ruler](https://github.com/caewok/foundryvtt-drag-ruler/blob/caewok-libruler/src/libruler.js) uses this to set a deferred measurement. (See [foundry_imports.js](https://github.com/caewok/foundryvtt-drag-ruler/blob/caewok-libruler/src/foundry_imports.js).)
 
-## `Ruler.prototype.doDeferredMeasurement`
+## `Ruler.prototype.doDeferredMeasurements`
 Parameters: None
 Returns: {Promise} Resolves to true.
 
@@ -147,7 +147,7 @@ Pulls out the last portion of the base [`Ruler.prototype._onMouseMove`](https://
 See also:
 - [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) 
 - [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) 
-- `Ruler.prototype.doDeferredMeasurement`
+- [`Ruler.prototype.doDeferredMeasurements`](#rulerprototypedodeferredmeasurements)  
 
 ### Recommended Use Case
 Changing the precise measurement interval between measurements. Changing something else about the event data when you have destination information.
