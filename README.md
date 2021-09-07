@@ -115,7 +115,7 @@ libWrapper.register(MODULE_ID, 'window.libRuler.RulerSegment.prototype.addProper
 
 ## Changes to `Ruler.prototype.measure`
 
-libRuler's version of `Ruler.prototype.measure`, at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a `RulerSegment` representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the `RulerSegment` Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. 
+libRuler's version of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override), at [measure.js](https://github.com/caewok/fvtt-lib-ruler/blob/master/scripts/ruler-measure.js) now creates a `RulerSegment` representing the path between two waypoints (including origin or destination, as appropriate). The sequence of events remains the same, but events are now mostly handled by the `RulerSegment` Class. This permits modules to wrap or otherwise modify sub-parts of the Ruler measurement flow without having to re-write the entire measure method. 
 
 ## `RulerSegment` class and measuring distance
 
@@ -125,7 +125,7 @@ The [`RulerSegment` class](https://github.com/caewok/fvtt-lib-ruler/blob/master/
 3. `RulerSegment.prototype.modifyDistanceResult`.
 
 ## Flow diagram of `Ruler.prototype.measure`
-The full flow of `Ruler.prototype.measure` is as follows:
+The full flow of [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) is as follows:
 
 1. `Ruler.prototype.setDestination` allows modules to modify the destination point.
 
