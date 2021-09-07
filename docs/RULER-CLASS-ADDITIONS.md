@@ -30,13 +30,13 @@ For underlying code, see
 
 # Overview
 
-libRuler adds a set of methods to create, retrieve, and remove flags: `Ruler.prototype.getFlag`, `Ruler.prototype.setFlag`, `Ruler.prototype.unsetFlag`. These methods are similar to, but lighter-weight than, the Foundry flag methods found in other classes. libRuler takes care of ensuring that rulers synced between users also sync these flags. 
+libRuler adds a set of methods to create, retrieve, and remove flags: [`Ruler.prototype.getFlag`](#rulerprototypegetflag) , [`Ruler.prototype.setFlag`](#rulerprototypesetflag) , [`Ruler.prototype.unsetFlag`](#rulerprototypeunsetflag) . These methods are similar to, but lighter-weight than, the Foundry flag methods found in other classes. libRuler takes care of ensuring that rulers synced between users also sync these flags. 
 
-The overriden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) method calls `Ruler.prototype.setDestination` before doing a measurement. 
+The overriden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) method calls [`Ruler.prototype.setDestination`](#rulerprototypesetdestination)  before doing a measurement. 
 
-The overriden `Ruler.prototype.moveToken` method calls `Ruler.prototype.testForCollision` prior to moving the token. `moveToken` then calls `Ruler.prototype.animateToken` for each segment (waypoint to waypoint) of movement.
+The overriden [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override)  method calls [`Ruler.prototype.testForCollision`](#rulerprototypetestforcollision)  prior to moving the token. `moveToken` then calls [`Ruler.prototype.animateToken`](#rulerprototypeanimatetoken)  for each segment (waypoint to waypoint) of movement.
 
-The overriden `Ruler.prototype._onMouseMove` method calls `Ruler.prototype.scheduleMeasurement`. That method, in turn, either does a measurement and then calls `Ruler.prototype.cancelScheduledMeasurement`, or calls `Ruler.prototype.deferMeasurement`. Whenever `Ruler.prototype.moveToken` is called, it first calls `Ruler.prototype.doDeferredMeasurement` before doing a measurement. 
+The overriden [`Ruler.prototype._onMouseMove`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_onmousemove-override)  method calls [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) . That method, in turn, either does a measurement and then calls [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) , or calls [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) . Whenever [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override)  is called, it first calls `Ruler.prototype.doDeferredMeasurement` before doing a measurement. 
 
 
 ## `Ruler.prototype.animateToken`
@@ -50,7 +50,7 @@ Parameters:
 Returns:
 - {x: Number, y: Number} The prior destination
 
-`Ruler.prototype.animateToken` is called from the overriden`Ruler.prototype.moveToken`. It actually copies quite a bit of code from the original `moveToken`---the part where the token movement is actually committed and `token.animateMovement`  is called. 
+[`Ruler.prototype.animateToken`](#rulerprototypeanimatetoken)  is called from the overriden[`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override) . It actually copies quite a bit of code from the original `moveToken`---the part where the token movement is actually committed and `token.animateMovement`  is called. 
 
 ### Recommended Use Case
 Any time you need to know when the token movement has started or stopped, this is the method to wrap.  
@@ -63,12 +63,12 @@ Any time you need to know when the token movement has started or stopped, this i
 Parameters: None
 Returns: None
 
-Empty function meant for modules to wrap if they need to do something when a mouse move results in a measurement. See the overriden `Ruler.prototype._onMouseMove` method.
+Empty function meant for modules to wrap if they need to do something when a mouse move results in a measurement. See the overriden [`Ruler.prototype._onMouseMove`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_onmousemove-override)  method.
 
 See also:
-- `Ruler.prototype.deferMeasurement`
+- [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) 
 - `Ruler.prototype.doDeferredMeasurement`
-- `Ruler.prototype.scheduleMeasurement`
+- [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) 
 
 ### Recommended Use Case
 Use if your module needs fine-grained tracking of when a measurement occurs versus when it is deferred ("scheduled").
@@ -84,12 +84,12 @@ Parameters:
 
 Returns: None
 
-Empty function meant for modules to wrap if they need to do something when a mouse move does not result in a measurement. See the overriden `Ruler.prototype._onMouseMove` method. 
+Empty function meant for modules to wrap if they need to do something when a mouse move does not result in a measurement. See the overriden [`Ruler.prototype._onMouseMove`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_onmousemove-override)  method. 
 
 See also:
-- `Ruler.prototype.cancelScheduledMeasurement`
+- [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) 
 - `Ruler.prototype.doDeferredMeasurement`
-- `Ruler.prototype.scheduleMeasurement`
+- [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) 
 
 ### Recommended Use Case
 Use if your module needs fine-grained tracking of when a measurement occurs versus when it is deferred ("scheduled").
@@ -101,15 +101,15 @@ Use if your module needs fine-grained tracking of when a measurement occurs vers
 Parameters: None
 Returns: {Promise} Resolves to true.
 
-Empty function meant for modules to wrap if they need to do something at the beginning of a token move, after the initial checks are complete and we are committed to moving the token. See the overriden `Ruler.prototype._onMouseMove` and `Ruler.prototype.moveToken` methods.
+Empty function meant for modules to wrap if they need to do something at the beginning of a token move, after the initial checks are complete and we are committed to moving the token. See the overriden [`Ruler.prototype._onMouseMove`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_onmousemove-override)  and [`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override)  methods.
 
 See also:
-- `Ruler.prototype.cancelScheduledMeasurement`
-- `Ruler.prototype.deferMeasurement`
-- `Ruler.prototype.scheduleMeasurement`
+- [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) 
+- [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) 
+- [`Ruler.prototype.scheduleMeasurement`](#rulerprototypeschedulemeasurement) 
  
 ### Recommended Use Case
-Use to do prep work prior to the user triggering the ruler to do a token move. Also consider wrapping `Ruler.prototype.animateToken` if you need more specific segment-by-segment move data.
+Use to do prep work prior to the user triggering the ruler to do a token move. Also consider wrapping [`Ruler.prototype.animateToken`](#rulerprototypeanimatetoken)  if you need more specific segment-by-segment move data.
 
 ### Examples
 - [Drag Ruler](https://github.com/caewok/foundryvtt-drag-ruler/blob/caewok-libruler/src/libruler.js) uses this to run its deferred measurement.
@@ -125,8 +125,8 @@ Returns: The value of the flag for the provided scope and key.
 Comparable to the Foundry base version used elsewhere, but more performant because it has fewer checks and does not need to use `update`. 
 
 See also:
-- `Ruler.prototype.setFlag`
-- `Ruler.prototype.unsetFlag`
+- [`Ruler.prototype.setFlag`](#rulerprototypesetflag) 
+- [`Ruler.prototype.unsetFlag`](#rulerprototypeunsetflag) 
 
 ### Recommended Use Case
 Anytime you need to define a module-specific parameter for a specific ruler instantiation.
@@ -142,11 +142,11 @@ Parameters:
 
 Returns: None
 
-Pulls out the last portion of the base `Ruler.prototype._onMouseMove`—--the part that tests whether sufficient time has passed since the last measurement. 
+Pulls out the last portion of the base [`Ruler.prototype._onMouseMove`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototype_onmousemove-override) —--the part that tests whether sufficient time has passed since the last measurement. 
 
 See also:
-- `Ruler.prototype.cancelScheduledMeasurement`
-- `Ruler.prototype.deferMeasurement`
+- [`Ruler.prototype.cancelScheduledMeasurement`](#rulerprototypecancelscheduledmeasurement) 
+- [`Ruler.prototype.deferMeasurement`](#rulerprototypedefermeasurement) 
 - `Ruler.prototype.doDeferredMeasurement`
 
 ### Recommended Use Case
@@ -178,11 +178,11 @@ Parameters:
 
 Returns: The result of the call to `setProperty`.
 
-Comparable to the Foundry base version used elsewhere, but more performant because it has fewer checks and does not need to use `update`. libRuler wraps `Ruler.prototype.update` and `Ruler.prototype.toJSON` to ensure flags are included. If you define properties outside of these flags, you will need to wrap these functions as well. 
+Comparable to the Foundry base version used elsewhere, but more performant because it has fewer checks and does not need to use `update`. libRuler wraps [`Ruler.prototype.update`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypeupdate-wrapper)  and [`Ruler.prototype.toJSON`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypetojson-wrapper)  to ensure flags are included. If you define properties outside of these flags, you will need to wrap these functions as well. 
 
 See also:
-- `Ruler.prototype.getFlag`
-- `Ruler.prototype.unsetFlag`
+- [`Ruler.prototype.getFlag`](#rulerprototypegetflag) 
+- [`Ruler.prototype.unsetFlag`](#rulerprototypeunsetflag) 
 
 ### Recommended Use Case
 Defining a module-specific parameter for a specific ruler instantiation.
@@ -197,7 +197,7 @@ Parameters:
 
 Returns: {boolean} true if a collision will occur (which will cancel the measurement with a displayed error)
 
-`Ruler.prototype.animateToken` and `Ruler.prototype.testForCollision` are both called from the overriden`Ruler.prototype.moveToken`. The libRuler `testForCollision` is the same as the base Foundry code, which returns true if `canvas.walls.checkCollision` returns true for one or more rays.
+[`Ruler.prototype.animateToken`](#rulerprototypeanimatetoken)  and [`Ruler.prototype.testForCollision`](#rulerprototypetestforcollision)  are both called from the overriden[`Ruler.prototype.moveToken`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemovetoken-override) . The libRuler `testForCollision` is the same as the base Foundry code, which returns true if `canvas.walls.checkCollision` returns true for one or more rays.
 
 ### Recommended Use Case
 Providing a more nuanced test for collisions when using the ruler. 
@@ -216,8 +216,8 @@ Returns: The result of the call to `setProperty`.
 Comparable to the Foundry base version used elsewhere, but more performant because it has fewer checks and does not need to use `update`. Note that unset only sets the property to undefined; it does not remove the property key entirely.
 
 See also:
-- `Ruler.prototype.getFlag`
-- `Ruler.prototype.setFlag`
+- [`Ruler.prototype.getFlag`](#rulerprototypegetflag) 
+- [`Ruler.prototype.setFlag`](#rulerprototypesetflag) 
 
 ### Recommended Use Case
 Defining a module-specific parameter for a specific ruler instantiation.

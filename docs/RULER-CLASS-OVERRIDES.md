@@ -45,9 +45,9 @@ Parameters:
 
 Returns: None
 
-libRuler deprecates `Ruler.prototype._highlightMeasurement` because highlighting the canvas now happens at each RulerSegment (segment between waypoints). See [`RulerSegment.prototype.highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/docs/RULERSEGMENT-CLASS.md). 
+libRuler deprecates [`Ruler.prototype._highlightMeasurement`](#rulerprototype_highlightmeasurement-override) because highlighting the canvas now happens at each RulerSegment (segment between waypoints). See [`RulerSegment.prototype.highlightMeasurement`](https://github.com/caewok/fvtt-lib-ruler/docs/RULERSEGMENT-CLASS.md). 
 
-Calls to `Ruler.prototype._highlightMeasurement` will trigger a warning before being passed through to the Foundry version, with possibly unexpected outcomes.
+Calls to [`Ruler.prototype._highlightMeasurement`](#rulerprototype_highlightmeasurement-override) will trigger a warning before being passed through to the Foundry version, with possibly unexpected outcomes.
 
 ### Recommended Use Case
 None.
@@ -63,23 +63,23 @@ Parameters:
 
 Returns: {Array[{Ray}]} Measured segments
 
-The bulk of libRuler's modifications to the Ruler Class are seen in `Ruler.prototype.measure`. The basic flow of `measure` is kept the same, but is broken down into components and sub-methods:
+The bulk of libRuler's modifications to the Ruler Class are seen in [`Ruler.prototype.measure`](#rulerprototypemeasure-override). The basic flow of `measure` is kept the same, but is broken down into components and sub-methods:
 1. Preliminary
-- [`Ruler.prototype.setDestination`](https://github.com/caewok/fvtt-lib-ruler/docs/RULER-CLASS-ADDITION.md)
+- [`Ruler.prototype.setDestination`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypesetdestination) 
 - adding the destination to the waypoints array
 - Clearing the highlight layer
 - Clearing the ruler (`Ruler.prototype.clear`)
 
 2. Create a [`RulerSegment`](https://github.com/caewok/fvtt-lib-ruler/docs/RULERSEGMENT-CLASS.md) representing each segment between two waypoints (considering origin and destination as waypoints). For each `RulerSegment`:
 - Create the `RulerSegment`. 
-- `RulerSegment.prototype.drawEndpoints`
-- `RulerSegment.prototype.drawLine`
-- `RulerSegment.prototype.drawDistanceLabel`
+- [`RulerSegment.prototype.drawEndpoints`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawendpoints) 
+- [`RulerSegment.prototype.drawLine`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawline) 
+- [`RulerSegment.prototype.drawDistanceLabel`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawdistancelabel) 
 - `RulerSegment.prototype.highlightMeasurement`
-- `RulerSegment.prototype.drawEndpoints`
+- [`RulerSegment.prototype.drawEndpoints`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULERSEGMENT-CLASS.md#rulersegmentprototypedrawendpoints) 
 
 ### Recommended Use Case
-If you need to do something either every time a measurement starts or every time a measurement ends, wrap `Ruler.prototype.measure`. Most likely, you instead want to wrap some other method called by `measure`.
+If you need to do something either every time a measurement starts or every time a measurement ends, wrap [`Ruler.prototype.measure`](#rulerprototypemeasure-override). Most likely, you instead want to wrap some other method called by `measure`.
 
 ### Examples
 None at this time.
@@ -89,7 +89,7 @@ None at this time.
 Parameters: None
 Returns: None
 
-The code for moving a token using the ruler remains nearly the same as in core. Prior to token movement, `Ruler.prototype.doDeferredMeasurements` is called. (See discussion for `Ruler.prototype._onMouseMove` below.)
+The code for moving a token using the ruler remains nearly the same as in core. Prior to token movement, `Ruler.prototype.doDeferredMeasurements` is called. (See discussion for [`Ruler.prototype._onMouseMove`](#rulerprototype_onmousemove-override)  below.)
 
 Ruler Class gains a `testForCollision` method to confirm whether a collision has in fact occurred, and an `animateToken` method to actually do the token movement. Once all animations are complete, `Ruler.prototype._endMeasurement` is called.
 
@@ -105,9 +105,9 @@ Parameters:
 
 Returns: None
 
-Takes the actual measurement portion of the original `_onMouseMove` and moves it to a new function, `Ruler.prototype.scheduleMeasurement`. Originally, Foundry would only do measurement updates on a mouse move if a specified amount of time had passed since the last measurement update. This test is now moved to `scheduleMeasurement`, which gives modules more options. 
+Takes the actual measurement portion of the original `_onMouseMove` and moves it to a new function, [`Ruler.prototype.scheduleMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypeschedulemeasurement) . Originally, Foundry would only do measurement updates on a mouse move if a specified amount of time had passed since the last measurement update. This test is now moved to `scheduleMeasurement`, which gives modules more options. 
 
-If sufficient time has passed, `scheduleMeasurement` will do the measurement, and then call `Ruler.prototype.cancelScheduledMeasurement` to let modules know that the measurement has been done. If sufficient time has not passed, `scheduleMeasurement` will call `Ruler.prototype.deferMeasurement`, in case modules want to override this determination or do something else with the destination information. Ultimately, any deferred measurements are resolved by the libRuler version of `Ruler.prototype.moveToken`, which calls `Ruler.prototype.doDeferredMeasurements` before attempting to move a token.
+If sufficient time has passed, `scheduleMeasurement` will do the measurement, and then call [`Ruler.prototype.cancelScheduledMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypecancelscheduledmeasurement)  to let modules know that the measurement has been done. If sufficient time has not passed, `scheduleMeasurement` will call [`Ruler.prototype.deferMeasurement`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypedefermeasurement) , in case modules want to override this determination or do something else with the destination information. Ultimately, any deferred measurements are resolved by the libRuler version of [`Ruler.prototype.moveToken`](#rulerprototypemovetoken-override) , which calls `Ruler.prototype.doDeferredMeasurements` before attempting to move a token.
 
 ### Recommended Use Case 
 Wrap `_onMouseMove` if you need to do something special when the user is moving the mouse to change the ruler measurement. Wrap the schedule measurement methods if you need more fine control over when ruler measurements occur.
@@ -125,7 +125,7 @@ Parameters:
 
 Returns: None
 
-Adds an optional remeasure parameter that, if true, will call `Ruler.prototype.measure`. This is the default Foundry use. If false, measurement does not occur after removing the waypoint.
+Adds an optional remeasure parameter that, if true, will call [`Ruler.prototype.measure`](#rulerprototypemeasure-override). This is the default Foundry use. If false, measurement does not occur after removing the waypoint.
 
 ### Recommended Use Case
 Wrap this to know when waypoints are removed from the ruler. If you are setting waypoints automatically, you may want to disable measurement to avoid repeated measurements.
@@ -138,10 +138,10 @@ Wrap this to know when waypoints are removed from the ruler. If you are setting 
 Parameters: None
 Returns: {Object} An object with properties class, name, waypoints, destination, _state. libRuler adds a flags property.
 
-Mirror of `Ruler.prototype.update`. Adds any flags set by [`Ruler.prototype.setFlag`](https://github.com/caewok/fvtt-lib-ruler/docs/RULER-CLASS-ADDITION.md) to the JSON. The JSON is sent by Foundry over a socket to other users for viewing others' rulers as they are drawn on the map. 
+Mirror of [`Ruler.prototype.update`](#rulerprototypeupdate-wrapper) . Adds any flags set by [`Ruler.prototype.setFlag`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypesetflag)  to the JSON. The JSON is sent by Foundry over a socket to other users for viewing others' rulers as they are drawn on the map. 
 
 ### Recommended Use Case
-Wrap this if you are adding some special property to the Ruler object. But you may be better off just using [`Ruler.prototype.setFlag`](https://github.com/caewok/fvtt-lib-ruler/docs/RULER-CLASS-ADDITION.md) to set your property instead, so you don't have to worry about this!
+Wrap this if you are adding some special property to the Ruler object. But you may be better off just using [`Ruler.prototype.setFlag`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypesetflag)  to set your property instead, so you don't have to worry about this!
 
 ### Examples
 None at this time.
@@ -153,10 +153,10 @@ Parameters:
 
 Returns: None
 
-Mirror of `Ruler.prototype.toJSON`. Adds back to the data object any flags stored in the JSON data.
+Mirror of [`Ruler.prototype.toJSON`](#rulerprototypetojson-wrapper) . Adds back to the data object any flags stored in the JSON data.
 
 ### Recommended Use Case
-Wrap this if you are adding some special property to the Ruler object. But you may be better off just using [`Ruler.prototype.setFlag`](https://github.com/caewok/fvtt-lib-ruler/docs/RULER-CLASS-ADDITION.md) to set your property instead, so you don't have to worry about this!
+Wrap this if you are adding some special property to the Ruler object. But you may be better off just using [`Ruler.prototype.setFlag`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-ADDITIONS.md#rulerprototypesetflag)  to set your property instead, so you don't have to worry about this!
 
 ### Examples
 None at this time.
