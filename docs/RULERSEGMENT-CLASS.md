@@ -3,7 +3,7 @@ libRuler defines a new `RulerSegment` Class](https://github.com/caewok/fvtt-lib-
 
 Modules (and macros) can access the `RulerSegment` class from window: `window.libRuler.RulerSegment`. 
 
-libRuler overrides `Ruler.prototype.measure` so that its `for` loop through the waypoints now creates a new `RulerSegment` for each loop. Then `Ruler.prototype.measure` calls the relevant `RulerSegment` method to draw the various parts of the ruler: line, distance label, highlighted grid squares, and endpoints for the waypoints at either end of the segment.
+libRuler overrides [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) so that its `for` loop through the waypoints now creates a new `RulerSegment` for each loop. Then [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) calls the relevant `RulerSegment` method to draw the various parts of the ruler: line, distance label, highlighted grid squares, and endpoints for the waypoints at either end of the segment.
 
 One big change from the Foundry core is how libRuler permits modules to build upon one another for calculating distance. This is accomplished in the `RulerSegment.prototype.measureDistance` method. Measuring distance is done in three stages:
 1. `RulerSegment.prototype.constructPhysicalPath`. 
@@ -163,7 +163,7 @@ Defining a different measurement method. For example, if you didn't like 5e's Eu
 Parameters: None
 Return: {PreciseText} Text element that labels the measured path.
 
-Mostly code from the portion of the base `Ruler.prototype.measure` that constructs the ruler label. Pulls the segment properties label, text, ray, and last and constructs a label object. Called from overridden `Ruler.prototype.measure` for each segment.
+Mostly code from the portion of the base [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) that constructs the ruler label. Pulls the segment properties label, text, ray, and last and constructs a label object. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 ### Recommended Use Case
 Creating a different or more complex label to display.
@@ -175,7 +175,7 @@ None.
 Parameters: None
 Returns: None
 
-Draws the end point indicators for the segment. Applies the opacityMultipliers.endpoint to adjust opacity. Only draws the origin point unless this is the last segment, in which case it draws the destination point. Called from overridden `Ruler.prototype.measure` for each segment.
+Draws the end point indicators for the segment. Applies the opacityMultipliers.endpoint to adjust opacity. Only draws the origin point unless this is the last segment, in which case it draws the destination point. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 ### Recommended Use Case
 Creating a different or more complex endpoint.
@@ -187,7 +187,7 @@ None.
 Parameters: None
 Returns: None
 
-Code from the portion of the base `Ruler.prototype.measure` that draws the highlighted measure line on the canvas. Called from overridden `Ruler.prototype.measure` for each segment.
+Code from the portion of the base [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) that draws the highlighted measure line on the canvas. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 ### Recommended Use Case
 Creating a different or more complex line.
@@ -204,7 +204,7 @@ Parameters:
 
 Returns: None
 
-Modified version of `Ruler.prototype._highlightMeasurement` applied to a single segment. This version calls `RulerSegment.highlightPosition`, allowing modules to wrap that method to change how highlighting works. Called from overridden `Ruler.prototype.measure` for each segment.
+Modified version of `Ruler.prototype._highlightMeasurement` applied to a single segment. This version calls `RulerSegment.highlightPosition`, allowing modules to wrap that method to change how highlighting works. Called from overridden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) for each segment.
 
 Note that this method uses the `RulerUtilities.iterateGridUnderLine` static generator to identify every grid position under the ruler, to pass to `highlightPosition`.
 

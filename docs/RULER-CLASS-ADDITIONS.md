@@ -32,7 +32,7 @@ For underlying code, see
 
 libRuler adds a set of methods to create, retrieve, and remove flags: `Ruler.prototype.getFlag`, `Ruler.prototype.setFlag`, `Ruler.prototype.unsetFlag`. These methods are similar to, but lighter-weight than, the Foundry flag methods found in other classes. libRuler takes care of ensuring that rulers synced between users also sync these flags. 
 
-The overriden `Ruler.prototype.measure` method calls `Ruler.prototype.setDestination` before doing a measurement. 
+The overriden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override) method calls `Ruler.prototype.setDestination` before doing a measurement. 
 
 The overriden `Ruler.prototype.moveToken` method calls `Ruler.prototype.testForCollision` prior to moving the token. `moveToken` then calls `Ruler.prototype.animateToken` for each segment (waypoint to waypoint) of movement.
 
@@ -162,7 +162,7 @@ Parameters:
 
 Returns: None
 
-Called at the beginning of the overriden `Ruler.prototype.measure`. The libRuler version simply creates a centered point from the provided destination and sets that to the ruler destination property. 
+Called at the beginning of the overriden [`Ruler.prototype.measure`](https://github.com/caewok/fvtt-lib-ruler/blob/master/docs/RULER-CLASS-OVERRIDES.md#rulerprototypemeasure-override). The libRuler version simply creates a centered point from the provided destination and sets that to the ruler destination property. 
 
 ### Recommended Use Case
 Changing the destination immediately prior to measurement.
