@@ -1,3 +1,17 @@
+/* globals
+game,
+ui,
+canvas,
+Ruler,
+Ray,
+duplicate,
+isNewerVersion,
+CanvasAnimation
+*/
+ 
+'use strict';
+
+
 import { log } from "./module.js";
 
 // Subset Ruler.moveToken method

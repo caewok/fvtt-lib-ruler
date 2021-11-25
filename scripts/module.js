@@ -1,3 +1,12 @@
+/* globals
+game,
+Hooks,
+ui
+*/
+ 
+'use strict';
+
+
 import { registerLibRuler } from "./patching.js";
 import { RulerSegment } from "./segment.js";
 import { RulerUtilities } from "./utility.js";
@@ -20,7 +29,9 @@ export function log(...args) {
     if (FORCE_DEBUG || isDebugging) {
       console.log(MODULE_ID, '|', ...args);
     }
-  } catch (e) {}
+  } catch (e) { 
+    // empty 
+  }
 }
 
 // https://discord.com/channels/732325252788387980/754127569246355477/819710580784234506

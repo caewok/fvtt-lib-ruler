@@ -1,3 +1,10 @@
+/* globals
+getProperty,
+setProperty
+*/
+ 
+'use strict';
+
 import { log } from "./module.js";
 
 // Flag methods for the Ruler class
