@@ -1,3 +1,7 @@
+## 0.2.0
+Updated for Foundry v9.231. Added switch to keep existing compatibility with older versions of Foundry.
+- Await token movement when moving token between waypoints (v9 only).
+
 ## 0.1.5
 Override `Ruler.prototype._removeWaypoint` to add an option to skip the re-measurement after the waypoint is removed. Helpful for modules like [Pathfinding Ruler](https://github.com/mothringer/foundry-vtt-pathfinding-ruler) that do automatic waypoint creation and deletion.
 
