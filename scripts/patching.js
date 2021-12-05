@@ -1,3 +1,10 @@
+/* globals
+libWrapper,
+Ruler
+*/
+ 
+'use strict';
+
 import { MODULE_ID, log } from "./module.js";
 
 import { libRulerMeasure,  
