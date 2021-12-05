@@ -1,4 +1,13 @@
-import { log } from "./module.js";
+/* globals
+Ray,
+foundry,
+canvas
+*/
+ 
+'use strict';
+
+
+import { log, MODULE_ID } from "./module.js";
 import { libRulerGetFlag,
          libRulerSetFlag,
          libRulerUnsetFlag 

@@ -1,3 +1,17 @@
+/* globals
+game,
+ui,
+canvas,
+Ruler,
+Ray,
+duplicate,
+isNewerVersion,
+CanvasAnimation
+*/
+ 
+'use strict';
+
+
 import { log } from "./module.js";
 
 // Subset Ruler.moveToken method
@@ -103,9 +117,16 @@ export async function libRulerAnimateToken(token, ray, dx, dy, segment_num) {
   await token.document.update(path.B);
   path.B.x = token.data.x;
   path.B.y = token.data.y;
-  
-  // Update the path which may have changed during the update, and animate it
-  await token.animateMovement(path);
+    
+  // Retrieve the movement animation and await its completion
+  // v.9.231+ only
+  if(isNewerVersion(game.version, '9.230')) {
+    const anim = CanvasAnimation.getAnimation(token.movementAnimationName);
+    if ( anim?.promise ) await anim.promise;
+  } else {
+    // Update the path which may have changed during the update, and animate it
+    await token.animateMovement(path);
+  }
   
   return priorDest;
 }

@@ -1,3 +1,15 @@
+/* globals
+canvas,
+PIXI,
+game,
+PreciseText,
+CONFIG,
+Ruler,
+ui
+*/
+ 
+'use strict';
+
 import { log } from "./module.js";
 import { RulerSegment } from "./segment.js";
 
@@ -173,8 +185,7 @@ export function libRulerOnMouseMove(event) {
   if ( this._state === Ruler.STATES.MOVING ) return;
 
   // Extract event data
-  const mt = event._measureTime || 0;
-  const {origin, destination, originalEvent} = event.data;
+  const { origin, destination } = event.data;
 
   // Do not begin measuring unless we have moved at least 1/4 of a grid space
   const dx = destination.x - origin.x;
@@ -191,19 +202,19 @@ export function libRulerOnMouseMove(event) {
 
 export function libRulerScheduleMeasurement(destination, event, measurementInterval = 50) {
   const mt = event._measureTime || 0;
-	const originalEvent = event.data.originalEvent;
-	if (Date.now() - mt > measurementInterval) {
-		this.measure(destination, {snap: !originalEvent.shiftKey});
-		event._measureTime = Date.now();
-		this._state = Ruler.STATES.MEASURING;
-		this.cancelScheduledMeasurement();
-	} else {
-	  this.deferMeasurement(destination, event);
-	}
+  const originalEvent = event.data.originalEvent;
+  if (Date.now() - mt > measurementInterval) {
+    this.measure(destination, {snap: !originalEvent.shiftKey});
+    event._measureTime = Date.now();
+    this._state = Ruler.STATES.MEASURING;
+    this.cancelScheduledMeasurement();
+  } else {
+    this.deferMeasurement(destination, event);
+  }
 }
 
 export function libRulerDeferMeasurement(destination, event) {
-  
+
 }
 
 export function libRulerCancelScheduledMeasurement() {

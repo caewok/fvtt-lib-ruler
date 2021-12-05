@@ -1,3 +1,12 @@
+/* globals
+Ray,
+canvas,
+CONST
+*/
+ 
+'use strict';
+
+
 // Utility functions related to ruler measurement that can be used by other modules.
 // All added to window.libRuler in module.js file.
 
