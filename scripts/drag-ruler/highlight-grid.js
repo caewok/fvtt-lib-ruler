@@ -1,5 +1,6 @@
 /* globals
-
+game,
+dragRuler
 */
 "use strict";
 
@@ -19,8 +20,6 @@ export function dragRulerSegmentColorForPosition(position) {
   const token = this.ruler._getMovementToken();
   if ( !token || !token.actor ) { return this.color; }
 
-  log(`dragRulerSegmentColorForPosition|token ${token.id} at ${position.x},${position.y}`, token, this);
-
   // Don't apply colors if the current user doesn't have at least observer permissions
   // But if this is a pc and alwaysShowSpeedForPCs is enabled we show the color anyway
   if (token.actor.permission < 2
@@ -28,14 +27,8 @@ export function dragRulerSegmentColorForPosition(position) {
     return this.color;
   }
 
-  log(`dragRulerSegmentColorForPosition|totalPriorDistance ${this.totalPriorDistance}; new distance ${this.measureDistance(position)}`);
-
   let distance = this.totalPriorDistance + this.measureDistance(position);
   distance = Math.round(distance * 100) / 100;
+  return dragRuler.getColorForDistanceAndToken(distance, token) || this.color;
 
-  log(`dragRulerSegmentColorForPosition|distance ${distance}`);
-  const out = dragRuler.getColorForDistanceAndToken(distance, token);
-
-  log(`Drag Ruler returned color ${out}`, this);
-  return out || this.color;
 }
