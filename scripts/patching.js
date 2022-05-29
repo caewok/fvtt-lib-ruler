@@ -36,6 +36,8 @@ import { libRulerMoveToken,
 
 import { RulerSegment } from "./segment.js";
 
+import { dragRulerSegmentColorForPosition } from "./drag-ruler/highlight-grid.js";
+
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');
@@ -51,6 +53,13 @@ export function registerLibRuler() {
   log("registerRuler finished!");
 }
 
+export function registerDragRuler() {
+  Object.defineProperty(RulerSegment.prototype, "colorForPosition", {
+    value: dragRulerSegmentColorForPosition,
+    writable: true,
+    configurable: true
+  });
+}
 
 
 // ---------------- FLAGS ------------- //

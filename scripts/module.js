@@ -3,21 +3,22 @@ game,
 Hooks,
 ui
 */
- 
+
 'use strict';
 
 
 import { registerLibRuler } from "./patching.js";
+import { registerDragRuler } from "./patching.js";
 import { RulerSegment } from "./segment.js";
 import { RulerUtilities } from "./utility.js";
 
 export const MODULE_ID = 'libruler';
 const FORCE_DEBUG = false; // used for logging before dev mode is set up
 
-/* 
+/*
  * Logging function to replace console.log
- * @param ...args Args that are typically sent to console.log(). 
- * If either FORCE_DEBUG or the dev package is being used and set to debut, 
+ * @param ...args Args that are typically sent to console.log().
+ * If either FORCE_DEBUG or the dev package is being used and set to debut,
  *   then output log. Prefix with MODULE_ID.
  * Otherwise, do nothing.
  */
@@ -29,23 +30,23 @@ export function log(...args) {
     if (FORCE_DEBUG || isDebugging) {
       console.log(MODULE_ID, '|', ...args);
     }
-  } catch (e) { 
-    // empty 
+  } catch (e) {
+    // empty
   }
 }
 
 // https://discord.com/channels/732325252788387980/754127569246355477/819710580784234506
-// init is called almost immediately after the page loads. 
-// At this point, the game global exists, but hasn't yet been initialized, 
+// init is called almost immediately after the page loads.
+// At this point, the game global exists, but hasn't yet been initialized,
 // but all of the core foundry code has been loaded.
 Hooks.once('init', async function() {
   log("Initializing libRuler.");
-  
-  registerLibRuler();    
-  
+
+  registerLibRuler();
+
   window['libRuler'] = { RulerSegment: RulerSegment,
-                         RulerUtilities: RulerUtilities };  
-      
+                         RulerUtilities: RulerUtilities };
+
   // tell modules that the libRuler library is set up
   Hooks.callAll('libRulerReady');
 });
@@ -59,4 +60,9 @@ Hooks.once('ready', async function() {
   if(game?.user?.isGM === undefined || game.user.isGM) {
     if(!game.modules.get('lib-wrapper')?.active) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
   }
+});
+
+Hooks.once('dragRuler.ready', async function() {
+  log("dragRuler ready.")
+  registerDragRuler();
 });
