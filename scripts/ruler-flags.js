@@ -2,13 +2,12 @@
 getProperty,
 setProperty
 */
- 
-'use strict';
+"use strict";
 
 import { log } from "./module.js";
 
 // Flag methods for the Ruler class
-  
+
 /* -------------------------------------------- */
 /**
  * Get the value of a "flag" for this Ruler or Segment.
@@ -21,18 +20,19 @@ import { log } from "./module.js";
 export function libRulerGetFlag(scope, key) {
   key = `${scope}.${key}`;
   return getProperty(this.flags, key);
-  
-  // use flags.scope?.key ?? 
+
+  // Use flags.scope?.key ??
 }
 /* -------------------------------------------- */
 /**
  * Assign a "flag" to this Entity.
- * Flags represent key-value type data which can be used to store 
+ * Flags represent key-value type data which can be used to store
  * flexible or arbitrary data required by modules using libRuler.
- * Flags can be set on Ruler or Segment instantiations. 
+ * Flags can be set on Ruler or Segment instantiations.
  *
- * Flag values can assume almost any data type. Setting a flag value to null will delete that flag. Typically you should do this using unsetFlag method.
- * 
+ * Flag values can assume almost any data type. Setting a flag value to null will delete
+ * that flag. Typically you should do this using unsetFlag method.
+ *
  * Performs less checks than the Foundry version.
  *
  * @param {string} scope    The flag scope which namespaces the key
@@ -52,7 +52,7 @@ export function libRulerSetFlag(scope, key, value) {
  * Sets a flag assigned to the Entity to undefined.
  *
  * Performs less checks than the Foundry version.
- * 
+ *
  * @param {string} scope    The flag scope which namespaces the key
  * @param {string} key      The flag key
  * @return The updated object
@@ -63,12 +63,12 @@ export function libRulerUnsetFlag(scope, key) {
   return setProperty(this, key, undefined);
 }
 
-/* 
+/*
  * Wrap the toJSON function to save flags.
  */
 export function libRulerToJSON(wrapped, ...args) {
   log("Creating JSON!", this);
-  
+
   let obj = wrapped(...args);
   obj.flags = this.flags;
   return obj;
@@ -79,11 +79,13 @@ export function libRulerToJSON(wrapped, ...args) {
  */
 export function libRulerUpdate(wrapped, data) {
   log("We are updating!", this);
-  
-  // from Ruler.update
-  if( data.class !== "Ruler" ) throw new Error("Unable to recreate Ruler instance from provided data.");
-  
-  // add in flags
+
+  // From Ruler.update
+  if ( data.class !== "Ruler" ) {
+    throw new Error("Unable to recreate Ruler instance from provided data.");
+  }
+
+  // Add in flags
   this.flags = data.flags;
   return wrapped(data);
 }

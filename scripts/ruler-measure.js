@@ -7,8 +7,7 @@ CONFIG,
 Ruler,
 ui
 */
-
-'use strict';
+"use strict";
 
 import { log } from "./module.js";
 import { RulerSegment } from "./segment.js";
@@ -31,29 +30,29 @@ export function libRulerMeasure(destination, options = {}) {
 
   options.gridSpaces ??= true;
 
-/*
-The original measure code seems inefficient b/c it:
-  1. loops over each waypoint
-  2. measures the resulting segments, which requires looping over each segment.
-  3. loops over the resulting distances
-  4. loops over the segments to draw them
-  5. loops over the waypoints to draw endpoints
+  /*
+  The original measure code seems inefficient b/c it:
+    1. loops over each waypoint
+    2. measures the resulting segments, which requires looping over each segment.
+    3. loops over the resulting distances
+    4. loops over the segments to draw them
+    5. loops over the waypoints to draw endpoints
 
-canvas.grid.measureDistances uses map over the segments in the default,
-as does the overwritten dnd5e version. I know of no method that requires
-knowing all the segments in advance. It seems unlikely, because a segment is
-conceptually discrete and determined by the user on the fly.
+  canvas.grid.measureDistances uses map over the segments in the default,
+  as does the overwritten dnd5e version. I know of no method that requires
+  knowing all the segments in advance. It seems unlikely, because a segment is
+  conceptually discrete and determined by the user on the fly.
 
-For a ruler, knowing the prior segments may be important to determine distance to
-date, but knowing the end segments is less likely to matter. Keep in mind that the
-ruler always starts with a single segment, and is built up or destroyed by the user;
-we never really know at this stage what the final destination is.
+  For a ruler, knowing the prior segments may be important to determine distance to
+  date, but knowing the end segments is less likely to matter. Keep in mind that the
+  ruler always starts with a single segment, and is built up or destroyed by the user;
+  we never really know at this stage what the final destination is.
 
-So this code has been revised to rely on a single loop. Each segment is built up in
-that loop, and sub-functions are told what segment number we are on and are provided
-the segments built thus far. Beside that information, sub-functions have access to the
-ruler object (via this) and can access the original waypoints array and any module flags.
-*/
+  So this code has been revised to rely on a single loop. Each segment is built up in
+  that loop, and sub-functions are told what segment number we are on and are provided
+  the segments built thus far. Beside that information, sub-functions have access to the
+  ruler object (via this) and can access the original waypoints array and any module flags.
+  */
 
   this.setDestination(destination);
 
@@ -71,7 +70,7 @@ ruler object (via this) and can access the original waypoints array and any modu
   // The ruler line, label, highlighted grid, and endpoint is then drawn
   let prior_segment = {};
   for ( let [segment_num, dest] of waypoints.slice(1).entries() ) {
-    log(`waypoints`, waypoints);
+    log("waypoints", waypoints);
 
     const origin = waypoints[segment_num];
     const label = this.labels.children[segment_num];
@@ -84,7 +83,7 @@ ruler object (via this) and can access the original waypoints array and any modu
 
     log(`RulerSegment ${segment_num}:`, s);
 
-    // skip if not actually distant
+    // Skip if not actually distant
     // Note: In the original code, label.visible also set to false but unclear why.
     //       The label is never used because the segment is never added to the segments array.
     // Also: should this be s.ray.distance or s.distance? In other words, the distance
@@ -92,14 +91,15 @@ ruler object (via this) and can access the original waypoints array and any modu
     //       Using ray.distance as in original for now.
     //       If using s.distance, need to multiply by canvas.scene.data.grid. Also, rounding may cause problems.
     // const original_ray = new Ray(origin, dest);
-    //  log(`Ray distance: ${s.ray.distance}; RulerSegment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
+    //  log(`Ray distance: ${s.ray.distance};
+    //    RulerSegment distance: ${s.distance}; Original distance: ${original_ray.distance}`)
     if ( s.ray.distance < 10 ) {
       if ( label ) label.visible = false;
-      s.drawEndpoints(); // draw the first waypoint regardless
-      continue; // go to next segment
+      s.drawEndpoints(); // Draw the first waypoint regardless
+      continue; // Go to next segment
     }
 
-    // add to array only if s.distance is greater or equal to 10
+    // Add to array only if s.distance is greater or equal to 10
     prior_segment = s;
 
     log(`RulerSegment ${segment_num}: distance ${s.distance}; text ${s.text}; last? ${s.last}. Total distance: ${s.totalDistance}.`);
@@ -120,8 +120,8 @@ ruler object (via this) and can access the original waypoints array and any modu
   }
 
   // Return the measured segments
-        // for consistency with default code, may want to modify segment to be an array;
-        // make each prior_segment one of the array items.
+  // for consistency with default code, may want to modify segment to be an array;
+  // make each prior_segment one of the array items.
   return prior_segment;
 }
 
@@ -142,15 +142,12 @@ export function libRulerSetDestination(destination) {
  * inadvertently overriding rather than using RulerSegment.highlightMeasurement.
  */
 export function libRulerHighlightMeasurement(wrapped, ...args) {
-  if(game.user.isGM) {
+  if ( game.user.isGM ) {
     ui.notifications.warn("A module or other code is calling Ruler._highlightMeasurement, which has been deprecated by libRuler. This may cause unanticipated results. Modules should use RulerSegment.highlightMeasurement instead");
   }
 
   return wrapped(...args);
 }
-
-
-
 
 /*
  * Override _addWaypoint so that points to be added can be adjusted by other modules.
@@ -159,7 +156,7 @@ export function libRulerHighlightMeasurement(wrapped, ...args) {
  */
 export function libRulerAddWaypoint(point, center = true) {
   let waypoint = [point.x, point.y];
-  if(center) {
+  if ( center ) {
     waypoint = canvas.grid.getCenter(point.x, point.y);
   }
   this.waypoints.push(new PIXI.Point(waypoint[0], waypoint[1]));
@@ -179,7 +176,7 @@ export function libRulerRemoveWaypoint(point, options={}) {
   this.waypoints.pop();
   this.labels.removeChild(this.labels.children.pop());
 
-  if(remeasure) this.measure(point, options);
+  remeasure && this.measure(point, options);
 }
 
 /*
@@ -206,7 +203,7 @@ export function libRulerOnMouseMove(event) {
   this.scheduleMeasurement(destination, event);
 }
 
-export function libRulerScheduleMeasurement(destination, event, measurementInterval = 50) {
+export function libRulerScheduleMeasurement(destination, event, measurementInterval = 50) { // eslint-disable-line no-unused-vars
   const mt = event._measureTime || 0;
   const originalEvent = event.data.originalEvent;
   if (Date.now() - mt > measurementInterval) {
@@ -219,7 +216,7 @@ export function libRulerScheduleMeasurement(destination, event, measurementInter
   }
 }
 
-export function libRulerDeferMeasurement(destination, event) {
+export function libRulerDeferMeasurement(destination, event) { // eslint-disable-line no-unused-vars
 
 }
 
@@ -230,4 +227,3 @@ export function libRulerCancelScheduledMeasurement() {
 export async function libRulerDoDeferredMeasurements() {
   return Promise.resolve(true);
 }
-
