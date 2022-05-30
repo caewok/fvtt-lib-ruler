@@ -8,7 +8,7 @@ CONST
 // Utility functions related to ruler measurement that can be used by other modules.
 // All added to window.libRuler in module.js file.
 
-export class RulerUtilities {
+export class LibRulerUtilities {
 
   /*
    * Calculate the distance between two points in {x,y} dimensions.

@@ -10,8 +10,7 @@ game,
 Ray,
 duplicate,
 CanvasAnimation,
-isNewerVersion,
-RULER
+isNewerVersion
 */
 "use strict";
 
@@ -47,7 +46,7 @@ the segments built thus far. Beside that information, sub-functions have access 
 ruler object (via this) and can access the original waypoints array and any module flags.
 */
 
-class LibRuler extends Ruler {
+export class LibRuler extends Ruler {
 
   /**
    * @override
@@ -63,7 +62,7 @@ class LibRuler extends Ruler {
 
     options.gridSpaces ??= true;
 
-    this.destination = destination;
+    this.setDestination(destination);
 
     let waypoints = this.waypoints.concat([this.destination]);
     let r = this.ruler;
@@ -138,8 +137,8 @@ class LibRuler extends Ruler {
    * Set the destination used when measuring, as the grid center of the passed value.
    * @type {Point}   The destination point to which to measure.
    */
-  set destination(value) {
-    this.destination = new PIXI.Point(...canvas.grid.getCenter(value.x, value.y));
+  setDestination(value) {
+    value && (this.destination = new PIXI.Point(...canvas.grid.getCenter(value.x, value.y)));
   }
 
   /**
@@ -304,7 +303,7 @@ class LibRuler extends Ruler {
    * Continue a Ruler measurement workflow for left-mouse movements on the Canvas.
    */
   _onMouseMove(event) {
-    if ( this._state === RULER.STATES.MOVING ) return;
+    if ( this._state === Ruler.STATES.MOVING ) return;
 
     // Extract event data
     const { origin, destination } = event.data;
