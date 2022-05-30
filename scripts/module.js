@@ -40,7 +40,8 @@ Hooks.once("init", async function() {
 
   registerLibRuler();
 
-  window.libRuler = { RulerSegment, RulerUtilities };
+  // Store Ruler in case other modules (i.e., Drag Ruler) try to replace it.
+  window.libRuler = { RulerSegment, RulerUtilities, Ruler };
 
   // Tell modules that the libRuler library is set up
   Hooks.callAll("libRulerReady");
@@ -55,4 +56,11 @@ Hooks.once("ready", async function() {
   if ( game?.user?.isGM === undefined || game.user.isGM ) {
     if ( !game.modules.get("lib-wrapper")?.active ) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
   }
+});
+
+Hooks.once("dragRuler.ready", async function(speedProvider) {
+  // Drag Ruler extends Ruler class and replaces it
+  // Revert this.
+  dragRuler.DragRulerRuler = Ruler;
+  Ruler = libRuler.Ruler;
 });
