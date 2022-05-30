@@ -63,30 +63,4 @@ export function libRulerUnsetFlag(scope, key) {
   return setProperty(this, key, undefined);
 }
 
-/*
- * Wrap the toJSON function to save flags.
- */
-export function libRulerToJSON(wrapped, ...args) {
-  log("Creating JSON!", this);
-
-  let obj = wrapped(...args);
-  obj.flags = this.flags;
-  return obj;
-}
-
-/*
- * Wrap the update function to update flags.
- */
-export function libRulerUpdate(wrapped, data) {
-  log("We are updating!", this);
-
-  // From Ruler.update
-  if ( data.class !== "Ruler" ) {
-    throw new Error("Unable to recreate Ruler instance from provided data.");
-  }
-
-  // Add in flags
-  this.flags = data.flags;
-  return wrapped(data);
-}
 

@@ -5,12 +5,11 @@ ui
 */
 "use strict";
 
-import { registerLibRuler } from "./patching.js";
-import { RulerSegment } from "./segment.js";
-import { RulerUtilities } from "./utility.js";
+import { LibRulerSegment } from "./segment.js";
+import { LibRuler } from "./ruler-class.js";
+import { LibRulerUtilities } from "./utility.js";
 
 export const MODULE_ID = "libruler";
-const FORCE_DEBUG = false; // Used for logging before dev mode is set up
 
 /*
  * Logging function to replace console.log
@@ -22,8 +21,7 @@ const FORCE_DEBUG = false; // Used for logging before dev mode is set up
 export function log(...args) {
   try {
     const isDebugging = game.modules.get("_dev-mode")?.api?.getPackageDebugValue(MODULE_ID);
-
-    if (FORCE_DEBUG || isDebugging) {
+    if (isDebugging) {
       console.log(MODULE_ID, "|", ...args);
     }
   } catch(e) {
@@ -38,9 +36,11 @@ export function log(...args) {
 Hooks.once("init", async function() {
   log("Initializing libRuler.");
 
-  registerLibRuler();
+  const FoundryRuler = Ruler;
+  Ruler = LibRuler;
+  window.RulerSegment = LibRulerSegment;
 
-  window.libRuler = { RulerSegment, RulerUtilities };
+  window.libRuler = { LibRulerSegment, LibRulerUtilities, LibRuler, FoundryRuler };
 
   // Tell modules that the libRuler library is set up
   Hooks.callAll("libRulerReady");
@@ -49,10 +49,4 @@ Hooks.once("init", async function() {
 // https://github.com/League-of-Foundry-Developers/foundryvtt-devMode
 Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
-});
-
-Hooks.once("ready", async function() {
-  if ( game?.user?.isGM === undefined || game.user.isGM ) {
-    if ( !game.modules.get("lib-wrapper")?.active ) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
-  }
 });

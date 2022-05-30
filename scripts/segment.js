@@ -13,7 +13,7 @@ import { libRulerGetFlag,
          libRulerUnsetFlag
        } from "./ruler-flags.js";
 
-import { RulerUtilities } from "./utility.js";
+import { LibRulerUtilities } from "./utility.js";
 
 // Define a RulerSegment class used by Ruler.measure
 // The segment represents the path between two
@@ -51,7 +51,7 @@ Apply modifiers in sequence for (3) after measuring the distance.
 */
 
 
-export class RulerSegment {
+export class LibRulerSegment {
 
   constructor(origin, destination, ruler, prior_segment = {}, segment_num = 0, options = {}) {
     //if(previous_segments.length > 0 && !previous_segments.every(s => s instanceOf Segment)) {
@@ -376,7 +376,7 @@ export class RulerSegment {
       console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
     }
 
-    const gridIter = RulerUtilities.iterateGridUnderLine(ray.A, ray.B);
+    const gridIter = LibRulerUtilities.iterateGridUnderLine(ray.A, ray.B);
     for(const [row, col] of gridIter) {
       // Highlight the grid position
       let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(row, col);
@@ -419,8 +419,21 @@ export class RulerSegment {
 
 }
 
-// Pull in flag functions. See ruler-flags.js
-RulerSegment.prototype.getFlag = libRulerGetFlag;
-RulerSegment.prototype.setFlag = libRulerSetFlag;
-RulerSegment.prototype.unsetFlag = libRulerUnsetFlag;
+// ---------------- FLAGS ------------- //
+Object.defineProperty(LibRulerSegment.prototype, "getFlag", {
+  value: libRulerGetFlag,
+  writable: true,
+  configurable: true
+});
 
+Object.defineProperty(LibRulerSegment.prototype, "setFlag", {
+  value: libRulerSetFlag,
+  writable: true,
+  configurable: true
+});
+
+Object.defineProperty(LibRulerSegment.prototype, "unsetFlag", {
+  value: libRulerUnsetFlag,
+  writable: true,
+  configurable: true
+});
