@@ -2,56 +2,55 @@
 libWrapper,
 Ruler
 */
- 
-'use strict';
+"use strict";
 
 import { MODULE_ID, log } from "./module.js";
 
-import { libRulerMeasure,  
-         
-         libRulerSetDestination,
-         libRulerAddWaypoint,
-         libRulerRemoveWaypoint,
-         
-         libRulerOnMouseMove,
-         libRulerScheduleMeasurement,
-         libRulerDeferMeasurement,
-         libRulerCancelScheduledMeasurement,
-         libRulerDoDeferredMeasurements
-       } from "./ruler-measure.js";
-       
-import { libRulerToJSON,
-         libRulerUpdate,
-         
-         libRulerGetFlag,
-         libRulerSetFlag,
-         libRulerUnsetFlag
-       } from "./ruler-flags.js";
-       
-import { libRulerMoveToken,
+import {
+  libRulerMeasure,
 
-         libRulerTestForCollision,
-         libRulerAnimateToken 
-       } from "./ruler-move-token.js";
-       
+  libRulerSetDestination,
+  libRulerAddWaypoint,
+  libRulerRemoveWaypoint,
+
+  libRulerOnMouseMove,
+  libRulerScheduleMeasurement,
+  libRulerDeferMeasurement,
+  libRulerCancelScheduledMeasurement,
+  libRulerDoDeferredMeasurements } from "./ruler-measure.js";
+
+import {
+  libRulerToJSON,
+  libRulerUpdate,
+
+  libRulerGetFlag,
+  libRulerSetFlag,
+  libRulerUnsetFlag } from "./ruler-flags.js";
+
+import {
+  libRulerMoveToken,
+
+  libRulerTestForCollision,
+  libRulerAnimateToken } from "./ruler-move-token.js";
+
 import { RulerSegment } from "./segment.js";
 
 export function registerLibRuler() {
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');  
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', RulerSegment.prototype.highlightMeasurement, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._addWaypoint', libRulerAddWaypoint, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._removeWaypoint', libRulerRemoveWaypoint, 'OVERRIDE');
-  
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
-  
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._onMouseMove', libRulerOnMouseMove, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, "Ruler.prototype.measure", libRulerMeasure, "OVERRIDE");
+  libWrapper.register(MODULE_ID, "Ruler.prototype.moveToken", libRulerMoveToken, "OVERRIDE");
+  libWrapper.register(MODULE_ID, "Ruler.prototype._highlightMeasurement", RulerSegment.prototype.highlightMeasurement, "OVERRIDE");
+  libWrapper.register(MODULE_ID, "Ruler.prototype._addWaypoint", libRulerAddWaypoint, "OVERRIDE");
+  libWrapper.register(MODULE_ID, "Ruler.prototype._removeWaypoint", libRulerRemoveWaypoint, "OVERRIDE");
+
+  libWrapper.register(MODULE_ID, "Ruler.prototype.toJSON", libRulerToJSON, "WRAPPER");
+  libWrapper.register(MODULE_ID, "Ruler.prototype.update", libRulerUpdate, "WRAPPER");
+
+  libWrapper.register(MODULE_ID, "Ruler.prototype._onMouseMove", libRulerOnMouseMove, "OVERRIDE");
 
   log("registerRuler finished!");
 }
 
-// ---------------- FLAGS ------------- // 
+// ---------------- FLAGS ------------- //
 /*
  * Add getFlag method to Ruler class.
  */
@@ -60,17 +59,17 @@ Object.defineProperty(Ruler.prototype, "getFlag", {
   value: libRulerGetFlag,
   writable: true,
   configurable: true
-});  
+});
 
 /*
  * Add setFlag method  to Ruler class.
- */ 
+ */
 
 Object.defineProperty(Ruler.prototype, "setFlag", {
   value: libRulerSetFlag,
   writable: true,
   configurable: true
-}); 
+});
 
 /*
  * Add unsetFlag method to Ruler class.
@@ -80,9 +79,9 @@ Object.defineProperty(Ruler.prototype, "unsetFlag", {
   value: libRulerUnsetFlag,
   writable: true,
   configurable: true
-});  
+});
 
-// ---------------- RULER.MEASURE ------------- // 
+// ---------------- RULER.MEASURE ------------- //
 
 
 /*
@@ -94,7 +93,7 @@ Object.defineProperty(Ruler.prototype, "setDestination", {
   configurable: true
 });
 
-// ---------------- RULER.MOVETOKEN ------------- // 
+// ---------------- RULER.MOVETOKEN ------------- //
 /*
  * Add method testForCollision for Ruler.moveToken
  */
@@ -113,7 +112,7 @@ Object.defineProperty(Ruler.prototype, "animateToken", {
   configurable: true
 });
 
-// ---------------- RULER._onMouseMove ------------- // 
+// ---------------- RULER._onMouseMove ------------- //
 /*
  * Add method scheduleMeasurement for Ruler._onMouseMove
  */
