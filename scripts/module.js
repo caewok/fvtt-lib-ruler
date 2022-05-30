@@ -3,15 +3,14 @@ game,
 Hooks,
 ui
 */
-
-'use strict';
+"use strict";
 
 import { registerLibRuler } from "./patching.js";
 import { RulerSegment } from "./segment.js";
 import { RulerUtilities } from "./utility.js";
 
-export const MODULE_ID = 'libruler';
-const FORCE_DEBUG = false; // used for logging before dev mode is set up
+export const MODULE_ID = "libruler";
+const FORCE_DEBUG = false; // Used for logging before dev mode is set up
 
 /*
  * Logging function to replace console.log
@@ -22,14 +21,13 @@ const FORCE_DEBUG = false; // used for logging before dev mode is set up
  */
 export function log(...args) {
   try {
-    const isDebugging = game.modules.get('_dev-mode')?.api?.getPackageDebugValue(MODULE_ID);
-    //console.log(MODULE_ID, '|', `isDebugging: ${isDebugging}.`);
+    const isDebugging = game.modules.get("_dev-mode")?.api?.getPackageDebugValue(MODULE_ID);
 
     if (FORCE_DEBUG || isDebugging) {
-      console.log(MODULE_ID, '|', ...args);
+      console.log(MODULE_ID, "|", ...args);
     }
-  } catch (e) {
-    // empty
+  } catch(e) {
+    // Empty
   }
 }
 
@@ -37,25 +35,24 @@ export function log(...args) {
 // init is called almost immediately after the page loads.
 // At this point, the game global exists, but hasn't yet been initialized,
 // but all of the core foundry code has been loaded.
-Hooks.once('init', async function() {
+Hooks.once("init", async function() {
   log("Initializing libRuler.");
 
   registerLibRuler();
 
-  window['libRuler'] = { RulerSegment: RulerSegment,
-                         RulerUtilities: RulerUtilities };
+  window.libRuler = { RulerSegment, RulerUtilities };
 
-  // tell modules that the libRuler library is set up
-  Hooks.callAll('libRulerReady');
+  // Tell modules that the libRuler library is set up
+  Hooks.callAll("libRulerReady");
 });
 
 // https://github.com/League-of-Foundry-Developers/foundryvtt-devMode
-Hooks.once('devModeReady', ({ registerPackageDebugFlag }) => {
+Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
 });
 
-Hooks.once('ready', async function() {
-  if(game?.user?.isGM === undefined || game.user.isGM) {
-    if(!game.modules.get('lib-wrapper')?.active) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
+Hooks.once("ready", async function() {
+  if ( game?.user?.isGM === undefined || game.user.isGM ) {
+    if ( !game.modules.get("lib-wrapper")?.active ) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
   }
 });

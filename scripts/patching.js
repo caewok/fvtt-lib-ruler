@@ -2,37 +2,36 @@
 libWrapper,
 Ruler
 */
-
-'use strict';
+"use strict";
 
 import { MODULE_ID, log } from "./module.js";
 
-import { libRulerMeasure,
+import {
+  libRulerMeasure,
 
-         libRulerSetDestination,
-         libRulerAddWaypoint,
-         libRulerRemoveWaypoint,
+  libRulerSetDestination,
+  libRulerAddWaypoint,
+  libRulerRemoveWaypoint,
 
-         libRulerOnMouseMove,
-         libRulerScheduleMeasurement,
-         libRulerDeferMeasurement,
-         libRulerCancelScheduledMeasurement,
-         libRulerDoDeferredMeasurements
-       } from "./ruler-measure.js";
+  libRulerOnMouseMove,
+  libRulerScheduleMeasurement,
+  libRulerDeferMeasurement,
+  libRulerCancelScheduledMeasurement,
+  libRulerDoDeferredMeasurements } from "./ruler-measure.js";
 
-import { libRulerToJSON,
-         libRulerUpdate,
+import {
+  libRulerToJSON,
+  libRulerUpdate,
 
-         libRulerGetFlag,
-         libRulerSetFlag,
-         libRulerUnsetFlag
-       } from "./ruler-flags.js";
+  libRulerGetFlag,
+  libRulerSetFlag,
+  libRulerUnsetFlag } from "./ruler-flags.js";
 
-import { libRulerMoveToken,
+import {
+  libRulerMoveToken,
 
-         libRulerTestForCollision,
-         libRulerAnimateToken
-       } from "./ruler-move-token.js";
+  libRulerTestForCollision,
+  libRulerAnimateToken } from "./ruler-move-token.js";
 
 import { RulerSegment } from "./segment.js";
 
@@ -40,16 +39,15 @@ import { dragRulerSegmentColorForPosition } from "./drag-ruler/highlight-grid.js
 import { dragRulerAddWaypoint } from "./drag-ruler/pathfinding.js";
 
 export function registerLibRuler() {
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', RulerSegment.prototype.highlightMeasurement, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, "Ruler.prototype.measure", libRulerMeasure, "OVERRIDE");
+  libWrapper.register(MODULE_ID, "Ruler.prototype.moveToken", libRulerMoveToken, "OVERRIDE");
+  libWrapper.register(MODULE_ID, "Ruler.prototype._highlightMeasurement", RulerSegment.prototype.highlightMeasurement, "OVERRIDE");
+  libWrapper.register(MODULE_ID, "Ruler.prototype._removeWaypoint", libRulerRemoveWaypoint, "OVERRIDE");
 
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._removeWaypoint', libRulerRemoveWaypoint, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, "Ruler.prototype.toJSON", libRulerToJSON, "WRAPPER");
+  libWrapper.register(MODULE_ID, "Ruler.prototype.update", libRulerUpdate, "WRAPPER");
 
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype.update', libRulerUpdate, 'WRAPPER');
-
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._onMouseMove', libRulerOnMouseMove, 'OVERRIDE');
+  libWrapper.register(MODULE_ID, "Ruler.prototype._onMouseMove", libRulerOnMouseMove, "OVERRIDE");
 
   if (game.modules.get("drag-ruler").active) {
     registerDragRuler()
