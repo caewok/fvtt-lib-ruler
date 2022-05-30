@@ -37,12 +37,13 @@ import { libRulerMoveToken,
 import { RulerSegment } from "./segment.js";
 
 import { dragRulerSegmentColorForPosition } from "./drag-ruler/highlight-grid.js";
+import { dragRulerAddWaypoint } from "./drag-ruler/pathfinding.js";
 
 export function registerLibRuler() {
   libWrapper.register(MODULE_ID, 'Ruler.prototype.measure', libRulerMeasure, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype.moveToken', libRulerMoveToken, 'OVERRIDE');
   libWrapper.register(MODULE_ID, 'Ruler.prototype._highlightMeasurement', RulerSegment.prototype.highlightMeasurement, 'OVERRIDE');
-  libWrapper.register(MODULE_ID, 'Ruler.prototype._addWaypoint', libRulerAddWaypoint, 'OVERRIDE');
+
   libWrapper.register(MODULE_ID, 'Ruler.prototype._removeWaypoint', libRulerRemoveWaypoint, 'OVERRIDE');
 
   libWrapper.register(MODULE_ID, 'Ruler.prototype.toJSON', libRulerToJSON, 'WRAPPER');
@@ -50,15 +51,25 @@ export function registerLibRuler() {
 
   libWrapper.register(MODULE_ID, 'Ruler.prototype._onMouseMove', libRulerOnMouseMove, 'OVERRIDE');
 
+  if (game.modules.get("drag-ruler").active) {
+    registerDragRuler()
+
+  } else {
+    libWrapper.register(MODULE_ID, 'Ruler.prototype._addWaypoint', libRulerAddWaypoint, 'OVERRIDE');
+  }
+
   log("registerRuler finished!");
 }
 
-export function registerDragRuler() {
+function registerDragRuler() {
   Object.defineProperty(RulerSegment.prototype, "colorForPosition", {
     value: dragRulerSegmentColorForPosition,
     writable: true,
     configurable: true
   });
+
+
+  libWrapper.register(MODULE_ID, 'Ruler.prototype._addWaypoint', dragRulerAddWaypoint, 'OVERRIDE');
 }
 
 

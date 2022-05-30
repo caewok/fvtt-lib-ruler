@@ -6,9 +6,7 @@ ui
 
 'use strict';
 
-
 import { registerLibRuler } from "./patching.js";
-import { registerDragRuler } from "./patching.js";
 import { RulerSegment } from "./segment.js";
 import { RulerUtilities } from "./utility.js";
 
@@ -60,9 +58,4 @@ Hooks.once('ready', async function() {
   if(game?.user?.isGM === undefined || game.user.isGM) {
     if(!game.modules.get('lib-wrapper')?.active) ui.notifications.error("Module Elevation Ruler requires the 'libWrapper' module. Please install and activate it.");
   }
-});
-
-Hooks.once('dragRuler.ready', async function() {
-  log("dragRuler ready.")
-  registerDragRuler();
 });
