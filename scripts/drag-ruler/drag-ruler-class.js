@@ -23,10 +23,45 @@ import {
   getGridPositionFromPixelsObj,
   getPixelsFromGridPositionObj
 } from "../../../drag-ruler/js/foundry_fixes.js";
-import { getSnapPointForTokenObj } from "../../../drag-ruler/js/util.js";
+import { getSnapPointForTokenObj, getSnapPointForEntity } from "../../../drag-ruler/js/util.js";
 
 // For game.settings.get
 const settingsKey = "drag-ruler"; // eslint-disable-line no-unused-vars
+
+
+/* Checklist
+Methods from https://github.com/manuelVo/foundryvtt-drag-ruler/blob/develop/js/ruler.js
+
+Types of ways to handle drag ruler methods:
+1. Incorporated into DragRulerRuler class below, extending (wrapping) LibRuler
+2. Alias to other method
+3. Adding as new method by copying directly from original DragRulerRuler
+4. Incorporating into DragRulerSegment in separate file, extending (wrapping) LibRulerSegment
+
+√ constructor: In DragRulerRuler.constructor
+√ clear: In DragRulerRuler.prototype.clear (wrap from LibRuler)
+√ moveToken: In DragRulerRuler.prototype.moveToken (wrap from LibRuler)
+√ toJSON: Imported from DragRulerRuler.prototype.toJSON (wrap from LibRuler)
+√ update: Imported from DragRulerRuler.prototype.update (wrap from LibRuler)
+√ measure: In DragRulerRuler.prototype.measure (wrap from LibRuler)
+  See also:
+  - DragRulerSegment.prototype.drawDistanceLabel
+  - DragRulerSegment.prototype.highlightPosition
+
+√ _endMeasurement: Imported from DragRulerRuler.prototype._endMeasurement (wrap from Ruler)
+√ dragRulerAddWaypoint: Aliased to _addWaypoint (wrap from LibRuler)
+√ dragRulerAddWaypointHistory: Imported from DragRulerRuler.prototype.dragRulerAddWaypointHistory (new)
+√ dragRulerClearWaypoints: Aliased to _clearWaypoints (wrap from LibRuler)
+√ dragRulerDeleteWaypoint: Imported from DragRulerRuler.prototype.dragRulerDeleteWaypoint (new)
+√ dragRulerRemovePathfindingWaypoints: Imported from DragRulerRuler.prototype.dragRulerRemovePathfindingWaypoints (new)
+√ dragRulerAbortDrag: Imported from DragRulerRuler.prototype.dragRulerAbortDrag (new)
+√ dragRulerRecalculate: Imported from DragRulerRuler.prototype.dragRulerAbortDrag (new)
+√ dragRulerGetRaysFromWaypoints: Imported from DragRulerRuler.dragRulerGetRaysFromWaypoints (new)
+√ dragRulerGetColorForDistance: In DragRulerSegment.prototype.colorForPosition
+√ dragRulerStart: Imported from DragRulerRuler.prototype.dragRulerStart (new)
+√ dragRulerSendState: Imported from Imported from DragRulerRuler.prototype.dragRulerSendState (new)
+
+*/
 
 export class DragRulerRuler extends LibRuler {
 
@@ -49,14 +84,13 @@ export class DragRulerRuler extends LibRuler {
   }
 
   /**
-   * @wrap from Ruler
+   * @wrap from LibRuler
    */
   clear() {
     super.clear();
     this.previousWaypoints = [];
     this.previousLabels.removeChildren().forEach(c => c.destroy());
     this.dragRulerRanges = undefined;
-    this.cancelScheduledMeasurement();
   }
 
   /**
@@ -75,9 +109,31 @@ export class DragRulerRuler extends LibRuler {
    * @return {Token|null}
    */
   dragRulerToken() {
-    const token = this._getMovementToken();
+    // _getMovementToken will fail if no waypoints b/c it gets the token based on the
+    // first waypoint.
+    // This leads to a catch-22, wherein _addWaypoint, below, wants a token so it
+    // can adjust the snap location for the waypoint, but we need a waypoint first!
+
+    const token = this.draggedEntity ||
+      (this.waypoints.length ? this._getMovementToken() : undefined);
     if ( token instanceof Token ) return token;
     return null;
+  }
+
+  /**
+   * Helper to get us out of the catch-22 in dragRulerToken.
+   * Replicates Ruler._getMovementToken but gets the controlled token for a given position
+   * @param {Point} point
+   * @return {Token|null}
+   */
+  _getTokenAtPosition(point) {
+    let tokens = canvas.tokens.controlled;
+    if ( !tokens.length && game.user.character ) { tokens = game.user.character.getActiveTokens(); }
+    if ( !tokens.length ) { return null; }
+    return tokens.find(t => {
+      let pos = new PIXI.Rectangle(t.x - 1, t.y - 1, t.w + 2, t.h + 2);
+      return pos.contains(point.x, point.y);
+    });
   }
 
   /**
@@ -106,8 +162,7 @@ export class DragRulerRuler extends LibRuler {
           && path[0].y === this.waypoints[this.waypoints.length - 1].y) { path = path.slice(1); }
 
         // If snapping is enabled, the last point of the path is already handled by the ruler
-        if (options.snap)
-          { path = path.slice(0, path.length - 1); }
+        if (options.snap) { path = path.slice(0, path.length - 1); }
 
         for (const point of path) {
           point.isPathfinding = true;
@@ -122,6 +177,31 @@ export class DragRulerRuler extends LibRuler {
 
     return super.measure(destination, options);
   }
+
+  /**
+   * @wrap from LibRuler
+   */
+  _addWaypoint(point, options = {}) {
+    options.snap ??= true;
+    const token = this.dragRulerToken()
+      || (this.waypoints.length ? undefined : this._getTokenAtPosition(point.x, point.y));
+
+    if ( options.snap && token ) {
+      point = getSnapPointForEntity(point.x, point.y, token);
+      options.center = false;
+    }
+
+    super._addWaypoint(point, options);
+
+    this.waypoints.filter(waypoint => waypoint.isPathfinding).forEach(waypoint => waypoint.isPathfinding = false);
+  }
+
+  // Alias so dragRulerStart need not be modified
+  dragRulerAddWaypoint(point, options = {}) { this._addWaypoint(point, options); }
+
+  // Alias so dragRulerRecalculate need not be modified
+  dragRulerClearWaypoints() { this._clearWaypoints(); }
+
 }
 
 
@@ -153,20 +233,8 @@ export function registerDragRulerMethods() {
 
   // Rest are additions by DragRuler
 
-//   Object.defineProperty(DragRulerRuler.prototype, "dragRulerAddWaypoint", {
-//     value: dr.prototype.dragRulerAddWaypoint,
-//     writable: true,
-//     configurable: true
-//   });
-
   Object.defineProperty(DragRulerRuler.prototype, "dragRulerAddWaypointHistory", {
     value: dr.prototype.dragRulerAddWaypointHistory,
-    writable: true,
-    configurable: true
-  });
-
-  Object.defineProperty(DragRulerRuler.prototype, "dragRulerClearWaypoints", {
-    value: dr.prototype.dragRulerClearWaypoints,
     writable: true,
     configurable: true
   });

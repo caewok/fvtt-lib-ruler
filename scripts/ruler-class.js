@@ -133,6 +133,11 @@ export class LibRuler extends Ruler {
     return prior_segment;
   }
 
+  clear() {
+    this.cancelScheduledMeasurement();
+    super.clear();
+  }
+
   /**
    * Set the destination used when measuring, as the grid center of the passed value.
    * @type {Point}   The destination point to which to measure.
@@ -171,6 +176,15 @@ export class LibRuler extends Ruler {
     remeasure && this.measure(point, options); // eslint-disable-line no-unused-expressions
   }
 
+ /**
+  * New method to wipe waypoints all at once; no re-measuring.
+  * Used by DragRuler but added here in case other methods need to
+  * do something before destroying waypoints.
+  */
+  _clearWaypoints() {
+    this.waypoints.length = 0;
+    this.labels.removeChildren().forEach(c => c.destroy());
+  }
 
   // MOVING TOKENS
   /**

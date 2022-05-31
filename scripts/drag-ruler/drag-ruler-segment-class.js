@@ -102,4 +102,3 @@ export class DragRulerSegment extends LibRulerSegment {
   }
 
 }
-
