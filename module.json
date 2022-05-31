@@ -3,7 +3,7 @@
   "title": "libRuler",
   "description": "Library for accessing the Ruler Class in Foundry across modules.",
   "version": "This is auto replaced",
-  "library": true,
+  "library": "true",
   "manifestPlusVersion": "1.0.0",
   "minimumCoreVersion": "0.8.5",
   "compatibleCoreVersion": "9",
@@ -13,24 +13,10 @@
       "email": "caewok_2000@yahoo.com",
       "url": "https://github.com/caewok",
       "discord": "caewok#9192"
-    },
-    
-    {
-      "name": "Manuel Vögele",
-      "email": "develop@manuel-voegele.de",
-      "url": "https://github.com/manuelVo",
-      "discord": "Stäbchenfisch#5107"
-    
     }
   ],
-  "dependencies": [
-     {
-      "name": "lib-wrapper",
-      "manifest": "https://raw.githubusercontent.com/ruipin/fvtt-lib-wrapper/master/module.json"
-     }
-  ],
   "conflicts": [
-    
+
   ],
   "esmodules": [
     "/scripts/module.js"

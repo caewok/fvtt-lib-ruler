@@ -302,8 +302,6 @@ export class LibRulerSegment {
     return results;
   }
 
-
-
   /*
    * Helper function that allows other labels to be set by modules.
    * Is called when the segment is first constructed.
@@ -370,21 +368,11 @@ export class LibRulerSegment {
    *
    */
   highlightMeasurement(ray = this.ray) {
-    const is_ruler_class = !(this instanceof RulerSegment);
-
-    if(is_ruler_class) {
-      console.warn("libRuler|A modules is calling the original _highlightMeasurement function. This may cause unanticipated errors");
-    }
-
     const gridIter = LibRulerUtilities.iterateGridUnderLine(ray.A, ray.B);
     for(const [row, col] of gridIter) {
       // Highlight the grid position
       let [xg, yg] = canvas.grid.grid.getPixelsFromGridPosition(row, col);
-      if(is_ruler_class) {
-        canvas.grid.highlightPosition(this.name, {x: xg, y: yg, color: this.color});
-      } else {
-        this.highlightPosition({x: xg, y: yg});
-      }
+      this.highlightPosition({x: xg, y: yg});
     }
   }
 

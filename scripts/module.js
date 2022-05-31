@@ -8,6 +8,8 @@ ui
 import { LibRulerSegment } from "./segment.js";
 import { LibRuler } from "./ruler-class.js";
 import { LibRulerUtilities } from "./utility.js";
+import { DragRulerRuler, registerDragRulerMethods } from "./drag-ruler/drag-ruler-class.js";
+import { DragRulerSegment } from "./drag-ruler/drag-ruler-segment-class.js";
 
 export const MODULE_ID = "libruler";
 
@@ -34,13 +36,33 @@ export function log(...args) {
 // At this point, the game global exists, but hasn't yet been initialized,
 // but all of the core foundry code has been loaded.
 Hooks.once("init", async function() {
-  log("Initializing libRuler.");
+  log(`Initializing libRuler. Drag Ruler active? ${game.modules.get("drag-ruler")?.active}`);
 
-  const FoundryRuler = Ruler;
-  Ruler = LibRuler;
-  window.RulerSegment = LibRulerSegment;
+  const use_dr = game.modules.get("drag-ruler")?.active;
 
-  window.libRuler = { LibRulerSegment, LibRulerUtilities, LibRuler, FoundryRuler };
+  let FoundryRuler = undefined;
+  let DragRulerOriginal = undefined;
+  if ( use_dr ) {
+    DragRulerOriginal = Ruler;
+    Ruler = DragRulerRuler;
+    window.RulerSegment = DragRulerSegment;
+
+  } else {
+    FoundryRuler = Ruler;
+    Ruler = LibRuler;
+    window.RulerSegment = LibRulerSegment;
+  }
+
+  window.libRuler = {
+    LibRuler,
+    LibRulerSegment,
+    LibRulerUtilities,
+    FoundryRuler,
+    DragRulerOriginal,
+    DragRulerRuler,
+    DragRulerSegment };
+
+  use_dr && registerDragRulerMethods();
 
   // Tell modules that the libRuler library is set up
   Hooks.callAll("libRulerReady");
@@ -50,3 +72,18 @@ Hooks.once("init", async function() {
 Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
 });
+
+// Hooks.once("dragRuler.ready", async function(speedProvider) {
+//   Drag Ruler extends Ruler class and replaces it
+//   Revert this.
+//   dragRuler.DragRulerRuler = Ruler;
+//   Ruler = DragRulerRuler;
+//   window.RulerSegment = DragRulerSegment;
+//
+//   registerDragRulerMethods();
+//
+//   // Re-create rulers using new classes
+//   // See ControlsLayer.prototype.drawRulers
+//   canvas.controls.rulers.removeChildren();
+//   canvas.controls.drawRulers();
+// });
