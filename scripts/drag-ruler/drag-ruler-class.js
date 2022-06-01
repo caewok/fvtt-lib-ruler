@@ -15,6 +15,7 @@ https://github.com/manuelVo/foundryvtt-drag-ruler/blob/develop/js/foundry_import
 */
 
 import { LibRuler } from "../ruler-class.js";
+import { MODULE_ID, log } from "../module.js";
 
 
 // Dangerous!
@@ -23,7 +24,8 @@ import {
   getGridPositionFromPixelsObj,
   getPixelsFromGridPositionObj
 } from "../../../drag-ruler/js/foundry_fixes.js";
-import { getSnapPointForTokenObj, getSnapPointForEntity } from "../../../drag-ruler/js/util.js";
+import { getSnapPointForTokenObj, getSnapPointForEntity, getMeasurePosition } from "../../../drag-ruler/js/util.js";
+import { disableSnap } from "../../../drag-ruler/js/keybindings.js";
 
 // For game.settings.get
 const settingsKey = "drag-ruler"; // eslint-disable-line no-unused-vars
@@ -286,4 +288,33 @@ export function registerDragRulerMethods() {
     writable: true,
     configurable: true
   });
+
+  updateDragRulerKeybindings();
+}
+
+function updateDragRulerKeybindings() {
+  // Pathfinding works with regular ruler but does not update immediately because
+  // the toggle only triggers a re-measure for drag rulers
+  // Change to working for all rulers
+  game.keybindings.register(MODULE_ID, "togglePathfinding", {
+		name: "drag-ruler.keybindings.togglePathfinding.name",
+		hint: "drag-ruler.keybindings.togglePathfinding.hint",
+		onDown: libRulerHandleTogglePathfinding,
+		onUp: libRulerHandleTogglePathfinding,
+		precedence: -1,
+		restricted: !game.settings.get(settingsKey, "allowPathfinding"),
+	});
+}
+
+function libRulerHandleTogglePathfinding(event) {
+  // From https://github.com/manuelVo/foundryvtt-drag-ruler/blob/445c03d29a9a9d9fa80f2bf72164428b463e0f86/js/keybindings.js#L128
+  log(`libRulerHandleTogglePathfinding| pathfinding toggled`);
+
+	const ruler = canvas.controls.ruler;
+	if (ruler?.isDragRuler || ruler._state !== Ruler.STATES.MEASURING) { return false; } // Don't repeat if already done
+
+  log(`libRulerHandleTogglePathfinding| pathfinding measure starting`);
+	ruler.measure(getMeasurePosition(), {snap: !disableSnap});
+	ruler.dragRulerSendState();
+	return false;
 }

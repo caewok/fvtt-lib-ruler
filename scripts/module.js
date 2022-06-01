@@ -11,6 +11,8 @@ import { LibRulerUtilities } from "./utility.js";
 import { DragRulerRuler, registerDragRulerMethods } from "./drag-ruler/drag-ruler-class.js";
 import { DragRulerSegment } from "./drag-ruler/drag-ruler-segment-class.js";
 
+
+
 export const MODULE_ID = "libruler";
 
 /*
@@ -72,6 +74,7 @@ Hooks.once("init", async function() {
 Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
 });
+
 
 // Hooks.once("dragRuler.ready", async function(speedProvider) {
 //   Drag Ruler extends Ruler class and replaces it
